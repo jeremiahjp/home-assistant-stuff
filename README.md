@@ -1,196 +1,166 @@
-# ☀️ SolarEdge + Emporia Vue Unified Energy Monitor
+# SolarEdge, Emporia Vue & CPS Energy Monitor
 
-[![Node.js](https://img.shields.io/badge/Node.js-20+-brightgreen.svg)](https://nodejs.org/)
-[![Home Assistant](https://img.shields.io/badge/Home%20Assistant-Add--on%20%7C%20MQTT-blue.svg)](https://www.home-assistant.io/)
-[![SolarEdge](https://img.shields.io/badge/SolarEdge-SunSpec%20Modbus%20TCP-orange.svg)](https://www.solaredge.com/)
-[![Emporia Vue](https://img.shields.io/badge/Emporia-Vue%202%2F3%20Cloud-yellow.svg)](https://www.emporiaenergy.com/)
-[![License: MIT](https://img.shields.io/badge/License-MIT-purple.svg)](LICENSE)
+Home energy telemetry collector and Home Assistant bridge. Integrates local SolarEdge inverter metrics (SunSpec Modbus TCP), Emporia Vue branch circuit submetering, and CPS Energy smart meter interval data (AMI), publishing consolidated measurements to Home Assistant via MQTT.
 
-A high-performance real-time home energy monitoring bridge that unifies local **SolarEdge SunSpec Modbus TCP** telemetry with **Emporia Vue branch-circuit submetering**. 
+## Overview
 
-Provides sub-second net production, consumption, and financial pacing analytics published directly to **Home Assistant via MQTT Auto-Discovery**, paired with futuristic Lovelace dashboards and terminal live viewers.
+The service collects energy data across three sources:
 
----
+1. **SolarEdge Inverter**: Connects over local Modbus TCP (port 502) to read instantaneous AC power output, DC watts, lifetime energy production, and inverter heatsink temperature.
+2. **Emporia Vue**: Queries the Emporia API for subpanel mains and individual circuit branch power measurements (HVAC, dryer, oven, washer, lighting, and general branch circuits).
+3. **CPS Energy Smart Meter (AMI)**: Authenticates to the utility customer portal to pull 15-minute smart meter interval data, syncs recent intervals, and provides a standalone web UI for daily/hourly interval consumption graphs and history.
 
-## 🚀 Key Features
+The collected data is aggregated to calculate net grid import/export, self-consumption percentage, and estimated energy costs, and published to MQTT with Home Assistant auto-discovery payloads.
 
-* **⚡ Ultra-Low Latency Solar Telemetry:** Reads instantaneous AC/DC power, lifetime production, scale factors, and inverter heat sink temperatures directly from your SolarEdge inverter over local Modbus TCP (Port 502). No cloud API rate limits or delays.
-* **📊 Whole-Home & Branch Circuit Monitoring:** Pulls 1-second interval telemetry from Emporia Vue (mains 200A sensors + up to 16 individual 50A branch circuits: HVAC, EV chargers, range, dryer, etc.).
-* **🧮 Real-Time Energy Math:** Computes net grid import/export, self-sufficiency percentages, instantaneous pacing ($/hr and kWh/min), and lifetime accumulators with persistent storage.
-* **📡 Zero-Config MQTT Auto-Discovery:** Publishes standard Home Assistant discovery payloads so all solar, grid, and circuit sensors appear automatically with appropriate device classes, state classes, and units (`W`, `kW`, `kWh`, `°C`, `$`).
-* **📱 Stunning Lovelace Dashboards:** Includes production-ready dashboard configurations (`solar-hub.yaml` and `solar-dashboard.yaml`) featuring animated energy flow nodes, card-mod micro-animations, and circuit consumption breakdowns.
-* **📦 Flexible Deployment:** Runs either as a native **Home Assistant Local Add-on** (Docker) or as a **standalone Node.js CLI daemon / terminal dashboard**.
+## System Components
 
----
+- `service.js`: Main collector daemon. Polls SolarEdge and Emporia, calculates house consumption (subpanel + heavy 240V loads), tracks daily accumulators, and publishes to MQTT.
+- `ha-mqtt.js`: Handles MQTT connection, Home Assistant discovery payload generation, and state publishing.
+- `cps-sync.js`: Background sync daemon for CPS Energy smart meter interval data.
+- `cps-auth.js`: Handles authentication and session management with the CPS Energy portal.
+- `cps-backfill.js`: Utility script to download multi-year historical interval data from CPS Energy.
+- `cps-dashboard/`: Express API server (`server.js`) and frontend web UI (`public/index.html`) running on port 3355 (accessible standalone or embedded via Home Assistant Ingress).
+- `ha-addon/solar_energy_monitor/`: Complete Home Assistant Local Add-on packaging (Dockerfile, add-on config, and service scripts).
+- `dashboards/`:
+  - `solar-hub.yaml`: Home Assistant Lovelace dashboard for solar production, circuit submetering, live power flow, and system telemetry.
+  - `smart-home.yaml`: Multi-view dashboard for lighting controls, climate/HVAC, appliances, and network monitoring.
+  - `celestial-theme.yaml`: Dark Lovelace theme definition.
+- `www/circuit-breakdown-card.js`: Custom Lovelace web component that renders circuit power breakdown with itemized load rows and visual proportion bars.
 
-## 🏛️ Architecture Overview
-
-```
- ┌───────────────────────────┐         ┌───────────────────────────┐
- │   SolarEdge Inverter      │         │   Emporia Vue 2 / 3       │
- │   (SunSpec Modbus TCP)    │         │   (AWS IoT Cloud API)     │
- └─────────────┬─────────────┘         └─────────────┬─────────────┘
-               │ (LAN Port 502)                      │ (1-Sec Live Stream)
-               ▼                                     ▼
-       ┌─────────────────────────────────────────────────────┐
-       │     Unified Energy Monitor (Daemon / Add-on)        │
-       │  - Net power & self-consumption engine              │
-       │  - Financial import/export calculator               │
-       │  - Persistent /data energy accumulator              │
-       └─────────────────────────┬───────────────────────────┘
-                                 │ MQTT (Port 1883)
-                                 ▼
-       ┌─────────────────────────────────────────────────────┐
-       │             Home Assistant Core                     │
-       │  - Mosquitto Broker + Auto-Discovery Entities       │
-       │  - Energy Management & History Stats                │
-       │  - Solar Hub & Celestial Theme Dashboards           │
-       └─────────────────────────────────────────────────────┘
-```
-
----
-
-## 📁 Repository Structure
+## Repository Structure
 
 ```
-modbus-solaredge/
-├── ha-addon/
-│   └── solar_energy_monitor/   # Home Assistant Local Add-on
-│       ├── Dockerfile          # Alpine Node.js container build recipe
-│       ├── config.yaml         # HA add-on manifest & options schema
-│       ├── package.json        # Container dependency lock
-│       ├── service.js          # Add-on daemon entrypoint
-│       └── ha-mqtt.js          # Add-on MQTT auto-discovery engine
+.
+├── cps-auth.js                 # CPS Energy portal authentication
+├── cps-backfill.js             # Utility to backfill historical interval data
+├── cps-sync.js                 # 15-minute interval sync daemon
+├── cps-dashboard/              # Web dashboard on port 3355
+│   ├── server.js               # API server
+│   └── public/index.html       # Web UI
 ├── dashboards/
-│   ├── solar-hub.yaml          # Flagship comprehensive Solar & Energy Hub
-│   ├── solar-dashboard.yaml    # Streamlined solar & circuit monitor
-│   ├── lights-dashboard.yaml   # Modern glassmorphism lighting dashboard
-│   ├── celestial-theme.yaml    # Curated dark/deep-space Lovelace theme
-│   └── ha-configuration.yaml   # Reference configuration includes
-├── service.js                  # Standalone background daemon
-├── dashboard.js                # Full-featured interactive terminal dashboard
-├── monitor-live.js             # Compact ANSI live box monitor
-├── dump.js                     # One-shot SunSpec register inspection tool
-├── solaredge.js                # Minimal Modbus TCP connection test
-├── emporia.js                  # Minimal Emporia Vue authentication test
-├── sync-watch.js               # Auto-sync watcher for HA Samba share
-├── env.js                      # Zero-dependency environment loader
-├── .env.example                # Sanitized configuration template
-└── package.json                # Project dependencies and scripts
+│   ├── solar-hub.yaml          # Energy and solar hub dashboard
+│   ├── smart-home.yaml         # Smart home, lighting, and climate dashboard
+│   ├── celestial-theme.yaml    # Dashboard theme
+│   └── ha-configuration.yaml   # HA configuration snippet
+├── deploy.js                   # Local script to push files to HA Samba share
+├── dump.js                     # Tool to inspect SolarEdge SunSpec registers
+├── emporia.js                  # Standalone Emporia API test script
+├── env.js                      # Environment loader (.env)
+├── ha-addon/
+│   └── solar_energy_monitor/   # Home Assistant local add-on
+│       ├── config.yaml         # Add-on configuration and options schema
+│       ├── Dockerfile          # Container definition
+│       └── ...                 # Add-on copies of service scripts
+├── ha-mqtt.js                  # MQTT client and discovery builder
+├── monitor-live.js             # Terminal-based live power monitor
+├── service.js                  # Main daemon
+├── solaredge.js                # Standalone SolarEdge Modbus test script
+├── sync-watch.js               # File watcher for auto-syncing to Samba share
+├── www/
+│   ├── circuit-breakdown-card.js # Lovelace card for submetering load attribution
+│   └── solar-simulator.html    # Standalone browser solar/battery sizing model
+├── .env.example                # Environment configuration template
+└── package.json
 ```
 
----
+## Configuration
 
-## ⚙️ Quick Start (Standalone Node.js Daemon)
+Copy `.env.example` to `.env` and fill in the required values:
 
-### 1. Prerequisites
-* Node.js v18.0.0 or higher
-* npm or pnpm
-* SolarEdge inverter with Modbus TCP enabled (Port 502)
-* Emporia Vue account credentials
-
-### 2. Installation
-```bash
-git clone https://github.com/jeremiahjp/solaredge-emporia-monitor.git
-cd solaredge-emporia-monitor
-npm install
-```
-
-### 3. Configuration
-Copy `.env.example` to `.env`:
 ```bash
 cp .env.example .env
 ```
-Edit `.env` with your network and account details:
-```env
-# SolarEdge Inverter (Modbus TCP)
-INVERTER_IP=192.168.1.100
-MODBUS_PORT=502
-RATED_AC_WATTS=7600
 
-# Emporia Vue Cloud Credentials
-EMPORIA_USER=your_email@example.com
-EMPORIA_PASS=your_emporia_password
+### Environment Variables
 
-# Energy Rates ($/kWh)
-IMPORT_RATE_KWH=0.14
-EXPORT_RATE_KWH=0.01
+| Variable | Description | Default |
+| :--- | :--- | :--- |
+| `INVERTER_IP` | SolarEdge inverter IP address on your local network | `192.168.1.100` |
+| `MODBUS_PORT` | Modbus TCP port (standard is 502) | `502` |
+| `RATED_AC_WATTS` | Inverter continuous rated AC output (e.g. 7600 for SE7600H) | `7600` |
+| `EMPORIA_USER` | Emporia Vue account email | `""` |
+| `EMPORIA_PASS` | Emporia Vue account password | `""` |
+| `IMPORT_RATE_KWH` | Electricity import cost per kWh in USD | `0.14` |
+| `EXPORT_RATE_KWH` | Solar net metering export credit per kWh in USD | `0.01` |
+| `MODBUS_POLL_INTERVAL_MS` | Inverter polling interval in milliseconds | `1000` |
+| `EMPORIA_POLL_INTERVAL_MS` | Emporia API polling interval in milliseconds | `2000` |
+| `POLL_INTERVAL_MS` | Default polling loop interval | `2000` |
+| `HA_IP` | Home Assistant server IP address | `192.168.1.50` |
+| `HA_MQTT_BROKER` | MQTT broker URL | `mqtt://192.168.1.50:1883` |
+| `HA_MQTT_USER` | MQTT username | `solar` |
+| `HA_MQTT_PASS` | MQTT password | `""` |
+| `CPS_USER` | CPS Energy web portal username | `""` |
+| `CPS_PASS` | CPS Energy web portal password | `""` |
+| `CPS_METER_ID` | CPS Energy electric smart meter ID number | `""` |
+| `HA_SAMBA_PATH` | Local Samba network path for file deployments | `""` |
 
-# Polling Interval
-POLL_INTERVAL_MS=2000
+## Usage
 
-# Home Assistant & MQTT Broker
-HA_IP=192.168.1.50
-HA_MQTT_BROKER=mqtt://192.168.1.50:1883
-HA_MQTT_USER=solar
-HA_MQTT_PASS=your_mqtt_password
-HA_SAMBA_PATH=\\homeassistant.local\addons\ha-addon\solar_energy_monitor
-```
+### Option 1: Home Assistant Add-on (Recommended)
 
-### 4. Running
-* **Production Daemon (background service + MQTT publisher):**
-  ```bash
-  node service.js
-  ```
-* **Interactive Terminal Dashboard:**
-  ```bash
-  node dashboard.js
-  ```
-* **Live Inverter Telemetry Viewer:**
-  ```bash
-  node monitor-live.js
-  ```
-* **SunSpec Register Diagnostic Dump:**
+1. Copy `ha-addon/solar_energy_monitor` to your Home Assistant `/addons` folder.
+2. In Home Assistant, open **Settings → Add-ons → Add-on Store**, click **Check for updates**, and install **Solar & Energy Monitor** under Local Add-ons.
+3. In the add-on **Configuration** tab, enter your inverter IP, Emporia credentials, MQTT broker details, and CPS credentials.
+4. Start the add-on.
+
+The add-on runs `service.js` and exposes the CPS dashboard UI via Ingress or on port 3355.
+
+### Option 2: Standalone Node.js Service
+
+Prerequisites: Node.js 18+ and npm.
+
+1. Install dependencies:
+   ```bash
+   npm install
+   ```
+2. Start the daemon:
+   ```bash
+   node service.js
+   ```
+
+### Diagnostic Scripts
+
+- Check inverter SunSpec registers:
   ```bash
   node dump.js
   ```
+- Test inverter Modbus connection:
+  ```bash
+  node solaredge.js
+  ```
+- Test Emporia API authentication:
+  ```bash
+  node emporia.js
+  ```
+- Terminal live text display:
+  ```bash
+  node monitor-live.js
+  ```
+- Run CPS Energy 15-minute sync once:
+  ```bash
+  node cps-sync.js
+  ```
+- Run historical CPS Energy interval backfill:
+  ```bash
+  node cps-backfill.js
+  ```
 
----
+## Published MQTT Entities
 
-## 🏠 Home Assistant Add-on Installation
+The service registers devices and sensors with Home Assistant under the topic prefix `home/solar/`:
 
-To run this as a native Home Assistant Add-on managed by Home Assistant OS / Supervised:
+- **Solar Production**: AC power (`W`), DC power (`W`), daily energy (`kWh`), inverter efficiency (`%`), heatsink temperature (`°C`), inverter status.
+- **Consumption & Grid**: House total consumption (`W`), grid net import/export (`W`), self-consumption (`%`), daily import/export (`kWh`), estimated daily cost (`USD`).
+- **Subpanel Circuits**: 16 branch circuit sensors (HVAC condenser, furnace blower, kitchen circuits, washer, dryer, oven, bathroom, bedrooms, office, EV charger).
+- **Appliances**: Dryer, oven, and washer real-time wattage, daily energy consumed (`kWh`), runtime hours, and daily cost.
+- **CPS Smart Meter**: Import/export energy today, 15-minute demand watts, sync status, and AMI feed timestamps.
 
-1. **Deploy Add-on Files:**
-   Copy the `ha-addon/solar_energy_monitor` directory directly to your Home Assistant `/addons` folder (via Samba, SSH, or `npm run deploy`).
-2. **Install Add-on:**
-   * Go to **Settings → Add-ons → Add-on Store**.
-   * Click the three dots (top right) → **Check for updates**.
-   * Scroll down to the **Local Add-ons** section and select **Solar & Energy Monitor**.
-   * Click **Install**.
-3. **Configure Options:**
-   Navigate to the **Configuration** tab of the add-on and provide:
-   * Inverter IP (`192.168.x.x`)
-   * Emporia Vue email & password
-   * MQTT broker address (`mqtt://core-mosquitto:1883`) and credentials
-4. **Start the Add-on:**
-   Enable **Start on boot** and click **Start**. Check the **Log** tab to verify connection to both Modbus TCP and Emporia cloud.
+## Dashboards and Custom Cards
 
----
+- **`dashboards/solar-hub.yaml`**: Main dashboard configured for Home Assistant. Includes views for Live Flow, Appliance telemetry, Circuit breakdowns, Analytics, and CPS Meter.
+- **`dashboards/smart-home.yaml`**: Multi-room smart home dashboard for lighting, climate, appliances, and network status.
+- **`www/circuit-breakdown-card.js`**: Custom card to show breakdown of power across appliances on a given circuit. Add to Home Assistant via Lovelace Resources (`/local/circuit-breakdown-card.js` as JavaScript module).
 
-## 📊 Home Assistant Dashboards
+## License
 
-Pre-built dashboards are provided in the `dashboards/` folder:
-
-* **`solar-hub.yaml`:** Complete command center featuring hero solar cards, real-time power distribution nodes, financial pacing calculators, circuit consumption breakdowns, and system diagnostics.
-* **`celestial-theme.yaml`:** Sleek, high-contrast dark theme optimized for glassmorphic cards and dynamic glow effects.
-
-### Recommended HACS Frontend Integrations
-For full visual fidelity of the dashboards, install the following via [HACS](https://hacs.xyz/):
-* `lovelace-card-mod`
-* `mushroom`
-* `sankey-chart` (optional, for flow visualization)
-
----
-
-## 🔒 Security & Privacy
-
-* **Strictly Environment-Driven:** No credentials, API tokens, or local LAN IP addresses are hardcoded.
-* **Local First:** Solar telemetry communicates strictly over your local network without hitting external cloud servers.
-* **Safe Template:** Git tracks only `.env.example`; runtime `.env` and persistent state (`energy-log.json`) are permanently gitignored.
-
----
-
-## 📄 License
-
-Distributed under the **MIT License**. See `LICENSE` for details.
+MIT
