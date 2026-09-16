@@ -24,14 +24,37 @@ yarn-debug.log*
 .storage/
 *.bak
 
+# Databases & SQLite
+*.sqlite
+*.sqlite3
+*.db
+
 # Compiled binaries
 *.jar
 
 # Unrelated Home Assistant local add-ons
 ha-addon/calefaction/
 
+# Temporary images and generated charts
+/*.png
+/*.jpg
+/*.jpeg
+
+# Temporary dashboard exports & deprecated views
+dashboards/*.json
+dashboards/lights.yaml
+
+# Runtime utility status & logs
+cps-history.json
+**/cps-history.json
+cps-backfill-status.json
+
+# Documentation & Manual PDFs
+*.pdf
+
 # OS & Editor artifacts
 .DS_Store
 Thumbs.db
 .vscode/
 .idea/
+

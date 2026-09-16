@@ -1,7 +1,66 @@
 celestial:
+  # Base Dark Palette (Ensures HA stays in Dark Mode with dark app bar & dark badge pills)
+  primary-background-color: "#070b16"
+  card-background-color: "rgba(15, 23, 42, 0.85)"
+  app-header-background-color: "rgba(10, 15, 29, 0.95)"
+  app-header-text-color: "#f8fafc"
+  app-header-selection-bar-color: "#f59e0b"
+  primary-text-color: "#f8fafc"
+  secondary-text-color: "#94a3b8"
+  disabled-text-color: "#64748b"
+  divider-color: "rgba(255, 255, 255, 0.08)"
+  ha-card-background: "rgba(15, 23, 42, 0.85)"
+  ha-card-border-color: "rgba(255, 255, 255, 0.08)"
+  ha-card-border-radius: "16px"
+  ha-card-box-shadow: "0 8px 24px rgba(0, 0, 0, 0.4)"
+
+  # Badge Pills (Dark Glass instead of stark white)
+  ha-badge-background-color: "rgba(15, 23, 42, 0.85)"
+  ha-badge-border-color: "rgba(255, 255, 255, 0.12)"
+  ha-badge-color: "#f8fafc"
+
+  ha-view-sections-column-width: 980px
+  ha-view-sections-column-max-width: 1080px
+
+  modes:
+    dark:
+      primary-background-color: "#070b16"
+      card-background-color: "rgba(15, 23, 42, 0.85)"
+      app-header-background-color: "rgba(10, 15, 29, 0.95)"
+      app-header-text-color: "#f8fafc"
+      app-header-selection-bar-color: "#f59e0b"
+      primary-text-color: "#f8fafc"
+      secondary-text-color: "#94a3b8"
+      disabled-text-color: "#64748b"
+      divider-color: "rgba(255, 255, 255, 0.08)"
+      ha-card-background: "rgba(15, 23, 42, 0.85)"
+      ha-card-border-color: "rgba(255, 255, 255, 0.08)"
+      ha-badge-background-color: "rgba(15, 23, 42, 0.85)"
+      ha-badge-border-color: "rgba(255, 255, 255, 0.12)"
+      ha-badge-color: "#f8fafc"
+    light:
+      primary-background-color: "#070b16"
+      card-background-color: "rgba(15, 23, 42, 0.85)"
+      app-header-background-color: "rgba(10, 15, 29, 0.95)"
+      app-header-text-color: "#f8fafc"
+      app-header-selection-bar-color: "#f59e0b"
+      primary-text-color: "#f8fafc"
+      secondary-text-color: "#94a3b8"
+      disabled-text-color: "#64748b"
+      divider-color: "rgba(255, 255, 255, 0.08)"
+      ha-card-background: "rgba(15, 23, 42, 0.85)"
+      ha-card-border-color: "rgba(255, 255, 255, 0.08)"
+      ha-badge-background-color: "rgba(15, 23, 42, 0.85)"
+      ha-badge-border-color: "rgba(255, 255, 255, 0.12)"
+      ha-badge-color: "#f8fafc"
+
   card-mod-theme: celestial
   card-mod-view: |
+    :host,
     hui-sections-view {
+      --ha-view-sections-column-width: 100% !important;
+      --ha-view-sections-column-max-width: 100% !important;
+      max-width: 100% !important;
       {% set elev = state_attr('sun.sun', 'elevation') | float(0) %}
       {% set azi = state_attr('sun.sun', 'azimuth') | float(180) %}
       {% set rising = azi < 180 %}
@@ -13,31 +72,58 @@ celestial:
       {% set deep_stars = "radial-gradient(circle at 18% 26%, rgba(255,255,255,0.95) 0px, rgba(56,189,248,0.5) 2px, transparent 6px), radial-gradient(circle at 48% 12%, rgba(255,255,255,0.9) 0px, transparent 3px), radial-gradient(circle at 72% 20%, rgba(254,240,138,0.95) 0px, transparent 3px), radial-gradient(circle at 88% 42%, rgba(251,146,60,0.85) 0px, transparent 4px), radial-gradient(circle at 28% 55%, rgba(255,255,255,0.85) 0px, transparent 3px), radial-gradient(circle at 62% 38%, rgba(255,255,255,0.9) 0px, transparent 3px)" %}
 
       {% if elev > 20 %}
-      /* High Noon / Full Daylight */
-      background: radial-gradient(circle at {{ sun_x }}% 10%, rgba(250,204,21,0.3) 0%, transparent 35%), linear-gradient(180deg, #0369a1 0%, #0284c7 15%, #0ea5e9 35%, #38bdf8 55%, #0c4a6e 85%, #0f172a 100%) !important;
+      /* High Noon: Deep Cosmic Slate with Subtle Golden Solar Corona (Never blinding cyan) */
+      background: radial-gradient(circle at {{ sun_x }}% 8%, rgba(245,158,11,0.22) 0%, rgba(16,185,129,0.06) 30%, transparent 60%), linear-gradient(180deg, #0d152a 0%, #090e1d 25%, #070b17 55%, #050812 85%, #03050b 100%) !important;
       {% elif elev > 5 and rising %}
-      /* Morning Golden Hour */
-      background: radial-gradient(circle at 20% 25%, rgba(251,191,36,0.35) 0%, transparent 40%), linear-gradient(180deg, #1e3a5f 0%, #075985 15%, #0ea5e9 40%, #fbbf24 70%, #f59e0b 85%, #92400e 100%) !important;
+      /* Morning Golden Hour: Deep Obsidian with Warm Amber Glow */
+      background: radial-gradient(circle at 20% 20%, rgba(251,191,36,0.25) 0%, rgba(245,158,11,0.08) 35%, transparent 60%), linear-gradient(180deg, #10192e 0%, #0c1324 25%, #080c18 60%, #050810 100%) !important;
       {% elif elev > 5 and not rising %}
-      /* Afternoon Golden Hour */
-      background: radial-gradient(circle at 80% 25%, rgba(249,115,22,0.4) 0%, transparent 40%), linear-gradient(180deg, #1e3a5f 0%, #075985 15%, #0ea5e9 35%, #f97316 65%, #ea580c 80%, #7c2d12 100%) !important;
+      /* Afternoon Golden Hour: Deep Obsidian with Warm Sunset Glow */
+      background: radial-gradient(circle at 80% 20%, rgba(249,115,22,0.25) 0%, rgba(234,88,12,0.08) 35%, transparent 60%), linear-gradient(180deg, #12182b 0%, #0d1222 25%, #090c17 60%, #05070e 100%) !important;
       {% elif elev > -2 and rising %}
-      /* Sunrise / Dawn */
-      background: radial-gradient(circle at 15% 60%, rgba(251,191,36,0.55) 0%, rgba(251,146,60,0.25) 25%, transparent 50%), linear-gradient(180deg, #1e1b4b 0%, #312e81 12%, #4c1d95 25%, #7c3aed 38%, #db2777 50%, #f97316 65%, #fbbf24 78%, #fef3c7 90%, #fef9c3 100%) !important;
+      /* Sunrise / Dawn: Deep Twilight with Gentle Violet/Amber Horizon */
+      background: radial-gradient(circle at 15% 55%, rgba(251,191,36,0.3) 0%, rgba(236,72,153,0.15) 25%, transparent 50%), linear-gradient(180deg, #0f1026 0%, #0c0d1e 20%, #090916 55%, #04050a 100%) !important;
       {% elif elev > -2 and not rising %}
-      /* Sunset / Dusk */
-      background: radial-gradient(circle at 85% 55%, rgba(239,68,68,0.45) 0%, rgba(234,88,12,0.25) 25%, transparent 50%), linear-gradient(180deg, #0f172a 0%, #1e1b4b 10%, #4c1d95 22%, #7e22ce 35%, #be185d 48%, #dc2626 58%, #ea580c 68%, #f97316 78%, #fb923c 88%, #fed7aa 100%) !important;
+      /* Sunset / Dusk: Deep Twilight with Crimson/Violet Horizon */
+      background: radial-gradient(circle at 85% 55%, rgba(239,68,68,0.25) 0%, rgba(168,85,247,0.15) 25%, transparent 50%), linear-gradient(180deg, #110e24 0%, #0d0b1d 20%, #080713 55%, #04040a 100%) !important;
       {% elif elev > -6 and rising %}
-      /* Early Dawn / Nautical Twilight */
-      background: {{ twilight_stars }}, radial-gradient(circle at 20% 85%, rgba(99,102,241,0.3) 0%, transparent 45%), linear-gradient(180deg, #020617 0%, #0f172a 20%, #1e1b4b 40%, #312e81 60%, #4338ca 75%, #6366f1 88%, #818cf8 100%) !important;
+      /* Early Dawn: Nautical Twilight & Faint Stars */
+      background: {{ twilight_stars }}, radial-gradient(circle at 20% 80%, rgba(99,102,241,0.2) 0%, transparent 45%), linear-gradient(180deg, #050814 0%, #040610 35%, #020308 100%) !important;
       {% elif elev > -6 and not rising %}
-      /* Late Dusk / Nautical Twilight */
-      background: {{ twilight_stars }}, radial-gradient(circle at 80% 85%, rgba(168,85,247,0.3) 0%, transparent 45%), linear-gradient(180deg, #020617 0%, #0f172a 18%, #1e1b4b 35%, #581c87 55%, #7e22ce 70%, #a855f7 85%, #c084fc 100%) !important;
+      /* Late Dusk: Nautical Twilight & Faint Stars */
+      background: {{ twilight_stars }}, radial-gradient(circle at 80% 80%, rgba(147,51,234,0.2) 0%, transparent 45%), linear-gradient(180deg, #060616 0%, #040410 35%, #020208 100%) !important;
       {% else %}
-      /* Deep Night / Cosmic Starfield & Moon */
-      background: {{ moon }}, {{ nebula }}, {{ deep_stars }}, radial-gradient(ellipse at 50% 0%, #1e1b4b 0%, #0f172a 35%, #050814 65%, #020617 100%) !important;
+      /* Deep Night: Cosmic Starfield, Moon & Nebula */
+      background: {{ moon }}, {{ nebula }}, {{ deep_stars }}, radial-gradient(ellipse at 50% 0%, #0f172a 0%, #080d1a 40%, #03050c 100%) !important;
       {% endif %}
       background-attachment: scroll !important;
       background-size: cover !important;
       min-height: 100vh;
+    }
+
+    @media (min-width: 600px) {
+      :host,
+      hui-sections-view,
+      .container {
+        --ha-view-sections-column-width: 720px !important;
+        --ha-view-sections-column-max-width: 720px !important;
+      }
+    }
+
+    @media (min-width: 1024px) {
+      :host,
+      hui-sections-view,
+      .container {
+        --ha-view-sections-column-width: 980px !important;
+        --ha-view-sections-column-max-width: 980px !important;
+      }
+    }
+
+    @media (min-width: 1440px) {
+      :host,
+      hui-sections-view,
+      .container {
+        --ha-view-sections-column-width: 1080px !important;
+        --ha-view-sections-column-max-width: 1080px !important;
+      }
     }

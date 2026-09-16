@@ -1,13 +1,19 @@
 {
   "name": "modbus-solaredge",
-  "version": "1.0.0",
+  "version": "1.1.6",
   "scripts": {
-    "deploy": "powershell -Command \"$dest = if ($env:HA_SAMBA_PATH) { $env:HA_SAMBA_PATH } else { '\\\\homeassistant.local\\addons\\ha-addon\\solar_energy_monitor' }; Copy-Item -Path .\\ha-addon\\solar_energy_monitor\\* -Destination $dest -Force -Recurse; Write-Host '[Deploy] Successfully synced all files to Home Assistant!' -ForegroundColor Green\"",
-    "watch": "node sync-watch.js"
+    "deploy": "node deploy.js",
+    "watch": "node sync-watch.js",
+    "dashboard:cps": "node cps-dashboard/server.js",
+    "sync:cps": "node cps-sync.js --once",
+    "sync:cps:daemon": "node cps-sync.js"
   },
   "dependencies": {
     "emporia-vue-lib": "^1.0.0",
     "modbus-serial": "^8.0.25",
     "mqtt": "^5.15.2"
+  },
+  "devDependencies": {
+    "yaml": "^2.9.0"
   }
 }

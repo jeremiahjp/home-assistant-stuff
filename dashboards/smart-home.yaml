@@ -1,0 +1,4321 @@
+title: Smart Home
+theme: celestial
+views:
+  # =========================================================================
+  # TAB 1: 💡 LIGHTING CONTROL
+  # =========================================================================
+  - title: Lighting
+    path: lights
+    icon: mdi:lightbulb-group
+    type: sections
+    max_columns: 3
+    background: radial-gradient(ellipse at 25% 0%, rgba(251,191,36,0.07) 0%, transparent 50%), radial-gradient(ellipse at 75% 100%, rgba(168,85,247,0.05) 0%, transparent 50%), radial-gradient(ellipse at 50% 50%, rgba(245,158,11,0.03) 0%, transparent 60%), linear-gradient(180deg, #09090f 0%, #0f0f18 30%, #0c0c14 70%, #060610 100%) fixed
+    card_mod:
+      style: |
+        hui-sections-view {
+          --ha-card-background: rgba(15, 23, 42, 0.75);
+          --ha-card-border-color: rgba(255, 255, 255, 0.08);
+          --ha-card-border-radius: 18px;
+        }
+    sections:
+      # SECTION 1: MASTER LIGHTING CONTROLS
+      - type: grid
+        column_span: 3
+        cards:
+          - type: markdown
+            grid_options:
+              columns: full
+              rows: auto
+            card_mod:
+              style:
+                ha-markdown:
+                  $: |
+                    ha-markdown-element {
+                      padding: 0 !important;
+                    }
+                    .hero-bar {
+                      display: flex !important;
+                      align-items: center !important;
+                      justify-content: space-between !important;
+                      width: 100% !important;
+                      box-sizing: border-box !important;
+                    }
+                    .hero-left {
+                      display: flex !important;
+                      align-items: center !important;
+                      gap: 14px !important;
+                    }
+                    .hero-icon {
+                      font-size: 28px !important;
+                      line-height: 1 !important;
+                      filter: drop-shadow(0 0 10px rgba(251,191,36,0.5)) !important;
+                    }
+                    .hero-title {
+                      font-size: 19px !important;
+                      font-weight: 800 !important;
+                      letter-spacing: 0.3px !important;
+                      background: linear-gradient(135deg, #fbbf24, #f59e0b, #fcd34d) !important;
+                      -webkit-background-clip: text !important;
+                      -webkit-text-fill-color: transparent !important;
+                      line-height: 1.2 !important;
+                    }
+                    .hero-sub {
+                      font-size: 11px !important;
+                      color: #94a3b8 !important;
+                      font-weight: 500 !important;
+                      letter-spacing: 0.8px !important;
+                      text-transform: uppercase !important;
+                      margin-top: 2px !important;
+                    }
+                    .hero-badge {
+                      display: inline-flex !important;
+                      align-items: center !important;
+                      padding: 6px 14px !important;
+                      border-radius: 12px !important;
+                      font-size: 13px !important;
+                      font-weight: 700 !important;
+                      letter-spacing: 0.3px !important;
+                    }
+                .: |
+                  ha-card {
+                    background: linear-gradient(135deg, rgba(251,191,36,0.08) 0%, rgba(245,158,11,0.03) 40%, rgba(15,23,42,0.85) 100%) !important;
+                    border: 1px solid rgba(251,191,36,0.20) !important;
+                    border-radius: 18px !important;
+                    backdrop-filter: blur(24px) !important;
+                    box-shadow: 0 4px 20px rgba(0,0,0,0.25) !important;
+                    padding: 14px 18px !important;
+                  }
+            content: |-
+              {% set on_count = expand('light.master_bedroom_fan_hunter_light', 'light.master_bathroom_bathroom_lights', 'light.office_office_1', 'light.office_office_2', 'light.office_shelf_strip', 'switch.backyard_plug_itself_patio_lights', 'switch.backyard_plug_itself_deck_lights', 'light.fan_lights', 'light.garage_left', 'light.garage_right', 'light.1') | selectattr('state', 'eq', 'on') | list | count %}
+              <div class="hero-bar"><div class="hero-left"><div class="hero-icon">💡</div><div><div class="hero-title">Home Lighting Control</div><div class="hero-sub">Garage · Porch · Office · Dining · Bedroom · Bathroom · Backyard</div></div></div><div class="hero-badge" style="background:{% if on_count > 0 %}rgba(251,191,36,0.18){% else %}rgba(255,255,255,0.05){% endif %};color:{% if on_count > 0 %}#fbbf24{% else %}#94a3b8{% endif %};border:1px solid {% if on_count > 0 %}rgba(251,191,36,0.35){% else %}rgba(255,255,255,0.1){% endif %};">{{ on_count }} Active</div></div>
+
+          - type: horizontal-stack
+            grid_options:
+              columns: full
+              rows: auto
+            card_mod:
+              style: |
+                hui-horizontal-stack-card, #root {
+                  max-width: 580px !important;
+                  margin: 0 auto !important;
+                  width: 100% !important;
+                }
+            cards:
+              - type: tile
+                entity: script.turn_off_all_lights
+                name: "🔴 Turn Off All Lights"
+                icon: mdi:lightbulb-multiple-off
+                color: red
+                vertical: false
+                tap_action:
+                  action: call-service
+                  service: script.turn_off_all_lights
+                icon_tap_action:
+                  action: call-service
+                  service: script.turn_off_all_lights
+                card_mod:
+                  style: |
+                    ha-card {
+                      background: rgba(239, 68, 68, 0.08) !important;
+                      border: 1px solid rgba(239, 68, 68, 0.25) !important;
+                      border-radius: 18px !important;
+                      backdrop-filter: blur(16px) !important;
+                      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2) !important;
+                      transition: all 0.25s ease !important;
+                    }
+                    ha-card:hover {
+                      background: rgba(239, 68, 68, 0.16) !important;
+                      border-color: rgba(239, 68, 68, 0.45) !important;
+                      box-shadow: 0 0 20px rgba(239, 68, 68, 0.25) !important;
+                    }
+                    .secondary {
+                      display: none !important;
+                    }
+                    .primary {
+                      font-weight: 700 !important;
+                      font-size: 14px !important;
+                    }
+
+              - type: tile
+                entity: script.turn_on_all_lights
+                name: "🟡 Turn On All Lights"
+                icon: mdi:lightbulb-multiple
+                color: amber
+                vertical: false
+                tap_action:
+                  action: call-service
+                  service: script.turn_on_all_lights
+                icon_tap_action:
+                  action: call-service
+                  service: script.turn_on_all_lights
+                card_mod:
+                  style: |
+                    ha-card {
+                      background: rgba(251, 191, 36, 0.08) !important;
+                      border: 1px solid rgba(251, 191, 36, 0.25) !important;
+                      border-radius: 18px !important;
+                      backdrop-filter: blur(16px) !important;
+                      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2) !important;
+                      transition: all 0.25s ease !important;
+                    }
+                    ha-card:hover {
+                      background: rgba(251, 191, 36, 0.16) !important;
+                      border-color: rgba(251, 191, 36, 0.45) !important;
+                      box-shadow: 0 0 20px rgba(251, 191, 36, 0.25) !important;
+                    }
+                    .secondary {
+                      display: none !important;
+                    }
+                    .primary {
+                      font-weight: 700 !important;
+                      font-size: 14px !important;
+                    }
+
+          # ROOM QUICK NAVIGATION GRID
+          - type: grid
+            columns: 2
+            square: false
+            grid_options:
+              columns: full
+              rows: auto
+            cards:
+              - type: tile
+                entity: light.garage_left
+                name: "🚗 Garage"
+                icon: mdi:garage
+                vertical: false
+                tap_action:
+                  action: navigate
+                  navigation_path: /smart-home/garage
+                icon_tap_action:
+                  action: toggle
+                card_mod:
+                  style: |
+                    ha-card {
+                      {% if is_state('light.garage_left', 'on') or is_state('light.garage_right', 'on') %}
+                        background: rgba(56, 189, 248, 0.14) !important;
+                        border: 1px solid rgba(56, 189, 248, 0.40) !important;
+                        box-shadow: 0 0 20px rgba(56, 189, 248, 0.18) !important;
+                      {% else %}
+                        background: rgba(15, 23, 42, 0.75) !important;
+                        border: 1px solid rgba(255, 255, 255, 0.08) !important;
+                      {% endif %}
+                      border-radius: 16px !important;
+                      backdrop-filter: blur(16px) !important;
+                    }
+              - type: tile
+                entity: light.1
+                name: "🚪 Porch"
+                icon: mdi:outdoor-lamp
+                vertical: false
+                tap_action:
+                  action: navigate
+                  navigation_path: /smart-home/porch
+                icon_tap_action:
+                  action: toggle
+                card_mod:
+                  style: |
+                    ha-card {
+                      {% if is_state('light.1', 'on') %}
+                        background: rgba(34, 197, 94, 0.14) !important;
+                        border: 1px solid rgba(34, 197, 94, 0.40) !important;
+                        box-shadow: 0 0 20px rgba(34, 197, 94, 0.18) !important;
+                      {% else %}
+                        background: rgba(15, 23, 42, 0.75) !important;
+                        border: 1px solid rgba(255, 255, 255, 0.08) !important;
+                      {% endif %}
+                      border-radius: 16px !important;
+                      backdrop-filter: blur(16px) !important;
+                    }
+              - type: tile
+                entity: light.office_office
+                name: "💻 Office"
+                icon: mdi:desk
+                vertical: false
+                tap_action:
+                  action: navigate
+                  navigation_path: /smart-home/office
+                icon_tap_action:
+                  action: toggle
+                card_mod:
+                  style: |
+                    ha-card {
+                      {% if is_state('light.office_office', 'on') %}
+                        background: rgba(168, 85, 247, 0.15) !important;
+                        border: 1px solid rgba(168, 85, 247, 0.45) !important;
+                        box-shadow: 0 0 20px rgba(168, 85, 247, 0.20) !important;
+                      {% else %}
+                        background: rgba(15, 23, 42, 0.75) !important;
+                        border: 1px solid rgba(255, 255, 255, 0.08) !important;
+                      {% endif %}
+                      border-radius: 16px !important;
+                      backdrop-filter: blur(16px) !important;
+                    }
+              - type: tile
+                entity: light.fan_lights
+                name: "🍽️ Dining"
+                icon: mdi:silverware-fork-knife
+                vertical: false
+                tap_action:
+                  action: navigate
+                  navigation_path: /smart-home/dining
+                icon_tap_action:
+                  action: toggle
+                card_mod:
+                  style: |
+                    ha-card {
+                      {% if is_state('light.fan_lights', 'on') %}
+                        background: rgba(251, 191, 36, 0.14) !important;
+                        border: 1px solid rgba(251, 191, 36, 0.40) !important;
+                        box-shadow: 0 0 20px rgba(251, 191, 36, 0.20) !important;
+                      {% else %}
+                        background: rgba(15, 23, 42, 0.75) !important;
+                        border: 1px solid rgba(255, 255, 255, 0.08) !important;
+                      {% endif %}
+                      border-radius: 16px !important;
+                      backdrop-filter: blur(16px) !important;
+                    }
+              - type: tile
+                entity: light.master_bedroom_fan_hunter_light
+                name: "🛏️ Bedroom"
+                icon: mdi:bed
+                vertical: false
+                tap_action:
+                  action: navigate
+                  navigation_path: /smart-home/bedroom
+                icon_tap_action:
+                  action: toggle
+                card_mod:
+                  style: |
+                    ha-card {
+                      {% if is_state('light.master_bedroom_fan_hunter_light', 'on') %}
+                        background: rgba(244, 63, 94, 0.14) !important;
+                        border: 1px solid rgba(244, 63, 94, 0.40) !important;
+                        box-shadow: 0 0 20px rgba(244, 63, 94, 0.18) !important;
+                      {% else %}
+                        background: rgba(15, 23, 42, 0.75) !important;
+                        border: 1px solid rgba(255, 255, 255, 0.08) !important;
+                      {% endif %}
+                      border-radius: 16px !important;
+                      backdrop-filter: blur(16px) !important;
+                    }
+              - type: tile
+                entity: light.master_bathroom_bathroom_lights
+                name: "🛁 Bathroom"
+                icon: mdi:shower
+                vertical: false
+                tap_action:
+                  action: navigate
+                  navigation_path: /smart-home/bathroom
+                icon_tap_action:
+                  action: toggle
+                card_mod:
+                  style: |
+                    ha-card {
+                      {% if is_state('light.master_bathroom_bathroom_lights', 'on') %}
+                        background: rgba(6, 182, 212, 0.14) !important;
+                        border: 1px solid rgba(6, 182, 212, 0.40) !important;
+                        box-shadow: 0 0 20px rgba(6, 182, 212, 0.18) !important;
+                      {% else %}
+                        background: rgba(15, 23, 42, 0.75) !important;
+                        border: 1px solid rgba(255, 255, 255, 0.08) !important;
+                      {% endif %}
+                      border-radius: 16px !important;
+                      backdrop-filter: blur(16px) !important;
+                    }
+              - type: tile
+                entity: switch.backyard_plug_itself
+                name: "🌳 Backyard"
+                icon: mdi:tree
+                vertical: false
+                tap_action:
+                  action: navigate
+                  navigation_path: /smart-home/backyard
+                icon_tap_action:
+                  action: toggle
+                card_mod:
+                  style: |
+                    ha-card {
+                      {% if is_state('switch.backyard_plug_itself', 'on') or is_state('switch.backyard_plug_itself_patio_lights', 'on') %}
+                        background: rgba(16, 185, 129, 0.14) !important;
+                        border: 1px solid rgba(16, 185, 129, 0.40) !important;
+                        box-shadow: 0 0 20px rgba(16, 185, 129, 0.18) !important;
+                      {% else %}
+                        background: rgba(15, 23, 42, 0.75) !important;
+                        border: 1px solid rgba(255, 255, 255, 0.08) !important;
+                      {% endif %}
+                      border-radius: 16px !important;
+                      backdrop-filter: blur(16px) !important;
+                    }
+
+      # SECTION 2: 🚗 GARAGE
+      - type: grid
+        cards:
+          - type: heading
+            heading: "🚗  Garage"
+            icon: mdi:garage-open
+          - type: heading
+            heading: Overhead Bay Fixtures
+            heading_style: subtitle
+          - type: tile
+            entity: light.garage_left
+            name: "🚗 Garage Left"
+            icon: mdi:garage
+            vertical: false
+            tap_action:
+              action: more-info
+            icon_tap_action:
+              action: toggle
+            features:
+              - type: toggle
+              - type: light-brightness
+              - type: light-color-temp
+            card_mod:
+              style: |
+                ha-card {
+                  {% if is_state('light.garage_left', 'on') %}
+                    {% set rgb = state_attr('light.garage_left', 'rgb_color') or [56, 189, 248] %}
+                    background: rgba({{ rgb[0] }}, {{ rgb[1] }}, {{ rgb[2] }}, 0.12) !important;
+                    border: 1px solid rgba({{ rgb[0] }}, {{ rgb[1] }}, {{ rgb[2] }}, 0.35) !important;
+                    box-shadow: 0 0 24px rgba({{ rgb[0] }}, {{ rgb[1] }}, {{ rgb[2] }}, 0.18) !important;
+                  {% else %}
+                    background: rgba(15, 23, 42, 0.75) !important;
+                    border: 1px solid rgba(255, 255, 255, 0.08) !important;
+                  {% endif %}
+                  border-radius: 18px !important;
+                  backdrop-filter: blur(16px) !important;
+                  transition: all 0.35s ease !important;
+                }
+          - type: tile
+            entity: light.garage_right
+            name: "🚙 Garage Right"
+            icon: mdi:garage
+            vertical: false
+            tap_action:
+              action: more-info
+            icon_tap_action:
+              action: toggle
+            features:
+              - type: toggle
+              - type: light-brightness
+              - type: light-color-temp
+            card_mod:
+              style: |
+                ha-card {
+                  {% if is_state('light.garage_right', 'on') %}
+                    {% set rgb = state_attr('light.garage_right', 'rgb_color') or [56, 189, 248] %}
+                    background: rgba({{ rgb[0] }}, {{ rgb[1] }}, {{ rgb[2] }}, 0.12) !important;
+                    border: 1px solid rgba({{ rgb[0] }}, {{ rgb[1] }}, {{ rgb[2] }}, 0.35) !important;
+                    box-shadow: 0 0 24px rgba({{ rgb[0] }}, {{ rgb[1] }}, {{ rgb[2] }}, 0.18) !important;
+                  {% else %}
+                    background: rgba(15, 23, 42, 0.75) !important;
+                    border: 1px solid rgba(255, 255, 255, 0.08) !important;
+                  {% endif %}
+                  border-radius: 18px !important;
+                  backdrop-filter: blur(16px) !important;
+                  transition: all 0.35s ease !important;
+                }
+
+      # SECTION 3: 🚪 FRONT PORCH
+      - type: grid
+        cards:
+          - type: heading
+            heading: "🚪  Porch"
+            icon: mdi:outdoor-lamp
+          - type: heading
+            heading: Front Entryway Fixture
+            heading_style: subtitle
+          - type: tile
+            entity: light.1
+            name: "🚪 Front Porch"
+            icon: mdi:outdoor-lamp
+            vertical: false
+            tap_action:
+              action: more-info
+            icon_tap_action:
+              action: toggle
+            features:
+              - type: toggle
+              - type: light-brightness
+              - type: light-color-temp
+            card_mod:
+              style: |
+                ha-card {
+                  {% if is_state('light.1', 'on') %}
+                    {% set rgb = state_attr('light.1', 'rgb_color') or [34, 197, 94] %}
+                    background: rgba({{ rgb[0] }}, {{ rgb[1] }}, {{ rgb[2] }}, 0.12) !important;
+                    border: 1px solid rgba({{ rgb[0] }}, {{ rgb[1] }}, {{ rgb[2] }}, 0.35) !important;
+                    box-shadow: 0 0 24px rgba({{ rgb[0] }}, {{ rgb[1] }}, {{ rgb[2] }}, 0.18) !important;
+                  {% else %}
+                    background: rgba(15, 23, 42, 0.75) !important;
+                    border: 1px solid rgba(255, 255, 255, 0.08) !important;
+                  {% endif %}
+                  border-radius: 18px !important;
+                  backdrop-filter: blur(16px) !important;
+                  transition: all 0.35s ease !important;
+                }
+
+      # SECTION 4: 💻 OFFICE (PHILIPS HUE BULBS)
+      - type: grid
+        cards:
+          - type: heading
+            heading: "💻  Office"
+            icon: mdi:desk
+          - type: heading
+            heading: Philips Hue Full Color & Ambiance
+            heading_style: subtitle
+          - type: tile
+            entity: light.office_office
+            name: "💡 All Office Lights"
+            icon: mdi:lightbulb-group
+            vertical: false
+            tap_action:
+              action: more-info
+            icon_tap_action:
+              action: toggle
+            features:
+              - type: toggle
+              - type: light-brightness
+              - type: light-color-temp
+            card_mod:
+              style: |
+                ha-card {
+                  {% if is_state('light.office_office', 'on') %}
+                    {% set rgb = state_attr('light.office_office', 'rgb_color') or [168, 85, 247] %}
+                    background: rgba({{ rgb[0] }}, {{ rgb[1] }}, {{ rgb[2] }}, 0.15) !important;
+                    border: 1px solid rgba({{ rgb[0] }}, {{ rgb[1] }}, {{ rgb[2] }}, 0.45) !important;
+                    box-shadow: 0 0 24px rgba({{ rgb[0] }}, {{ rgb[1] }}, {{ rgb[2] }}, 0.25), 0 4px 16px rgba(0, 0, 0, 0.3) !important;
+                  {% else %}
+                    background: rgba(15, 23, 42, 0.75) !important;
+                    border: 1px solid rgba(255, 255, 255, 0.08) !important;
+                    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2) !important;
+                  {% endif %}
+                  border-radius: 18px !important;
+                  backdrop-filter: blur(16px) !important;
+                  transition: all 0.35s ease !important;
+                }
+
+          # Rainbow Mode Toggle
+          - type: heading
+            heading: 🌈 Rainbow Mode
+            heading_style: subtitle
+          - type: tile
+            entity: input_boolean.office_rainbow_mode
+            name: "🌈 Hue Rainbow Cycle"
+            icon: mdi:palette
+            color: purple
+            vertical: false
+            tap_action:
+              action: call-service
+              service: script.toggle_office_rainbow
+            icon_tap_action:
+              action: call-service
+              service: script.toggle_office_rainbow
+            card_mod:
+              style: |
+                ha-card {
+                  {% if is_state('input_boolean.office_rainbow_mode', 'on') %}
+                    background: linear-gradient(135deg,
+                      rgba(255,0,80,0.22),
+                      rgba(255,120,0,0.18),
+                      rgba(0,200,255,0.18),
+                      rgba(168,85,247,0.22)
+                    ) !important;
+                    border: 1px solid rgba(168, 85, 247, 0.55) !important;
+                    box-shadow: 0 0 25px rgba(168, 85, 247, 0.35) !important;
+                    animation: rainbow-pulse 3s ease-in-out infinite !important;
+                  {% else %}
+                    background: rgba(168, 85, 247, 0.08) !important;
+                    border: 1px solid rgba(168, 85, 247, 0.22) !important;
+                  {% endif %}
+                  border-radius: 16px !important;
+                  backdrop-filter: blur(16px) !important;
+                  transition: all 0.35s ease !important;
+                }
+                @keyframes rainbow-pulse {
+                  0%, 100% { box-shadow: 0 0 24px rgba(255, 80, 80, 0.45) !important; }
+                  25%      { box-shadow: 0 0 24px rgba(80, 255, 80, 0.45) !important; }
+                  50%      { box-shadow: 0 0 24px rgba(80, 80, 255, 0.45) !important; }
+                  75%      { box-shadow: 0 0 24px rgba(255, 80, 255, 0.45) !important; }
+                }
+                ha-card:hover {
+                  background: rgba(168, 85, 247, 0.18) !important;
+                  border-color: rgba(168, 85, 247, 0.55) !important;
+                }
+                ha-card:active { transform: scale(0.98) !important; }
+                .primary {
+                  font-weight: 700 !important;
+                  font-size: 14px !important;
+                }
+                .secondary {
+                  display: block !important;
+                  font-size: 12px !important;
+                  font-weight: 600 !important;
+                  {% if is_state('input_boolean.office_rainbow_mode', 'on') %}
+                    color: #e2e8f0 !important;
+                  {% else %}
+                    color: #94a3b8 !important;
+                  {% endif %}
+                }
+                .secondary::after {
+                  content: "{% if is_state('input_boolean.office_rainbow_mode', 'on') %} • Cycling Colors (Tap to Stop){% else %} • Tap to Start{% endif %}" !important;
+                }
+
+          # Quick Hue Ambiance Scene Presets
+          - type: heading
+            heading: Hue Color & Light Scenes
+            heading_style: subtitle
+          - type: grid
+            columns: 2
+            square: false
+            cards:
+              - type: tile
+                entity: scene.office_office_concentrate
+                name: "🎯 Concentrate"
+                icon: mdi:head-lightbulb
+                color: light-blue
+                vertical: false
+                tap_action:
+                  action: call-service
+                  service: scene.turn_on
+                  target:
+                    entity_id: scene.office_office_concentrate
+                icon_tap_action:
+                  action: call-service
+                  service: scene.turn_on
+                  target:
+                    entity_id: scene.office_office_concentrate
+                card_mod:
+                  style: |
+                    ha-card {
+                      background: rgba(56, 189, 248, 0.08) !important;
+                      border: 1px solid rgba(56, 189, 248, 0.22) !important;
+                      border-radius: 16px !important;
+                      backdrop-filter: blur(16px) !important;
+                      transition: all 0.25s ease !important;
+                    }
+                    ha-card:hover {
+                      background: rgba(56, 189, 248, 0.16) !important;
+                      border-color: rgba(56, 189, 248, 0.45) !important;
+                      box-shadow: 0 0 18px rgba(56, 189, 248, 0.25) !important;
+                    }
+                    ha-card:active {
+                      transform: scale(0.97) !important;
+                    }
+                    .secondary {
+                      display: none !important;
+                    }
+                    .primary {
+                      font-weight: 700 !important;
+                      font-size: 13.5px !important;
+                    }
+
+              - type: tile
+                entity: scene.office_office_energize
+                name: "⚡ Energize"
+                icon: mdi:lightning-bolt
+                color: amber
+                vertical: false
+                tap_action:
+                  action: call-service
+                  service: scene.turn_on
+                  target:
+                    entity_id: scene.office_office_energize
+                icon_tap_action:
+                  action: call-service
+                  service: scene.turn_on
+                  target:
+                    entity_id: scene.office_office_energize
+                card_mod:
+                  style: |
+                    ha-card {
+                      background: rgba(245, 158, 11, 0.08) !important;
+                      border: 1px solid rgba(245, 158, 11, 0.22) !important;
+                      border-radius: 16px !important;
+                      backdrop-filter: blur(16px) !important;
+                      transition: all 0.25s ease !important;
+                    }
+                    ha-card:hover {
+                      background: rgba(245, 158, 11, 0.16) !important;
+                      border-color: rgba(245, 158, 11, 0.45) !important;
+                      box-shadow: 0 0 18px rgba(245, 158, 11, 0.25) !important;
+                    }
+                    ha-card:active {
+                      transform: scale(0.97) !important;
+                    }
+                    .secondary {
+                      display: none !important;
+                    }
+                    .primary {
+                      font-weight: 700 !important;
+                      font-size: 13.5px !important;
+                    }
+
+              - type: tile
+                entity: scene.office_office_relax
+                name: "🧘 Relax"
+                icon: mdi:weather-sunset
+                color: orange
+                vertical: false
+                tap_action:
+                  action: call-service
+                  service: scene.turn_on
+                  target:
+                    entity_id: scene.office_office_relax
+                icon_tap_action:
+                  action: call-service
+                  service: scene.turn_on
+                  target:
+                    entity_id: scene.office_office_relax
+                card_mod:
+                  style: |
+                    ha-card {
+                      background: rgba(249, 115, 22, 0.08) !important;
+                      border: 1px solid rgba(249, 115, 22, 0.22) !important;
+                      border-radius: 16px !important;
+                      backdrop-filter: blur(16px) !important;
+                      transition: all 0.25s ease !important;
+                    }
+                    ha-card:hover {
+                      background: rgba(249, 115, 22, 0.16) !important;
+                      border-color: rgba(249, 115, 22, 0.45) !important;
+                      box-shadow: 0 0 18px rgba(249, 115, 22, 0.25) !important;
+                    }
+                    ha-card:active {
+                      transform: scale(0.97) !important;
+                    }
+                    .secondary {
+                      display: none !important;
+                    }
+                    .primary {
+                      font-weight: 700 !important;
+                      font-size: 13.5px !important;
+                    }
+
+              - type: tile
+                entity: scene.office_office_arctic_aurora
+                name: "🌌 Arctic Aurora"
+                icon: mdi:aurora
+                color: teal
+                vertical: false
+                tap_action:
+                  action: call-service
+                  service: scene.turn_on
+                  target:
+                    entity_id: scene.office_office_arctic_aurora
+                icon_tap_action:
+                  action: call-service
+                  service: scene.turn_on
+                  target:
+                    entity_id: scene.office_office_arctic_aurora
+                card_mod:
+                  style: |
+                    ha-card {
+                      background: rgba(45, 212, 191, 0.08) !important;
+                      border: 1px solid rgba(45, 212, 191, 0.22) !important;
+                      border-radius: 16px !important;
+                      backdrop-filter: blur(16px) !important;
+                      transition: all 0.25s ease !important;
+                    }
+                    ha-card:hover {
+                      background: rgba(45, 212, 191, 0.16) !important;
+                      border-color: rgba(45, 212, 191, 0.45) !important;
+                      box-shadow: 0 0 18px rgba(45, 212, 191, 0.25) !important;
+                    }
+                    ha-card:active {
+                      transform: scale(0.97) !important;
+                    }
+                    .secondary {
+                      display: none !important;
+                    }
+                    .primary {
+                      font-weight: 700 !important;
+                      font-size: 13.5px !important;
+                    }
+
+              - type: tile
+                entity: scene.office_office_tropical_twilight
+                name: "🌅 Twilight"
+                icon: mdi:weather-night
+                color: purple
+                vertical: false
+                tap_action:
+                  action: call-service
+                  service: scene.turn_on
+                  target:
+                    entity_id: scene.office_office_tropical_twilight
+                icon_tap_action:
+                  action: call-service
+                  service: scene.turn_on
+                  target:
+                    entity_id: scene.office_office_tropical_twilight
+                card_mod:
+                  style: |
+                    ha-card {
+                      background: rgba(168, 85, 247, 0.08) !important;
+                      border: 1px solid rgba(168, 85, 247, 0.22) !important;
+                      border-radius: 16px !important;
+                      backdrop-filter: blur(16px) !important;
+                      transition: all 0.25s ease !important;
+                    }
+                    ha-card:hover {
+                      background: rgba(168, 85, 247, 0.16) !important;
+                      border-color: rgba(168, 85, 247, 0.45) !important;
+                      box-shadow: 0 0 18px rgba(168, 85, 247, 0.25) !important;
+                    }
+                    ha-card:active {
+                      transform: scale(0.97) !important;
+                    }
+                    .secondary {
+                      display: none !important;
+                    }
+                    .primary {
+                      font-weight: 700 !important;
+                      font-size: 13.5px !important;
+                    }
+
+              - type: tile
+                entity: scene.office_office_spring_blossom
+                name: "🌸 Blossom"
+                icon: mdi:flower
+                color: pink
+                vertical: false
+                tap_action:
+                  action: call-service
+                  service: scene.turn_on
+                  target:
+                    entity_id: scene.office_office_spring_blossom
+                icon_tap_action:
+                  action: call-service
+                  service: scene.turn_on
+                  target:
+                    entity_id: scene.office_office_spring_blossom
+                card_mod:
+                  style: |
+                    ha-card {
+                      background: rgba(244, 114, 182, 0.08) !important;
+                      border: 1px solid rgba(244, 114, 182, 0.22) !important;
+                      border-radius: 16px !important;
+                      backdrop-filter: blur(16px) !important;
+                      transition: all 0.25s ease !important;
+                    }
+                    ha-card:hover {
+                      background: rgba(244, 114, 182, 0.16) !important;
+                      border-color: rgba(244, 114, 182, 0.45) !important;
+                      box-shadow: 0 0 18px rgba(244, 114, 182, 0.25) !important;
+                    }
+                    ha-card:active {
+                      transform: scale(0.97) !important;
+                    }
+                    .secondary {
+                      display: none !important;
+                    }
+                    .primary {
+                      font-weight: 700 !important;
+                      font-size: 13.5px !important;
+                    }
+
+          - type: heading
+            heading: Ceiling Fixture Bulbs
+            heading_style: subtitle
+          - type: tile
+            entity: light.office_office_1
+            name: "💡 Ceiling Bulb 1"
+            icon: mdi:ceiling-light
+            vertical: false
+            tap_action:
+              action: more-info
+            icon_tap_action:
+              action: toggle
+            features:
+              - type: toggle
+              - type: light-brightness
+              - type: light-color-temp
+            card_mod:
+              style: |
+                ha-card {
+                  {% if is_state('light.office_office_1', 'on') %}
+                    {% set rgb = state_attr('light.office_office_1', 'rgb_color') or [168, 85, 247] %}
+                    background: rgba({{ rgb[0] }}, {{ rgb[1] }}, {{ rgb[2] }}, 0.14) !important;
+                    border: 1px solid rgba({{ rgb[0] }}, {{ rgb[1] }}, {{ rgb[2] }}, 0.40) !important;
+                    box-shadow: 0 0 20px rgba({{ rgb[0] }}, {{ rgb[1] }}, {{ rgb[2] }}, 0.20) !important;
+                  {% else %}
+                    background: rgba(15, 23, 42, 0.75) !important;
+                    border: 1px solid rgba(255, 255, 255, 0.08) !important;
+                  {% endif %}
+                  border-radius: 18px !important;
+                  backdrop-filter: blur(16px) !important;
+                  transition: all 0.35s ease !important;
+                }
+          - type: tile
+            entity: light.office_office_2
+            name: "💡 Ceiling Bulb 2"
+            icon: mdi:ceiling-light
+            vertical: false
+            tap_action:
+              action: more-info
+            icon_tap_action:
+              action: toggle
+            features:
+              - type: toggle
+              - type: light-brightness
+              - type: light-color-temp
+            card_mod:
+              style: |
+                ha-card {
+                  {% if is_state('light.office_office_2', 'on') %}
+                    {% set rgb = state_attr('light.office_office_2', 'rgb_color') or [168, 85, 247] %}
+                    background: rgba({{ rgb[0] }}, {{ rgb[1] }}, {{ rgb[2] }}, 0.14) !important;
+                    border: 1px solid rgba({{ rgb[0] }}, {{ rgb[1] }}, {{ rgb[2] }}, 0.40) !important;
+                    box-shadow: 0 0 20px rgba({{ rgb[0] }}, {{ rgb[1] }}, {{ rgb[2] }}, 0.20) !important;
+                  {% else %}
+                    background: rgba(15, 23, 42, 0.75) !important;
+                    border: 1px solid rgba(255, 255, 255, 0.08) !important;
+                  {% endif %}
+                  border-radius: 18px !important;
+                  backdrop-filter: blur(16px) !important;
+                  transition: all 0.35s ease !important;
+                }
+
+          - type: heading
+            heading: Accent Lighting
+            heading_style: subtitle
+          - type: tile
+            entity: light.office_shelf_strip
+            name: "✨ Shelf Strip"
+            icon: mdi:led-strip-variant
+            vertical: false
+            tap_action:
+              action: more-info
+            icon_tap_action:
+              action: toggle
+            features:
+              - type: toggle
+              - type: light-brightness
+              - type: light-color-temp
+            card_mod:
+              style: |
+                ha-card {
+                  {% if is_state('light.office_shelf_strip', 'on') %}
+                    {% set rgb = state_attr('light.office_shelf_strip', 'rgb_color') or [56, 189, 248] %}
+                    background: rgba({{ rgb[0] }}, {{ rgb[1] }}, {{ rgb[2] }}, 0.14) !important;
+                    border: 1px solid rgba({{ rgb[0] }}, {{ rgb[1] }}, {{ rgb[2] }}, 0.40) !important;
+                    box-shadow: 0 0 20px rgba({{ rgb[0] }}, {{ rgb[1] }}, {{ rgb[2] }}, 0.20) !important;
+                  {% else %}
+                    background: rgba(15, 23, 42, 0.75) !important;
+                    border: 1px solid rgba(255, 255, 255, 0.08) !important;
+                  {% endif %}
+                  border-radius: 18px !important;
+                  backdrop-filter: blur(16px) !important;
+                  transition: all 0.35s ease !important;
+                }
+
+
+      # SECTION 5: 🍽️ DINING ROOM
+      - type: grid
+        cards:
+          - type: heading
+            heading: "🍽️  Dining Room"
+            icon: mdi:chandelier
+          - type: heading
+            heading: All Dining Lights
+            heading_style: subtitle
+          - type: tile
+            entity: light.fan_lights
+            name: "🍽️ All Dining Lights"
+            icon: mdi:chandelier
+            vertical: false
+            tap_action:
+              action: toggle
+            icon_tap_action:
+              action: toggle
+            features:
+              - type: toggle
+              - type: light-brightness
+              - type: light-color-temp
+            card_mod:
+              style: |
+                ha-card {
+                  {% if is_state('light.fan_lights', 'on') %}
+                    background: rgba(251, 191, 36, 0.12) !important;
+                    border: 1px solid rgba(251, 191, 36, 0.35) !important;
+                    box-shadow: 0 0 24px rgba(251, 191, 36, 0.18), 0 4px 16px rgba(0, 0, 0, 0.3) !important;
+                  {% else %}
+                    background: rgba(15, 23, 42, 0.75) !important;
+                    border: 1px solid rgba(255, 255, 255, 0.08) !important;
+                    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2) !important;
+                  {% endif %}
+                  border-radius: 18px !important;
+                  backdrop-filter: blur(16px) !important;
+                  transition: all 0.35s ease !important;
+                }
+          - type: heading
+            heading: Color & Ambiance Themes
+            heading_style: subtitle
+          - type: grid
+            columns: 2
+            square: false
+            cards:
+              - type: tile
+                entity: script.dining_theme_warm_candlelight
+                name: "🕯️ Candlelight"
+                icon: mdi:candle
+                color: orange
+                vertical: false
+                tap_action:
+                  action: call-service
+                  service: script.dining_theme_warm_candlelight
+                icon_tap_action:
+                  action: call-service
+                  service: script.dining_theme_warm_candlelight
+                card_mod:
+                  style: |
+                    ha-card {
+                      background: rgba(249, 115, 22, 0.08) !important;
+                      border: 1px solid rgba(249, 115, 22, 0.22) !important;
+                      border-radius: 16px !important;
+                      backdrop-filter: blur(16px) !important;
+                      transition: all 0.25s ease !important;
+                    }
+                    ha-card:hover {
+                      background: rgba(249, 115, 22, 0.16) !important;
+                      border-color: rgba(249, 115, 22, 0.45) !important;
+                      box-shadow: 0 0 18px rgba(249, 115, 22, 0.25) !important;
+                    }
+                    ha-card:active {
+                      transform: scale(0.97) !important;
+                    }
+                    .secondary {
+                      display: none !important;
+                    }
+                    .primary {
+                      font-weight: 700 !important;
+                      font-size: 13.5px !important;
+                    }
+
+              - type: tile
+                entity: script.dining_theme_crisp_daylight
+                name: "☀️ Daylight"
+                icon: mdi:white-balance-sunny
+                color: light-blue
+                vertical: false
+                tap_action:
+                  action: call-service
+                  service: script.dining_theme_crisp_daylight
+                icon_tap_action:
+                  action: call-service
+                  service: script.dining_theme_crisp_daylight
+                card_mod:
+                  style: |
+                    ha-card {
+                      background: rgba(56, 189, 248, 0.08) !important;
+                      border: 1px solid rgba(56, 189, 248, 0.22) !important;
+                      border-radius: 16px !important;
+                      backdrop-filter: blur(16px) !important;
+                      transition: all 0.25s ease !important;
+                    }
+                    ha-card:hover {
+                      background: rgba(56, 189, 248, 0.16) !important;
+                      border-color: rgba(56, 189, 248, 0.45) !important;
+                      box-shadow: 0 0 18px rgba(56, 189, 248, 0.25) !important;
+                    }
+                    ha-card:active {
+                      transform: scale(0.97) !important;
+                    }
+                    .secondary {
+                      display: none !important;
+                    }
+                    .primary {
+                      font-weight: 700 !important;
+                      font-size: 13.5px !important;
+                    }
+
+              - type: tile
+                entity: script.dining_theme_fiesta_rainbow
+                name: "🎉 Fiesta"
+                icon: mdi:party-popper
+                color: pink
+                vertical: false
+                tap_action:
+                  action: call-service
+                  service: script.dining_theme_fiesta_rainbow
+                icon_tap_action:
+                  action: call-service
+                  service: script.dining_theme_fiesta_rainbow
+                card_mod:
+                  style: |
+                    ha-card {
+                      background: rgba(244, 114, 182, 0.08) !important;
+                      border: 1px solid rgba(244, 114, 182, 0.22) !important;
+                      border-radius: 16px !important;
+                      backdrop-filter: blur(16px) !important;
+                      transition: all 0.25s ease !important;
+                    }
+                    ha-card:hover {
+                      background: rgba(244, 114, 182, 0.16) !important;
+                      border-color: rgba(244, 114, 182, 0.45) !important;
+                      box-shadow: 0 0 18px rgba(244, 114, 182, 0.25) !important;
+                    }
+                    ha-card:active {
+                      transform: scale(0.97) !important;
+                    }
+                    .secondary {
+                      display: none !important;
+                    }
+                    .primary {
+                      font-weight: 700 !important;
+                      font-size: 13.5px !important;
+                    }
+
+              - type: tile
+                entity: script.dining_theme_sunset_glow
+                name: "🌅 Sunset Glow"
+                icon: mdi:weather-sunset
+                color: amber
+                vertical: false
+                tap_action:
+                  action: call-service
+                  service: script.dining_theme_sunset_glow
+                icon_tap_action:
+                  action: call-service
+                  service: script.dining_theme_sunset_glow
+                card_mod:
+                  style: |
+                    ha-card {
+                      background: rgba(245, 158, 11, 0.08) !important;
+                      border: 1px solid rgba(245, 158, 11, 0.22) !important;
+                      border-radius: 16px !important;
+                      backdrop-filter: blur(16px) !important;
+                      transition: all 0.25s ease !important;
+                    }
+                    ha-card:hover {
+                      background: rgba(245, 158, 11, 0.16) !important;
+                      border-color: rgba(245, 158, 11, 0.45) !important;
+                      box-shadow: 0 0 18px rgba(245, 158, 11, 0.25) !important;
+                    }
+                    ha-card:active {
+                      transform: scale(0.97) !important;
+                    }
+                    .secondary {
+                      display: none !important;
+                    }
+                    .primary {
+                      font-weight: 700 !important;
+                      font-size: 13.5px !important;
+                    }
+
+              - type: tile
+                entity: script.dining_theme_ocean_breeze
+                name: "🌊 Ocean"
+                icon: mdi:waves
+                color: teal
+                vertical: false
+                tap_action:
+                  action: call-service
+                  service: script.dining_theme_ocean_breeze
+                icon_tap_action:
+                  action: call-service
+                  service: script.dining_theme_ocean_breeze
+                card_mod:
+                  style: |
+                    ha-card {
+                      background: rgba(45, 212, 191, 0.08) !important;
+                      border: 1px solid rgba(45, 212, 191, 0.22) !important;
+                      border-radius: 16px !important;
+                      backdrop-filter: blur(16px) !important;
+                      transition: all 0.25s ease !important;
+                    }
+                    ha-card:hover {
+                      background: rgba(45, 212, 191, 0.16) !important;
+                      border-color: rgba(45, 212, 191, 0.45) !important;
+                      box-shadow: 0 0 18px rgba(45, 212, 191, 0.25) !important;
+                    }
+                    ha-card:active {
+                      transform: scale(0.97) !important;
+                    }
+                    .secondary {
+                      display: none !important;
+                    }
+                    .primary {
+                      font-weight: 700 !important;
+                      font-size: 13.5px !important;
+                    }
+
+              - type: tile
+                entity: script.dining_theme_neon_twilight
+                name: "🌌 Neon Twilight"
+                icon: mdi:weather-night
+                color: purple
+                vertical: false
+                tap_action:
+                  action: call-service
+                  service: script.dining_theme_neon_twilight
+                icon_tap_action:
+                  action: call-service
+                  service: script.dining_theme_neon_twilight
+                card_mod:
+                  style: |
+                    ha-card {
+                      background: rgba(168, 85, 247, 0.08) !important;
+                      border: 1px solid rgba(168, 85, 247, 0.22) !important;
+                      border-radius: 16px !important;
+                      backdrop-filter: blur(16px) !important;
+                      transition: all 0.25s ease !important;
+                    }
+                    ha-card:hover {
+                      background: rgba(168, 85, 247, 0.16) !important;
+                      border-color: rgba(168, 85, 247, 0.45) !important;
+                      box-shadow: 0 0 18px rgba(168, 85, 247, 0.25) !important;
+                    }
+                    ha-card:active {
+                      transform: scale(0.97) !important;
+                    }
+                    .secondary {
+                      display: none !important;
+                    }
+                    .primary {
+                      font-weight: 700 !important;
+                      font-size: 13.5px !important;
+                    }
+
+          - type: heading
+            heading: Individual Bulbs
+            heading_style: subtitle
+          - type: tile
+            entity: light.fan_1
+            name: "🕯️ Dining 1"
+            icon: mdi:ceiling-light
+            vertical: false
+            tap_action:
+              action: more-info
+            icon_tap_action:
+              action: toggle
+            features:
+              - type: toggle
+              - type: light-brightness
+              - type: light-color-temp
+            card_mod:
+              style: |
+                ha-card {
+                  {% if is_state('light.fan_1', 'on') %}
+                    {% set rgb = state_attr('light.fan_1', 'rgb_color') or [251, 191, 36] %}
+                    background: rgba({{ rgb[0] }}, {{ rgb[1] }}, {{ rgb[2] }}, 0.12) !important;
+                    border: 1px solid rgba({{ rgb[0] }}, {{ rgb[1] }}, {{ rgb[2] }}, 0.35) !important;
+                    box-shadow: 0 0 20px rgba({{ rgb[0] }}, {{ rgb[1] }}, {{ rgb[2] }}, 0.18) !important;
+                  {% else %}
+                    background: rgba(15, 23, 42, 0.75) !important;
+                    border: 1px solid rgba(255, 255, 255, 0.08) !important;
+                  {% endif %}
+                  border-radius: 18px !important;
+                  backdrop-filter: blur(16px) !important;
+                  transition: all 0.35s ease !important;
+                }
+          - type: tile
+            entity: light.4
+            name: "🕯️ Dining 2"
+            icon: mdi:ceiling-light
+            vertical: false
+            tap_action:
+              action: more-info
+            icon_tap_action:
+              action: toggle
+            features:
+              - type: toggle
+              - type: light-brightness
+              - type: light-color-temp
+            card_mod:
+              style: |
+                ha-card {
+                  {% if is_state('light.4', 'on') %}
+                    {% set rgb = state_attr('light.4', 'rgb_color') or [251, 191, 36] %}
+                    background: rgba({{ rgb[0] }}, {{ rgb[1] }}, {{ rgb[2] }}, 0.12) !important;
+                    border: 1px solid rgba({{ rgb[0] }}, {{ rgb[1] }}, {{ rgb[2] }}, 0.35) !important;
+                    box-shadow: 0 0 20px rgba({{ rgb[0] }}, {{ rgb[1] }}, {{ rgb[2] }}, 0.18) !important;
+                  {% else %}
+                    background: rgba(15, 23, 42, 0.75) !important;
+                    border: 1px solid rgba(255, 255, 255, 0.08) !important;
+                  {% endif %}
+                  border-radius: 18px !important;
+                  backdrop-filter: blur(16px) !important;
+                  transition: all 0.35s ease !important;
+                }
+          - type: tile
+            entity: light.2
+            name: "🕯️ Dining 3"
+            icon: mdi:ceiling-light
+            vertical: false
+            tap_action:
+              action: more-info
+            icon_tap_action:
+              action: toggle
+            features:
+              - type: toggle
+              - type: light-brightness
+              - type: light-color-temp
+            card_mod:
+              style: |
+                ha-card {
+                  {% if is_state('light.2', 'on') %}
+                    {% set rgb = state_attr('light.2', 'rgb_color') or [251, 191, 36] %}
+                    background: rgba({{ rgb[0] }}, {{ rgb[1] }}, {{ rgb[2] }}, 0.12) !important;
+                    border: 1px solid rgba({{ rgb[0] }}, {{ rgb[1] }}, {{ rgb[2] }}, 0.35) !important;
+                    box-shadow: 0 0 20px rgba({{ rgb[0] }}, {{ rgb[1] }}, {{ rgb[2] }}, 0.18) !important;
+                  {% else %}
+                    background: rgba(15, 23, 42, 0.75) !important;
+                    border: 1px solid rgba(255, 255, 255, 0.08) !important;
+                  {% endif %}
+                  border-radius: 18px !important;
+                  backdrop-filter: blur(16px) !important;
+                  transition: all 0.35s ease !important;
+                }
+          - type: tile
+            entity: light.3
+            name: "🕯️ Dining 4"
+            icon: mdi:ceiling-light
+            vertical: false
+            tap_action:
+              action: more-info
+            icon_tap_action:
+              action: toggle
+            features:
+              - type: toggle
+              - type: light-brightness
+              - type: light-color-temp
+            card_mod:
+              style: |
+                ha-card {
+                  {% if is_state('light.3', 'on') %}
+                    {% set rgb = state_attr('light.3', 'rgb_color') or [251, 191, 36] %}
+                    background: rgba({{ rgb[0] }}, {{ rgb[1] }}, {{ rgb[2] }}, 0.12) !important;
+                    border: 1px solid rgba({{ rgb[0] }}, {{ rgb[1] }}, {{ rgb[2] }}, 0.35) !important;
+                    box-shadow: 0 0 20px rgba({{ rgb[0] }}, {{ rgb[1] }}, {{ rgb[2] }}, 0.18) !important;
+                  {% else %}
+                    background: rgba(15, 23, 42, 0.75) !important;
+                    border: 1px solid rgba(255, 255, 255, 0.08) !important;
+                  {% endif %}
+                  border-radius: 18px !important;
+                  backdrop-filter: blur(16px) !important;
+                  transition: all 0.35s ease !important;
+                }
+          - type: tile
+            entity: light.fan_2
+            name: "🕯️ Dining 5"
+            icon: mdi:ceiling-light
+            vertical: false
+            tap_action:
+              action: more-info
+            icon_tap_action:
+              action: toggle
+            features:
+              - type: toggle
+              - type: light-brightness
+              - type: light-color-temp
+            card_mod:
+              style: |
+                ha-card {
+                  {% if is_state('light.fan_2', 'on') %}
+                    {% set rgb = state_attr('light.fan_2', 'rgb_color') or [251, 191, 36] %}
+                    background: rgba({{ rgb[0] }}, {{ rgb[1] }}, {{ rgb[2] }}, 0.12) !important;
+                    border: 1px solid rgba({{ rgb[0] }}, {{ rgb[1] }}, {{ rgb[2] }}, 0.35) !important;
+                    box-shadow: 0 0 20px rgba({{ rgb[0] }}, {{ rgb[1] }}, {{ rgb[2] }}, 0.18) !important;
+                  {% else %}
+                    background: rgba(15, 23, 42, 0.75) !important;
+                    border: 1px solid rgba(255, 255, 255, 0.08) !important;
+                  {% endif %}
+                  border-radius: 18px !important;
+                  backdrop-filter: blur(16px) !important;
+                  transition: all 0.35s ease !important;
+                }
+
+
+      # SECTION 6: 🛏️ MASTER BEDROOM
+      - type: grid
+        cards:
+          - type: heading
+            heading: "🛏️  Master Bedroom"
+            icon: mdi:bed-king
+          - type: heading
+            heading: Ceiling Fan Fixture
+            heading_style: subtitle
+          - type: tile
+            entity: light.master_bedroom_fan_hunter_light
+            name: "🛏️ Ceiling Fan Light"
+            icon: mdi:ceiling-fan-light
+            vertical: false
+            tap_action:
+              action: toggle
+            icon_tap_action:
+              action: toggle
+            features:
+              - type: toggle
+              - type: light-brightness
+            card_mod:
+              style: |
+                ha-card {
+                  {% if is_state('light.master_bedroom_fan_hunter_light', 'on') %}
+                    background: rgba(251, 191, 36, 0.12) !important;
+                    border: 1px solid rgba(251, 191, 36, 0.35) !important;
+                    box-shadow: 0 0 24px rgba(251, 191, 36, 0.18), 0 4px 16px rgba(0, 0, 0, 0.3) !important;
+                  {% else %}
+                    background: rgba(15, 23, 42, 0.75) !important;
+                    border: 1px solid rgba(255, 255, 255, 0.08) !important;
+                    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2) !important;
+                  {% endif %}
+                  border-radius: 18px !important;
+                  backdrop-filter: blur(16px) !important;
+                  transition: all 0.35s ease !important;
+                }
+          - type: tile
+            entity: fan.master_bedroom_fan_hunter_fan
+            name: "🌀 Ceiling Fan"
+            icon: mdi:ceiling-fan
+            vertical: false
+            tap_action:
+              action: toggle
+            icon_tap_action:
+              action: toggle
+            features:
+              - type: toggle
+              - type: fan-speed
+            card_mod:
+              style: |
+                ha-card {
+                  {% if is_state('fan.master_bedroom_fan_hunter_fan', 'on') %}
+                    background: rgba(56, 189, 248, 0.12) !important;
+                    border: 1px solid rgba(56, 189, 248, 0.35) !important;
+                    box-shadow: 0 0 24px rgba(56, 189, 248, 0.18), 0 4px 16px rgba(0, 0, 0, 0.3) !important;
+                  {% else %}
+                    background: rgba(15, 23, 42, 0.75) !important;
+                    border: 1px solid rgba(255, 255, 255, 0.08) !important;
+                    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2) !important;
+                  {% endif %}
+                  border-radius: 18px !important;
+                  backdrop-filter: blur(16px) !important;
+                  transition: all 0.35s ease !important;
+                }
+
+
+      # SECTION 7: 🛁 MASTER BATHROOM
+      - type: grid
+        cards:
+          - type: heading
+            heading: "🛁  Master Bathroom"
+            icon: mdi:shower-head
+          - type: heading
+            heading: Vanity & Overhead Fixtures
+            heading_style: subtitle
+          - type: tile
+            entity: light.master_bathroom_bathroom_lights
+            name: "🛁 Main Bathroom Lights"
+            icon: mdi:vanity-light
+            vertical: false
+            tap_action:
+              action: toggle
+            icon_tap_action:
+              action: toggle
+            features:
+              - type: toggle
+              - type: light-brightness
+            card_mod:
+              style: |
+                ha-card {
+                  {% if is_state('light.master_bathroom_bathroom_lights', 'on') %}
+                    background: rgba(45, 212, 191, 0.12) !important;
+                    border: 1px solid rgba(45, 212, 191, 0.35) !important;
+                    box-shadow: 0 0 24px rgba(45, 212, 191, 0.18), 0 4px 16px rgba(0, 0, 0, 0.3) !important;
+                  {% else %}
+                    background: rgba(15, 23, 42, 0.75) !important;
+                    border: 1px solid rgba(255, 255, 255, 0.08) !important;
+                    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2) !important;
+                  {% endif %}
+                  border-radius: 18px !important;
+                  backdrop-filter: blur(16px) !important;
+                  transition: all 0.35s ease !important;
+                }
+
+
+      # SECTION 8: 🌳 BACKYARD & PATIO
+      - type: grid
+        cards:
+          - type: heading
+            heading: "🌳  Backyard & Patio"
+            icon: mdi:patio-heater
+          - type: heading
+            heading: Outdoor String & Deck Fixtures
+            heading_style: subtitle
+          - type: tile
+            entity: switch.backyard_plug_itself
+            name: "🌳 All Backyard Lights"
+            icon: mdi:power-socket-us
+            vertical: false
+            tap_action:
+              action: toggle
+            icon_tap_action:
+              action: toggle
+            features:
+              - type: toggle
+            card_mod:
+              style: |
+                ha-card {
+                  {% if is_state('switch.backyard_plug_itself', 'on') %}
+                    background: rgba(34, 197, 94, 0.12) !important;
+                    border: 1px solid rgba(34, 197, 94, 0.35) !important;
+                    box-shadow: 0 0 24px rgba(34, 197, 94, 0.18), 0 4px 16px rgba(0, 0, 0, 0.3) !important;
+                  {% else %}
+                    background: rgba(15, 23, 42, 0.75) !important;
+                    border: 1px solid rgba(255, 255, 255, 0.08) !important;
+                    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2) !important;
+                  {% endif %}
+                  border-radius: 18px !important;
+                  backdrop-filter: blur(16px) !important;
+                  transition: all 0.35s ease !important;
+                }
+          - type: tile
+            entity: switch.backyard_plug_itself_patio_lights
+            name: "🏮 Patio String Lights"
+            icon: mdi:string-lights
+            vertical: false
+            tap_action:
+              action: toggle
+            icon_tap_action:
+              action: toggle
+            features:
+              - type: toggle
+            card_mod:
+              style: |
+                ha-card {
+                  {% if is_state('switch.backyard_plug_itself_patio_lights', 'on') %}
+                    background: rgba(251, 191, 36, 0.12) !important;
+                    border: 1px solid rgba(251, 191, 36, 0.35) !important;
+                    box-shadow: 0 0 24px rgba(251, 191, 36, 0.18), 0 4px 16px rgba(0, 0, 0, 0.3) !important;
+                  {% else %}
+                    background: rgba(15, 23, 42, 0.75) !important;
+                    border: 1px solid rgba(255, 255, 255, 0.08) !important;
+                    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2) !important;
+                  {% endif %}
+                  border-radius: 18px !important;
+                  backdrop-filter: blur(16px) !important;
+                  transition: all 0.35s ease !important;
+                }
+          - type: tile
+            entity: switch.backyard_plug_itself_deck_lights
+            name: "🌿 Deck Perimeter Lights"
+            icon: mdi:lightbulb-night
+            vertical: false
+            tap_action:
+              action: toggle
+            icon_tap_action:
+              action: toggle
+            features:
+              - type: toggle
+            card_mod:
+              style: |
+                ha-card {
+                  {% if is_state('switch.backyard_plug_itself_deck_lights', 'on') %}
+                    background: rgba(251, 191, 36, 0.12) !important;
+                    border: 1px solid rgba(251, 191, 36, 0.35) !important;
+                    box-shadow: 0 0 24px rgba(251, 191, 36, 0.18), 0 4px 16px rgba(0, 0, 0, 0.3) !important;
+                  {% else %}
+                    background: rgba(15, 23, 42, 0.75) !important;
+                    border: 1px solid rgba(255, 255, 255, 0.08) !important;
+                    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2) !important;
+                  {% endif %}
+                  border-radius: 18px !important;
+                  backdrop-filter: blur(16px) !important;
+                  transition: all 0.35s ease !important;
+                }
+
+    footer:
+      card:
+        type: custom:dashboard-footer-card
+        background: rgba(10, 15, 29, 0.96)
+        blur: true
+        floating_mobile: true
+        floating_desktop: true
+        bottom_offset: 12px
+        max_width: 480px
+        icon_size: 24
+        font_size: 11
+        card_mod:
+          style: |
+            ha-card.footer-card {
+              background: rgba(10, 15, 29, 0.95) !important;
+              backdrop-filter: blur(24px) saturate(180%) !important;
+              -webkit-backdrop-filter: blur(24px) saturate(180%) !important;
+              border: 1px solid rgba(255, 255, 255, 0.18) !important;
+              box-shadow: 0 16px 36px rgba(0, 0, 0, 0.85), 0 0 1px rgba(255, 255, 255, 0.2) !important;
+              border-radius: 24px !important;
+            }
+
+            .route:not(.active) .route-icon-wrap ha-icon {
+              color: rgba(226, 232, 240, 0.75) !important;
+            }
+
+            .route:not(.active) .route-label {
+              color: rgba(203, 213, 225, 0.75) !important;
+              font-weight: 500 !important;
+            }
+
+            .route.active .route-label {
+              color: #ffffff !important;
+              font-weight: 700 !important;
+            }
+
+            .popup-menu {
+              background: rgba(10, 15, 29, 0.96) !important;
+              backdrop-filter: blur(24px) saturate(180%) !important;
+              -webkit-backdrop-filter: blur(24px) saturate(180%) !important;
+              border: 1px solid rgba(255, 255, 255, 0.18) !important;
+              box-shadow: 0 16px 36px rgba(0, 0, 0, 0.85) !important;
+              border-radius: 20px !important;
+              padding: 6px 0 !important;
+            }
+
+            .popup-item {
+              padding: 10px 18px !important;
+              color: #cbd5e1 !important;
+              font-size: 13px !important;
+              font-weight: 600 !important;
+            }
+
+            .popup-item:hover {
+              background: rgba(255, 255, 255, 0.08) !important;
+            }
+
+            .popup-item.active {
+              color: #fbbf24 !important;
+            }
+        routes:
+          - icon: mdi:lightbulb-group
+            label: Lighting
+            path: /smart-home/lights
+            tap_action: open-popup
+            hold_action: open-popup
+            swipe_action: open-popup
+            highlight_for_subroutes: true
+            icon_color: rgba(226, 232, 240, 0.75)
+            active_color: "#fbbf24"
+            badge_content: >-
+              {% set on_count = expand('light.master_bedroom_fan_hunter_light', 'light.master_bathroom_bathroom_lights', 'light.office_office_1', 'light.office_office_2', 'light.office_shelf_strip', 'switch.backyard_plug_itself_patio_lights', 'switch.backyard_plug_itself_deck_lights', 'light.fan_lights', 'light.garage_left', 'light.garage_right', 'light.1') | selectattr('state', 'eq', 'on') | list | count %}
+              {% if on_count > 0 %}{{ on_count }}{% endif %}
+            badge_color: "#fbbf24"
+            sub_routes:
+              - icon: mdi:view-dashboard
+                label: All Lights Overview
+                path: /smart-home/lights
+              - icon: mdi:garage
+                label: Garage
+                path: /smart-home/garage
+              - icon: mdi:outdoor-lamp
+                label: Porch
+                path: /smart-home/porch
+              - icon: mdi:desk
+                label: Office
+                path: /smart-home/office
+              - icon: mdi:silverware-fork-knife
+                label: Dining Room
+                path: /smart-home/dining
+              - icon: mdi:bed
+                label: Master Bedroom
+                path: /smart-home/bedroom
+              - icon: mdi:shower
+                label: Master Bathroom
+                path: /smart-home/bathroom
+              - icon: mdi:tree
+                label: Backyard
+                path: /smart-home/backyard
+          - icon: mdi:home-variant
+            label: Rooms
+            path: /smart-home/rooms
+            icon_color: rgba(226, 232, 240, 0.75)
+            active_color: "#38bdf8"
+          - icon: mdi:shield-home
+            label: Security
+            path: /smart-home/security
+            icon_color: rgba(226, 232, 240, 0.75)
+            active_color: "#2dd4bf"
+            badge_content: >-
+              {% if is_state('lock.front_door_sense_lock_lock_mechanism', 'unlocked') %}!{% endif %}
+            badge_color: "#ef4444"
+  # =========================================================================
+  # TAB 2: 🏠 ROOMS & DEVICES OVERVIEW
+  # =========================================================================
+  - title: Rooms
+    path: rooms
+    icon: mdi:home-variant
+    subview: true
+    type: sections
+    max_columns: 3
+    background: radial-gradient(ellipse at 25% 0%, rgba(56,189,248,0.07) 0%, transparent 50%), radial-gradient(ellipse at 75% 100%, rgba(168,85,247,0.05) 0%, transparent 50%), linear-gradient(180deg, #09090f 0%, #0f0f18 30%, #0c0c14 70%, #060610 100%) fixed
+    card_mod:
+      style: |
+        hui-sections-view {
+          --ha-card-background: rgba(15, 23, 42, 0.75);
+          --ha-card-border-color: rgba(255, 255, 255, 0.08);
+          --ha-card-border-radius: 18px;
+        }
+    sections:
+      # SECTION 1: 🚪 FRONT DOOR & ENTRY
+      - type: grid
+        cards:
+          - type: heading
+            heading: "🚪  Front Door & Entry"
+            icon: mdi:door
+          - type: tile
+            entity: lock.front_door_sense_lock_lock_mechanism
+            name: Front Door Sense Lock
+            icon: mdi:door-closed-lock
+            vertical: false
+            features:
+              - type: lock-commands
+            card_mod:
+              style: |
+                ha-card {
+                  {% if is_state('lock.front_door_sense_lock_lock_mechanism', 'locked') %}
+                    background: rgba(34, 197, 94, 0.10) !important;
+                    border: 1px solid rgba(34, 197, 94, 0.30) !important;
+                    box-shadow: 0 0 20px rgba(34, 197, 94, 0.15) !important;
+                  {% else %}
+                    background: rgba(239, 68, 68, 0.12) !important;
+                    border: 1px solid rgba(239, 68, 68, 0.35) !important;
+                    box-shadow: 0 0 24px rgba(239, 68, 68, 0.20) !important;
+                  {% endif %}
+                  border-radius: 18px !important;
+                  backdrop-filter: blur(16px) !important;
+                  transition: all 0.3s ease !important;
+                }
+          - type: tile
+            entity: timer.front_door_auto_lock_timer
+            name: Auto-Lock Countdown
+            icon: mdi:timer-lock
+            vertical: false
+            card_mod:
+              style: |
+                ha-card {
+                  background: rgba(15, 23, 42, 0.75) !important;
+                  border: 1px solid rgba(255, 255, 255, 0.08) !important;
+                  border-radius: 18px !important;
+                }
+          - type: picture-entity
+            entity: camera.front_door_doorbell
+            name: Doorbell Camera
+            camera_view: live
+            show_name: true
+            show_state: false
+            card_mod:
+              style: |
+                ha-card {
+                  border-radius: 18px !important;
+                  overflow: hidden !important;
+                  border: 1px solid rgba(255, 255, 255, 0.08) !important;
+                  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.25) !important;
+                }
+
+      # SECTION 2: 🛏️ MASTER SUITE & CLIMATE
+      - type: grid
+        cards:
+          - type: heading
+            heading: "🛏️  Master Suite"
+            icon: mdi:bed-king
+          - type: tile
+            entity: climate.master_bedroom_main_thermostat
+            name: Main Thermostat
+            icon: mdi:thermostat
+            vertical: false
+            features:
+              - type: climate-hvac-modes
+                hvac_modes:
+                  - 'off'
+                  - cool
+                  - heat
+                  - heat_cool
+            card_mod:
+              style: |
+                ha-card {
+                  {% if is_state_attr('climate.master_bedroom_main_thermostat', 'hvac_action', 'cooling') %}
+                    background: rgba(56, 189, 248, 0.12) !important;
+                    border: 1px solid rgba(56, 189, 248, 0.35) !important;
+                    box-shadow: 0 0 24px rgba(56, 189, 248, 0.20) !important;
+                  {% else %}
+                    background: rgba(15, 23, 42, 0.75) !important;
+                    border: 1px solid rgba(255, 255, 255, 0.08) !important;
+                  {% endif %}
+                  border-radius: 18px !important;
+                  backdrop-filter: blur(16px) !important;
+                  transition: all 0.3s ease !important;
+                }
+          - type: tile
+            entity: light.master_bedroom_fan_hunter_light
+            name: Ceiling Fan Light
+            icon: mdi:ceiling-fan-light
+            vertical: false
+            features:
+              - type: toggle
+              - type: light-brightness
+            card_mod:
+              style: |
+                ha-card {
+                  border-radius: 18px !important;
+                }
+          - type: tile
+            entity: fan.master_bedroom_fan_hunter_fan
+            name: Ceiling Fan
+            icon: mdi:ceiling-fan
+            vertical: false
+            features:
+              - type: toggle
+              - type: fan-speed
+            card_mod:
+              style: |
+                ha-card {
+                  border-radius: 18px !important;
+                }
+          - type: tile
+            entity: event.master_bedroom_master_fan_shelly_button_1
+            name: Shelly Button 1
+            icon: mdi:gesture-tap-button
+            vertical: false
+            card_mod:
+              style: |
+                ha-card {
+                  border-radius: 18px !important;
+                }
+          - type: tile
+            entity: event.master_bedroom_master_fan_shelly_button_2
+            name: Shelly Button 2
+            icon: mdi:gesture-tap-button
+            vertical: false
+            card_mod:
+              style: |
+                ha-card {
+                  border-radius: 18px !important;
+                }
+
+      # SECTION 3: 📺 LIVING ROOM & ENTERTAINMENT
+      - type: grid
+        cards:
+          - type: heading
+            heading: "📺  Entertainment"
+            icon: mdi:television
+          - type: tile
+            entity: media_player.steamer_hazel_2
+            name: Steamer (Hazel)
+            icon: mdi:cast-connected
+            vertical: false
+            card_mod:
+              style: |
+                ha-card {
+                  {% if is_state('media_player.steamer_hazel_2', 'on') or is_state('media_player.steamer_hazel_2', 'playing') %}
+                    background: rgba(168, 85, 247, 0.12) !important;
+                    border: 1px solid rgba(168, 85, 247, 0.35) !important;
+                    box-shadow: 0 0 24px rgba(168, 85, 247, 0.20) !important;
+                  {% else %}
+                    background: rgba(15, 23, 42, 0.75) !important;
+                    border: 1px solid rgba(255, 255, 255, 0.08) !important;
+                  {% endif %}
+                  border-radius: 18px !important;
+                  backdrop-filter: blur(16px) !important;
+                }
+          - type: tile
+            entity: remote.steamer_hazel
+            name: Steamer Remote
+            icon: mdi:remote-tv
+            vertical: false
+            features:
+              - type: toggle
+            card_mod:
+              style: |
+                ha-card {
+                  border-radius: 18px !important;
+                }
+
+      # SECTION 4: 🛁 MASTER BATHROOM & OFFICE
+      - type: grid
+        cards:
+          - type: heading
+            heading: "🛁  Bathroom & 💻 Office"
+            icon: mdi:home-city
+          - type: tile
+            entity: light.master_bathroom_bathroom_lights
+            name: Bathroom Lights
+            icon: mdi:vanity-light
+            vertical: false
+            features:
+              - type: toggle
+              - type: light-brightness
+            card_mod:
+              style: |
+                ha-card {
+                  border-radius: 18px !important;
+                }
+          - type: tile
+            entity: light.office_office
+            name: Office Hue Lights
+            icon: mdi:lightbulb-group
+            vertical: false
+            tap_action:
+              action: more-info
+            icon_tap_action:
+              action: toggle
+            features:
+              - type: toggle
+              - type: light-brightness
+              - type: light-color-temp
+            card_mod:
+              style: |
+                ha-card {
+                  {% if is_state('light.office_office', 'on') %}
+                    {% set rgb = state_attr('light.office_office', 'rgb_color') or [168, 85, 247] %}
+                    background: rgba({{ rgb[0] }}, {{ rgb[1] }}, {{ rgb[2] }}, 0.15) !important;
+                    border: 1px solid rgba({{ rgb[0] }}, {{ rgb[1] }}, {{ rgb[2] }}, 0.45) !important;
+                    box-shadow: 0 0 24px rgba({{ rgb[0] }}, {{ rgb[1] }}, {{ rgb[2] }}, 0.25) !important;
+                  {% else %}
+                    background: rgba(15, 23, 42, 0.75) !important;
+                    border: 1px solid rgba(255, 255, 255, 0.08) !important;
+                  {% endif %}
+                  border-radius: 18px !important;
+                  backdrop-filter: blur(16px) !important;
+                  transition: all 0.35s ease !important;
+                }
+          - type: tile
+            entity: switch.backyard_plug_itself
+            name: Outdoor Lights Master
+            icon: mdi:power-socket-us
+            vertical: false
+            features:
+              - type: toggle
+            card_mod:
+              style: |
+                ha-card {
+                  border-radius: 18px !important;
+                }
+    footer:
+      card:
+        type: custom:dashboard-footer-card
+        background: rgba(10, 15, 29, 0.96)
+        blur: true
+        floating_mobile: true
+        floating_desktop: true
+        bottom_offset: 12px
+        max_width: 480px
+        icon_size: 24
+        font_size: 11
+        card_mod:
+          style: |
+            ha-card.footer-card {
+              background: rgba(10, 15, 29, 0.95) !important;
+              backdrop-filter: blur(24px) saturate(180%) !important;
+              -webkit-backdrop-filter: blur(24px) saturate(180%) !important;
+              border: 1px solid rgba(255, 255, 255, 0.18) !important;
+              box-shadow: 0 16px 36px rgba(0, 0, 0, 0.85), 0 0 1px rgba(255, 255, 255, 0.2) !important;
+              border-radius: 24px !important;
+            }
+
+            .route:not(.active) .route-icon-wrap ha-icon {
+              color: rgba(226, 232, 240, 0.75) !important;
+            }
+
+            .route:not(.active) .route-label {
+              color: rgba(203, 213, 225, 0.75) !important;
+              font-weight: 500 !important;
+            }
+
+            .route.active .route-label {
+              color: #ffffff !important;
+              font-weight: 700 !important;
+            }
+
+            .popup-menu {
+              background: rgba(10, 15, 29, 0.96) !important;
+              backdrop-filter: blur(24px) saturate(180%) !important;
+              -webkit-backdrop-filter: blur(24px) saturate(180%) !important;
+              border: 1px solid rgba(255, 255, 255, 0.18) !important;
+              box-shadow: 0 16px 36px rgba(0, 0, 0, 0.85) !important;
+              border-radius: 20px !important;
+              padding: 6px 0 !important;
+            }
+
+            .popup-item {
+              padding: 10px 18px !important;
+              color: #cbd5e1 !important;
+              font-size: 13px !important;
+              font-weight: 600 !important;
+            }
+
+            .popup-item:hover {
+              background: rgba(255, 255, 255, 0.08) !important;
+            }
+
+            .popup-item.active {
+              color: #fbbf24 !important;
+            }
+        routes:
+          - icon: mdi:lightbulb-group
+            label: Lighting
+            path: /smart-home/lights
+            tap_action: open-popup
+            hold_action: open-popup
+            swipe_action: open-popup
+            highlight_for_subroutes: true
+            icon_color: rgba(226, 232, 240, 0.75)
+            active_color: "#fbbf24"
+            badge_content: >-
+              {% set on_count = expand('light.master_bedroom_fan_hunter_light', 'light.master_bathroom_bathroom_lights', 'light.office_office_1', 'light.office_office_2', 'light.office_shelf_strip', 'switch.backyard_plug_itself_patio_lights', 'switch.backyard_plug_itself_deck_lights', 'light.fan_lights', 'light.garage_left', 'light.garage_right', 'light.1') | selectattr('state', 'eq', 'on') | list | count %}
+              {% if on_count > 0 %}{{ on_count }}{% endif %}
+            badge_color: "#fbbf24"
+            sub_routes:
+              - icon: mdi:view-dashboard
+                label: All Lights Overview
+                path: /smart-home/lights
+              - icon: mdi:garage
+                label: Garage
+                path: /smart-home/garage
+              - icon: mdi:outdoor-lamp
+                label: Porch
+                path: /smart-home/porch
+              - icon: mdi:desk
+                label: Office
+                path: /smart-home/office
+              - icon: mdi:silverware-fork-knife
+                label: Dining Room
+                path: /smart-home/dining
+              - icon: mdi:bed
+                label: Master Bedroom
+                path: /smart-home/bedroom
+              - icon: mdi:shower
+                label: Master Bathroom
+                path: /smart-home/bathroom
+              - icon: mdi:tree
+                label: Backyard
+                path: /smart-home/backyard
+          - icon: mdi:home-variant
+            label: Rooms
+            path: /smart-home/rooms
+            icon_color: rgba(226, 232, 240, 0.75)
+            active_color: "#38bdf8"
+          - icon: mdi:shield-home
+            label: Security
+            path: /smart-home/security
+            icon_color: rgba(226, 232, 240, 0.75)
+            active_color: "#2dd4bf"
+            badge_content: >-
+              {% if is_state('lock.front_door_sense_lock_lock_mechanism', 'unlocked') %}!{% endif %}
+            badge_color: "#ef4444"
+  # =========================================================================
+  # TAB 3: 🔒 CLIMATE & SECURITY
+  # =========================================================================
+  - title: Climate & Security
+    path: security
+    icon: mdi:shield-home
+    subview: true
+    type: sections
+    max_columns: 2
+    background: radial-gradient(ellipse at 25% 0%, rgba(239,68,68,0.06) 0%, transparent 50%), radial-gradient(ellipse at 75% 100%, rgba(56,189,248,0.06) 0%, transparent 50%), linear-gradient(180deg, #09090f 0%, #0f0f18 30%, #0c0c14 70%, #060610 100%) fixed
+    card_mod:
+      style: |
+        hui-sections-view {
+          --ha-card-background: rgba(15, 23, 42, 0.75);
+          --ha-card-border-color: rgba(255, 255, 255, 0.08);
+          --ha-card-border-radius: 18px;
+        }
+    sections:
+      # SECTION 1: 📹 DOORBELL LIVE SURVEILLANCE & ACCESS
+      - type: grid
+        cards:
+          - type: heading
+            heading: "📹  Front Doorbell Live Feed"
+            icon: mdi:cctv
+          - type: picture-entity
+            entity: camera.front_door_doorbell
+            name: Front Doorbell Camera
+            camera_view: live
+            show_name: true
+            show_state: true
+            card_mod:
+              style: |
+                ha-card {
+                  border-radius: 18px !important;
+                  overflow: hidden !important;
+                  border: 1px solid rgba(255, 255, 255, 0.08) !important;
+                  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.35) !important;
+                }
+          - type: tile
+            entity: lock.front_door_sense_lock_lock_mechanism
+            name: Front Door Sense Lock
+            icon: mdi:door-closed-lock
+            vertical: false
+            features:
+              - type: lock-commands
+            card_mod:
+              style: |
+                ha-card {
+                  {% if is_state('lock.front_door_sense_lock_lock_mechanism', 'locked') %}
+                    background: rgba(34, 197, 94, 0.10) !important;
+                    border: 1px solid rgba(34, 197, 94, 0.30) !important;
+                    box-shadow: 0 0 20px rgba(34, 197, 94, 0.15) !important;
+                  {% else %}
+                    background: rgba(239, 68, 68, 0.12) !important;
+                    border: 1px solid rgba(239, 68, 68, 0.35) !important;
+                    box-shadow: 0 0 24px rgba(239, 68, 68, 0.20) !important;
+                  {% endif %}
+                  border-radius: 18px !important;
+                  backdrop-filter: blur(16px) !important;
+                }
+          - type: tile
+            entity: timer.front_door_auto_lock_timer
+            name: Auto-Lock Countdown
+            icon: mdi:timer-lock
+            vertical: false
+            card_mod:
+              style: |
+                ha-card {
+                  background: rgba(15, 23, 42, 0.75) !important;
+                  border: 1px solid rgba(255, 255, 255, 0.08) !important;
+                  border-radius: 18px !important;
+                }
+
+      # SECTION 2: 🌡️ MAIN HVAC & THERMOSTAT
+      - type: grid
+        cards:
+          - type: heading
+            heading: "🌡️  Nest Main Thermostat"
+            icon: mdi:thermostat
+          - type: thermostat
+            entity: climate.master_bedroom_main_thermostat
+            name: Master Bedroom Main Thermostat
+            card_mod:
+              style: |
+                ha-card {
+                  background: rgba(15, 23, 42, 0.85) !important;
+                  border: 1px solid rgba(255, 255, 255, 0.08) !important;
+                  border-radius: 20px !important;
+                  backdrop-filter: blur(20px) !important;
+                  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.30) !important;
+                }
+          - type: tile
+            entity: binary_sensor.nest_compressor_active
+            name: AC Compressor
+            icon: mdi:fan-alert
+            vertical: false
+            card_mod:
+              style: |
+                ha-card {
+                  {% if is_state('binary_sensor.nest_compressor_active', 'on') %}
+                    background: rgba(56, 189, 248, 0.12) !important;
+                    border: 1px solid rgba(56, 189, 248, 0.35) !important;
+                    box-shadow: 0 0 24px rgba(56, 189, 248, 0.20) !important;
+                  {% else %}
+                    background: rgba(15, 23, 42, 0.75) !important;
+                    border: 1px solid rgba(255, 255, 255, 0.08) !important;
+                  {% endif %}
+                  border-radius: 18px !important;
+                  backdrop-filter: blur(16px) !important;
+                }
+          - type: tile
+            entity: sensor.solar_cooling_budget_remaining_today
+            name: Solar Cooling Budget Left
+            icon: mdi:timer-sand
+            vertical: false
+            card_mod:
+              style: |
+                ha-card {
+                  background: rgba(251, 191, 36, 0.08) !important;
+                  border: 1px solid rgba(251, 191, 36, 0.25) !important;
+                  border-radius: 18px !important;
+                  backdrop-filter: blur(16px) !important;
+                }
+    footer:
+      card:
+        type: custom:dashboard-footer-card
+        background: rgba(10, 15, 29, 0.96)
+        blur: true
+        floating_mobile: true
+        floating_desktop: true
+        bottom_offset: 12px
+        max_width: 480px
+        icon_size: 24
+        font_size: 11
+        card_mod:
+          style: |
+            ha-card.footer-card {
+              background: rgba(10, 15, 29, 0.95) !important;
+              backdrop-filter: blur(24px) saturate(180%) !important;
+              -webkit-backdrop-filter: blur(24px) saturate(180%) !important;
+              border: 1px solid rgba(255, 255, 255, 0.18) !important;
+              box-shadow: 0 16px 36px rgba(0, 0, 0, 0.85), 0 0 1px rgba(255, 255, 255, 0.2) !important;
+              border-radius: 24px !important;
+            }
+
+            .route:not(.active) .route-icon-wrap ha-icon {
+              color: rgba(226, 232, 240, 0.75) !important;
+            }
+
+            .route:not(.active) .route-label {
+              color: rgba(203, 213, 225, 0.75) !important;
+              font-weight: 500 !important;
+            }
+
+            .route.active .route-label {
+              color: #ffffff !important;
+              font-weight: 700 !important;
+            }
+
+            .popup-menu {
+              background: rgba(10, 15, 29, 0.96) !important;
+              backdrop-filter: blur(24px) saturate(180%) !important;
+              -webkit-backdrop-filter: blur(24px) saturate(180%) !important;
+              border: 1px solid rgba(255, 255, 255, 0.18) !important;
+              box-shadow: 0 16px 36px rgba(0, 0, 0, 0.85) !important;
+              border-radius: 20px !important;
+              padding: 6px 0 !important;
+            }
+
+            .popup-item {
+              padding: 10px 18px !important;
+              color: #cbd5e1 !important;
+              font-size: 13px !important;
+              font-weight: 600 !important;
+            }
+
+            .popup-item:hover {
+              background: rgba(255, 255, 255, 0.08) !important;
+            }
+
+            .popup-item.active {
+              color: #fbbf24 !important;
+            }
+        routes:
+          - icon: mdi:lightbulb-group
+            label: Lighting
+            path: /smart-home/lights
+            tap_action: open-popup
+            hold_action: open-popup
+            swipe_action: open-popup
+            highlight_for_subroutes: true
+            icon_color: rgba(226, 232, 240, 0.75)
+            active_color: "#fbbf24"
+            badge_content: >-
+              {% set on_count = expand('light.master_bedroom_fan_hunter_light', 'light.master_bathroom_bathroom_lights', 'light.office_office_1', 'light.office_office_2', 'light.office_shelf_strip', 'switch.backyard_plug_itself_patio_lights', 'switch.backyard_plug_itself_deck_lights', 'light.fan_lights', 'light.garage_left', 'light.garage_right', 'light.1') | selectattr('state', 'eq', 'on') | list | count %}
+              {% if on_count > 0 %}{{ on_count }}{% endif %}
+            badge_color: "#fbbf24"
+            sub_routes:
+              - icon: mdi:view-dashboard
+                label: All Lights Overview
+                path: /smart-home/lights
+              - icon: mdi:garage
+                label: Garage
+                path: /smart-home/garage
+              - icon: mdi:outdoor-lamp
+                label: Porch
+                path: /smart-home/porch
+              - icon: mdi:desk
+                label: Office
+                path: /smart-home/office
+              - icon: mdi:silverware-fork-knife
+                label: Dining Room
+                path: /smart-home/dining
+              - icon: mdi:bed
+                label: Master Bedroom
+                path: /smart-home/bedroom
+              - icon: mdi:shower
+                label: Master Bathroom
+                path: /smart-home/bathroom
+              - icon: mdi:tree
+                label: Backyard
+                path: /smart-home/backyard
+          - icon: mdi:home-variant
+            label: Rooms
+            path: /smart-home/rooms
+            icon_color: rgba(226, 232, 240, 0.75)
+            active_color: "#38bdf8"
+          - icon: mdi:shield-home
+            label: Security
+            path: /smart-home/security
+            icon_color: rgba(226, 232, 240, 0.75)
+            active_color: "#2dd4bf"
+            badge_content: >-
+              {% if is_state('lock.front_door_sense_lock_lock_mechanism', 'unlocked') %}!{% endif %}
+            badge_color: "#ef4444"
+  # =========================================================================
+  # SUBVIEW: GARAGE
+  # =========================================================================
+  - title: Garage
+    path: garage
+    icon: mdi:garage
+    subview: true
+    type: sections
+    max_columns: 2
+    background: radial-gradient(ellipse at 25% 0%, rgba(56,189,248,0.07) 0%, transparent 50%), linear-gradient(180deg, #09090f 0%, #0f0f18 30%, #0c0c14 70%, #060610 100%) fixed
+    card_mod:
+      style: |
+        hui-sections-view {
+          --ha-card-background: rgba(15, 23, 42, 0.75);
+          --ha-card-border-color: rgba(255, 255, 255, 0.08);
+          --ha-card-border-radius: 18px;
+        }
+    sections:
+      # SECTION 2: 🚗 GARAGE
+      - type: grid
+        cards:
+          - type: heading
+            heading: "🚗  Garage"
+            icon: mdi:garage-open
+          - type: heading
+            heading: Overhead Bay Fixtures
+            heading_style: subtitle
+          - type: tile
+            entity: light.garage_left
+            name: "🚗 Garage Left"
+            icon: mdi:garage
+            vertical: false
+            tap_action:
+              action: more-info
+            icon_tap_action:
+              action: toggle
+            features:
+              - type: toggle
+              - type: light-brightness
+              - type: light-color-temp
+            card_mod:
+              style: |
+                ha-card {
+                  {% if is_state('light.garage_left', 'on') %}
+                    {% set rgb = state_attr('light.garage_left', 'rgb_color') or [56, 189, 248] %}
+                    background: rgba({{ rgb[0] }}, {{ rgb[1] }}, {{ rgb[2] }}, 0.12) !important;
+                    border: 1px solid rgba({{ rgb[0] }}, {{ rgb[1] }}, {{ rgb[2] }}, 0.35) !important;
+                    box-shadow: 0 0 24px rgba({{ rgb[0] }}, {{ rgb[1] }}, {{ rgb[2] }}, 0.18) !important;
+                  {% else %}
+                    background: rgba(15, 23, 42, 0.75) !important;
+                    border: 1px solid rgba(255, 255, 255, 0.08) !important;
+                  {% endif %}
+                  border-radius: 18px !important;
+                  backdrop-filter: blur(16px) !important;
+                  transition: all 0.35s ease !important;
+                }
+          - type: tile
+            entity: light.garage_right
+            name: "🚙 Garage Right"
+            icon: mdi:garage
+            vertical: false
+            tap_action:
+              action: more-info
+            icon_tap_action:
+              action: toggle
+            features:
+              - type: toggle
+              - type: light-brightness
+              - type: light-color-temp
+            card_mod:
+              style: |
+                ha-card {
+                  {% if is_state('light.garage_right', 'on') %}
+                    {% set rgb = state_attr('light.garage_right', 'rgb_color') or [56, 189, 248] %}
+                    background: rgba({{ rgb[0] }}, {{ rgb[1] }}, {{ rgb[2] }}, 0.12) !important;
+                    border: 1px solid rgba({{ rgb[0] }}, {{ rgb[1] }}, {{ rgb[2] }}, 0.35) !important;
+                    box-shadow: 0 0 24px rgba({{ rgb[0] }}, {{ rgb[1] }}, {{ rgb[2] }}, 0.18) !important;
+                  {% else %}
+                    background: rgba(15, 23, 42, 0.75) !important;
+                    border: 1px solid rgba(255, 255, 255, 0.08) !important;
+                  {% endif %}
+                  border-radius: 18px !important;
+                  backdrop-filter: blur(16px) !important;
+                  transition: all 0.35s ease !important;
+                }
+
+    footer:
+      card:
+        type: custom:dashboard-footer-card
+        background: rgba(10, 15, 29, 0.96)
+        blur: true
+        floating_mobile: true
+        floating_desktop: true
+        bottom_offset: 12px
+        max_width: 480px
+        icon_size: 24
+        font_size: 11
+        card_mod:
+          style: |
+            ha-card.footer-card {
+              background: rgba(10, 15, 29, 0.95) !important;
+              backdrop-filter: blur(24px) saturate(180%) !important;
+              -webkit-backdrop-filter: blur(24px) saturate(180%) !important;
+              border: 1px solid rgba(255, 255, 255, 0.18) !important;
+              box-shadow: 0 16px 36px rgba(0, 0, 0, 0.85), 0 0 1px rgba(255, 255, 255, 0.2) !important;
+              border-radius: 24px !important;
+            }
+
+            .route:not(.active) .route-icon-wrap ha-icon {
+              color: rgba(226, 232, 240, 0.75) !important;
+            }
+
+            .route:not(.active) .route-label {
+              color: rgba(203, 213, 225, 0.75) !important;
+              font-weight: 500 !important;
+            }
+
+            .route.active .route-label {
+              color: #ffffff !important;
+              font-weight: 700 !important;
+            }
+
+            .popup-menu {
+              background: rgba(10, 15, 29, 0.96) !important;
+              backdrop-filter: blur(24px) saturate(180%) !important;
+              -webkit-backdrop-filter: blur(24px) saturate(180%) !important;
+              border: 1px solid rgba(255, 255, 255, 0.18) !important;
+              box-shadow: 0 16px 36px rgba(0, 0, 0, 0.85) !important;
+              border-radius: 20px !important;
+              padding: 6px 0 !important;
+            }
+
+            .popup-item {
+              padding: 10px 18px !important;
+              color: #cbd5e1 !important;
+              font-size: 13px !important;
+              font-weight: 600 !important;
+            }
+
+            .popup-item:hover {
+              background: rgba(255, 255, 255, 0.08) !important;
+            }
+
+            .popup-item.active {
+              color: #fbbf24 !important;
+            }
+        routes:
+          - icon: mdi:lightbulb-group
+            label: Lighting
+            path: /smart-home/lights
+            tap_action: open-popup
+            hold_action: open-popup
+            swipe_action: open-popup
+            highlight_for_subroutes: true
+            icon_color: rgba(226, 232, 240, 0.75)
+            active_color: "#fbbf24"
+            badge_content: >-
+              {% set on_count = expand('light.master_bedroom_fan_hunter_light', 'light.master_bathroom_bathroom_lights', 'light.office_office_1', 'light.office_office_2', 'light.office_shelf_strip', 'switch.backyard_plug_itself_patio_lights', 'switch.backyard_plug_itself_deck_lights', 'light.fan_lights', 'light.garage_left', 'light.garage_right', 'light.1') | selectattr('state', 'eq', 'on') | list | count %}
+              {% if on_count > 0 %}{{ on_count }}{% endif %}
+            badge_color: "#fbbf24"
+            sub_routes:
+              - icon: mdi:view-dashboard
+                label: All Lights Overview
+                path: /smart-home/lights
+              - icon: mdi:garage
+                label: Garage
+                path: /smart-home/garage
+              - icon: mdi:outdoor-lamp
+                label: Porch
+                path: /smart-home/porch
+              - icon: mdi:desk
+                label: Office
+                path: /smart-home/office
+              - icon: mdi:silverware-fork-knife
+                label: Dining Room
+                path: /smart-home/dining
+              - icon: mdi:bed
+                label: Master Bedroom
+                path: /smart-home/bedroom
+              - icon: mdi:shower
+                label: Master Bathroom
+                path: /smart-home/bathroom
+              - icon: mdi:tree
+                label: Backyard
+                path: /smart-home/backyard
+          - icon: mdi:home-variant
+            label: Rooms
+            path: /smart-home/rooms
+            icon_color: rgba(226, 232, 240, 0.75)
+            active_color: "#38bdf8"
+          - icon: mdi:shield-home
+            label: Security
+            path: /smart-home/security
+            icon_color: rgba(226, 232, 240, 0.75)
+            active_color: "#2dd4bf"
+            badge_content: >-
+              {% if is_state('lock.front_door_sense_lock_lock_mechanism', 'unlocked') %}!{% endif %}
+            badge_color: "#ef4444"
+  # =========================================================================
+  # SUBVIEW: PORCH
+  # =========================================================================
+  - title: Porch
+    path: porch
+    icon: mdi:outdoor-lamp
+    subview: true
+    type: sections
+    max_columns: 2
+    background: radial-gradient(ellipse at 25% 0%, rgba(34,197,94,0.07) 0%, transparent 50%), linear-gradient(180deg, #09090f 0%, #0f0f18 30%, #0c0c14 70%, #060610 100%) fixed
+    card_mod:
+      style: |
+        hui-sections-view {
+          --ha-card-background: rgba(15, 23, 42, 0.75);
+          --ha-card-border-color: rgba(255, 255, 255, 0.08);
+          --ha-card-border-radius: 18px;
+        }
+    sections:
+      # SECTION 3: 🚪 FRONT PORCH
+      - type: grid
+        cards:
+          - type: heading
+            heading: "🚪  Porch"
+            icon: mdi:outdoor-lamp
+          - type: heading
+            heading: Front Entryway Fixture
+            heading_style: subtitle
+          - type: tile
+            entity: light.1
+            name: "🚪 Front Porch"
+            icon: mdi:outdoor-lamp
+            vertical: false
+            tap_action:
+              action: more-info
+            icon_tap_action:
+              action: toggle
+            features:
+              - type: toggle
+              - type: light-brightness
+              - type: light-color-temp
+            card_mod:
+              style: |
+                ha-card {
+                  {% if is_state('light.1', 'on') %}
+                    {% set rgb = state_attr('light.1', 'rgb_color') or [34, 197, 94] %}
+                    background: rgba({{ rgb[0] }}, {{ rgb[1] }}, {{ rgb[2] }}, 0.12) !important;
+                    border: 1px solid rgba({{ rgb[0] }}, {{ rgb[1] }}, {{ rgb[2] }}, 0.35) !important;
+                    box-shadow: 0 0 24px rgba({{ rgb[0] }}, {{ rgb[1] }}, {{ rgb[2] }}, 0.18) !important;
+                  {% else %}
+                    background: rgba(15, 23, 42, 0.75) !important;
+                    border: 1px solid rgba(255, 255, 255, 0.08) !important;
+                  {% endif %}
+                  border-radius: 18px !important;
+                  backdrop-filter: blur(16px) !important;
+                  transition: all 0.35s ease !important;
+                }
+
+    footer:
+      card:
+        type: custom:dashboard-footer-card
+        background: rgba(10, 15, 29, 0.96)
+        blur: true
+        floating_mobile: true
+        floating_desktop: true
+        bottom_offset: 12px
+        max_width: 480px
+        icon_size: 24
+        font_size: 11
+        card_mod:
+          style: |
+            ha-card.footer-card {
+              background: rgba(10, 15, 29, 0.95) !important;
+              backdrop-filter: blur(24px) saturate(180%) !important;
+              -webkit-backdrop-filter: blur(24px) saturate(180%) !important;
+              border: 1px solid rgba(255, 255, 255, 0.18) !important;
+              box-shadow: 0 16px 36px rgba(0, 0, 0, 0.85), 0 0 1px rgba(255, 255, 255, 0.2) !important;
+              border-radius: 24px !important;
+            }
+
+            .route:not(.active) .route-icon-wrap ha-icon {
+              color: rgba(226, 232, 240, 0.75) !important;
+            }
+
+            .route:not(.active) .route-label {
+              color: rgba(203, 213, 225, 0.75) !important;
+              font-weight: 500 !important;
+            }
+
+            .route.active .route-label {
+              color: #ffffff !important;
+              font-weight: 700 !important;
+            }
+
+            .popup-menu {
+              background: rgba(10, 15, 29, 0.96) !important;
+              backdrop-filter: blur(24px) saturate(180%) !important;
+              -webkit-backdrop-filter: blur(24px) saturate(180%) !important;
+              border: 1px solid rgba(255, 255, 255, 0.18) !important;
+              box-shadow: 0 16px 36px rgba(0, 0, 0, 0.85) !important;
+              border-radius: 20px !important;
+              padding: 6px 0 !important;
+            }
+
+            .popup-item {
+              padding: 10px 18px !important;
+              color: #cbd5e1 !important;
+              font-size: 13px !important;
+              font-weight: 600 !important;
+            }
+
+            .popup-item:hover {
+              background: rgba(255, 255, 255, 0.08) !important;
+            }
+
+            .popup-item.active {
+              color: #fbbf24 !important;
+            }
+        routes:
+          - icon: mdi:lightbulb-group
+            label: Lighting
+            path: /smart-home/lights
+            tap_action: open-popup
+            hold_action: open-popup
+            swipe_action: open-popup
+            highlight_for_subroutes: true
+            icon_color: rgba(226, 232, 240, 0.75)
+            active_color: "#fbbf24"
+            badge_content: >-
+              {% set on_count = expand('light.master_bedroom_fan_hunter_light', 'light.master_bathroom_bathroom_lights', 'light.office_office_1', 'light.office_office_2', 'light.office_shelf_strip', 'switch.backyard_plug_itself_patio_lights', 'switch.backyard_plug_itself_deck_lights', 'light.fan_lights', 'light.garage_left', 'light.garage_right', 'light.1') | selectattr('state', 'eq', 'on') | list | count %}
+              {% if on_count > 0 %}{{ on_count }}{% endif %}
+            badge_color: "#fbbf24"
+            sub_routes:
+              - icon: mdi:view-dashboard
+                label: All Lights Overview
+                path: /smart-home/lights
+              - icon: mdi:garage
+                label: Garage
+                path: /smart-home/garage
+              - icon: mdi:outdoor-lamp
+                label: Porch
+                path: /smart-home/porch
+              - icon: mdi:desk
+                label: Office
+                path: /smart-home/office
+              - icon: mdi:silverware-fork-knife
+                label: Dining Room
+                path: /smart-home/dining
+              - icon: mdi:bed
+                label: Master Bedroom
+                path: /smart-home/bedroom
+              - icon: mdi:shower
+                label: Master Bathroom
+                path: /smart-home/bathroom
+              - icon: mdi:tree
+                label: Backyard
+                path: /smart-home/backyard
+          - icon: mdi:home-variant
+            label: Rooms
+            path: /smart-home/rooms
+            icon_color: rgba(226, 232, 240, 0.75)
+            active_color: "#38bdf8"
+          - icon: mdi:shield-home
+            label: Security
+            path: /smart-home/security
+            icon_color: rgba(226, 232, 240, 0.75)
+            active_color: "#2dd4bf"
+            badge_content: >-
+              {% if is_state('lock.front_door_sense_lock_lock_mechanism', 'unlocked') %}!{% endif %}
+            badge_color: "#ef4444"
+  # =========================================================================
+  # SUBVIEW: OFFICE
+  # =========================================================================
+  - title: Office
+    path: office
+    icon: mdi:desk
+    subview: true
+    type: sections
+    max_columns: 2
+    background: radial-gradient(ellipse at 25% 0%, rgba(168,85,247,0.07) 0%, transparent 50%), linear-gradient(180deg, #09090f 0%, #0f0f18 30%, #0c0c14 70%, #060610 100%) fixed
+    card_mod:
+      style: |
+        hui-sections-view {
+          --ha-card-background: rgba(15, 23, 42, 0.75);
+          --ha-card-border-color: rgba(255, 255, 255, 0.08);
+          --ha-card-border-radius: 18px;
+        }
+    sections:
+      # SECTION 4: 💻 OFFICE (PHILIPS HUE BULBS)
+      - type: grid
+        cards:
+          - type: heading
+            heading: "💻  Office"
+            icon: mdi:desk
+          - type: heading
+            heading: Philips Hue Full Color & Ambiance
+            heading_style: subtitle
+          - type: tile
+            entity: light.office_office
+            name: "💡 All Office Lights"
+            icon: mdi:lightbulb-group
+            vertical: false
+            tap_action:
+              action: more-info
+            icon_tap_action:
+              action: toggle
+            features:
+              - type: toggle
+              - type: light-brightness
+              - type: light-color-temp
+            card_mod:
+              style: |
+                ha-card {
+                  {% if is_state('light.office_office', 'on') %}
+                    {% set rgb = state_attr('light.office_office', 'rgb_color') or [168, 85, 247] %}
+                    background: rgba({{ rgb[0] }}, {{ rgb[1] }}, {{ rgb[2] }}, 0.15) !important;
+                    border: 1px solid rgba({{ rgb[0] }}, {{ rgb[1] }}, {{ rgb[2] }}, 0.45) !important;
+                    box-shadow: 0 0 24px rgba({{ rgb[0] }}, {{ rgb[1] }}, {{ rgb[2] }}, 0.25), 0 4px 16px rgba(0, 0, 0, 0.3) !important;
+                  {% else %}
+                    background: rgba(15, 23, 42, 0.75) !important;
+                    border: 1px solid rgba(255, 255, 255, 0.08) !important;
+                    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2) !important;
+                  {% endif %}
+                  border-radius: 18px !important;
+                  backdrop-filter: blur(16px) !important;
+                  transition: all 0.35s ease !important;
+                }
+
+          # Rainbow Mode Toggle
+          - type: heading
+            heading: 🌈 Rainbow Mode
+            heading_style: subtitle
+          - type: tile
+            entity: input_boolean.office_rainbow_mode
+            name: "🌈 Hue Rainbow Cycle"
+            icon: mdi:palette
+            color: purple
+            vertical: false
+            tap_action:
+              action: call-service
+              service: script.toggle_office_rainbow
+            icon_tap_action:
+              action: call-service
+              service: script.toggle_office_rainbow
+            card_mod:
+              style: |
+                ha-card {
+                  {% if is_state('input_boolean.office_rainbow_mode', 'on') %}
+                    background: linear-gradient(135deg,
+                      rgba(255,0,80,0.22),
+                      rgba(255,120,0,0.18),
+                      rgba(0,200,255,0.18),
+                      rgba(168,85,247,0.22)
+                    ) !important;
+                    border: 1px solid rgba(168, 85, 247, 0.55) !important;
+                    box-shadow: 0 0 25px rgba(168, 85, 247, 0.35) !important;
+                    animation: rainbow-pulse 3s ease-in-out infinite !important;
+                  {% else %}
+                    background: rgba(168, 85, 247, 0.08) !important;
+                    border: 1px solid rgba(168, 85, 247, 0.22) !important;
+                  {% endif %}
+                  border-radius: 16px !important;
+                  backdrop-filter: blur(16px) !important;
+                  transition: all 0.35s ease !important;
+                }
+                @keyframes rainbow-pulse {
+                  0%, 100% { box-shadow: 0 0 24px rgba(255, 80, 80, 0.45) !important; }
+                  25%      { box-shadow: 0 0 24px rgba(80, 255, 80, 0.45) !important; }
+                  50%      { box-shadow: 0 0 24px rgba(80, 80, 255, 0.45) !important; }
+                  75%      { box-shadow: 0 0 24px rgba(255, 80, 255, 0.45) !important; }
+                }
+                ha-card:hover {
+                  background: rgba(168, 85, 247, 0.18) !important;
+                  border-color: rgba(168, 85, 247, 0.55) !important;
+                }
+                ha-card:active { transform: scale(0.98) !important; }
+                .primary {
+                  font-weight: 700 !important;
+                  font-size: 14px !important;
+                }
+                .secondary {
+                  display: block !important;
+                  font-size: 12px !important;
+                  font-weight: 600 !important;
+                  {% if is_state('input_boolean.office_rainbow_mode', 'on') %}
+                    color: #e2e8f0 !important;
+                  {% else %}
+                    color: #94a3b8 !important;
+                  {% endif %}
+                }
+                .secondary::after {
+                  content: "{% if is_state('input_boolean.office_rainbow_mode', 'on') %} • Cycling Colors (Tap to Stop){% else %} • Tap to Start{% endif %}" !important;
+                }
+
+          # Quick Hue Ambiance Scene Presets
+          - type: heading
+            heading: Hue Color & Light Scenes
+            heading_style: subtitle
+          - type: grid
+            columns: 2
+            square: false
+            cards:
+              - type: tile
+                entity: scene.office_office_concentrate
+                name: "🎯 Concentrate"
+                icon: mdi:head-lightbulb
+                color: light-blue
+                vertical: false
+                tap_action:
+                  action: call-service
+                  service: scene.turn_on
+                  target:
+                    entity_id: scene.office_office_concentrate
+                icon_tap_action:
+                  action: call-service
+                  service: scene.turn_on
+                  target:
+                    entity_id: scene.office_office_concentrate
+                card_mod:
+                  style: |
+                    ha-card {
+                      background: rgba(56, 189, 248, 0.08) !important;
+                      border: 1px solid rgba(56, 189, 248, 0.22) !important;
+                      border-radius: 16px !important;
+                      backdrop-filter: blur(16px) !important;
+                      transition: all 0.25s ease !important;
+                    }
+                    ha-card:hover {
+                      background: rgba(56, 189, 248, 0.16) !important;
+                      border-color: rgba(56, 189, 248, 0.45) !important;
+                      box-shadow: 0 0 18px rgba(56, 189, 248, 0.25) !important;
+                    }
+                    ha-card:active {
+                      transform: scale(0.97) !important;
+                    }
+                    .secondary {
+                      display: none !important;
+                    }
+                    .primary {
+                      font-weight: 700 !important;
+                      font-size: 13.5px !important;
+                    }
+
+              - type: tile
+                entity: scene.office_office_energize
+                name: "⚡ Energize"
+                icon: mdi:lightning-bolt
+                color: amber
+                vertical: false
+                tap_action:
+                  action: call-service
+                  service: scene.turn_on
+                  target:
+                    entity_id: scene.office_office_energize
+                icon_tap_action:
+                  action: call-service
+                  service: scene.turn_on
+                  target:
+                    entity_id: scene.office_office_energize
+                card_mod:
+                  style: |
+                    ha-card {
+                      background: rgba(245, 158, 11, 0.08) !important;
+                      border: 1px solid rgba(245, 158, 11, 0.22) !important;
+                      border-radius: 16px !important;
+                      backdrop-filter: blur(16px) !important;
+                      transition: all 0.25s ease !important;
+                    }
+                    ha-card:hover {
+                      background: rgba(245, 158, 11, 0.16) !important;
+                      border-color: rgba(245, 158, 11, 0.45) !important;
+                      box-shadow: 0 0 18px rgba(245, 158, 11, 0.25) !important;
+                    }
+                    ha-card:active {
+                      transform: scale(0.97) !important;
+                    }
+                    .secondary {
+                      display: none !important;
+                    }
+                    .primary {
+                      font-weight: 700 !important;
+                      font-size: 13.5px !important;
+                    }
+
+              - type: tile
+                entity: scene.office_office_relax
+                name: "🧘 Relax"
+                icon: mdi:weather-sunset
+                color: orange
+                vertical: false
+                tap_action:
+                  action: call-service
+                  service: scene.turn_on
+                  target:
+                    entity_id: scene.office_office_relax
+                icon_tap_action:
+                  action: call-service
+                  service: scene.turn_on
+                  target:
+                    entity_id: scene.office_office_relax
+                card_mod:
+                  style: |
+                    ha-card {
+                      background: rgba(249, 115, 22, 0.08) !important;
+                      border: 1px solid rgba(249, 115, 22, 0.22) !important;
+                      border-radius: 16px !important;
+                      backdrop-filter: blur(16px) !important;
+                      transition: all 0.25s ease !important;
+                    }
+                    ha-card:hover {
+                      background: rgba(249, 115, 22, 0.16) !important;
+                      border-color: rgba(249, 115, 22, 0.45) !important;
+                      box-shadow: 0 0 18px rgba(249, 115, 22, 0.25) !important;
+                    }
+                    ha-card:active {
+                      transform: scale(0.97) !important;
+                    }
+                    .secondary {
+                      display: none !important;
+                    }
+                    .primary {
+                      font-weight: 700 !important;
+                      font-size: 13.5px !important;
+                    }
+
+              - type: tile
+                entity: scene.office_office_arctic_aurora
+                name: "🌌 Arctic Aurora"
+                icon: mdi:aurora
+                color: teal
+                vertical: false
+                tap_action:
+                  action: call-service
+                  service: scene.turn_on
+                  target:
+                    entity_id: scene.office_office_arctic_aurora
+                icon_tap_action:
+                  action: call-service
+                  service: scene.turn_on
+                  target:
+                    entity_id: scene.office_office_arctic_aurora
+                card_mod:
+                  style: |
+                    ha-card {
+                      background: rgba(45, 212, 191, 0.08) !important;
+                      border: 1px solid rgba(45, 212, 191, 0.22) !important;
+                      border-radius: 16px !important;
+                      backdrop-filter: blur(16px) !important;
+                      transition: all 0.25s ease !important;
+                    }
+                    ha-card:hover {
+                      background: rgba(45, 212, 191, 0.16) !important;
+                      border-color: rgba(45, 212, 191, 0.45) !important;
+                      box-shadow: 0 0 18px rgba(45, 212, 191, 0.25) !important;
+                    }
+                    ha-card:active {
+                      transform: scale(0.97) !important;
+                    }
+                    .secondary {
+                      display: none !important;
+                    }
+                    .primary {
+                      font-weight: 700 !important;
+                      font-size: 13.5px !important;
+                    }
+
+              - type: tile
+                entity: scene.office_office_tropical_twilight
+                name: "🌅 Twilight"
+                icon: mdi:weather-night
+                color: purple
+                vertical: false
+                tap_action:
+                  action: call-service
+                  service: scene.turn_on
+                  target:
+                    entity_id: scene.office_office_tropical_twilight
+                icon_tap_action:
+                  action: call-service
+                  service: scene.turn_on
+                  target:
+                    entity_id: scene.office_office_tropical_twilight
+                card_mod:
+                  style: |
+                    ha-card {
+                      background: rgba(168, 85, 247, 0.08) !important;
+                      border: 1px solid rgba(168, 85, 247, 0.22) !important;
+                      border-radius: 16px !important;
+                      backdrop-filter: blur(16px) !important;
+                      transition: all 0.25s ease !important;
+                    }
+                    ha-card:hover {
+                      background: rgba(168, 85, 247, 0.16) !important;
+                      border-color: rgba(168, 85, 247, 0.45) !important;
+                      box-shadow: 0 0 18px rgba(168, 85, 247, 0.25) !important;
+                    }
+                    ha-card:active {
+                      transform: scale(0.97) !important;
+                    }
+                    .secondary {
+                      display: none !important;
+                    }
+                    .primary {
+                      font-weight: 700 !important;
+                      font-size: 13.5px !important;
+                    }
+
+              - type: tile
+                entity: scene.office_office_spring_blossom
+                name: "🌸 Blossom"
+                icon: mdi:flower
+                color: pink
+                vertical: false
+                tap_action:
+                  action: call-service
+                  service: scene.turn_on
+                  target:
+                    entity_id: scene.office_office_spring_blossom
+                icon_tap_action:
+                  action: call-service
+                  service: scene.turn_on
+                  target:
+                    entity_id: scene.office_office_spring_blossom
+                card_mod:
+                  style: |
+                    ha-card {
+                      background: rgba(244, 114, 182, 0.08) !important;
+                      border: 1px solid rgba(244, 114, 182, 0.22) !important;
+                      border-radius: 16px !important;
+                      backdrop-filter: blur(16px) !important;
+                      transition: all 0.25s ease !important;
+                    }
+                    ha-card:hover {
+                      background: rgba(244, 114, 182, 0.16) !important;
+                      border-color: rgba(244, 114, 182, 0.45) !important;
+                      box-shadow: 0 0 18px rgba(244, 114, 182, 0.25) !important;
+                    }
+                    ha-card:active {
+                      transform: scale(0.97) !important;
+                    }
+                    .secondary {
+                      display: none !important;
+                    }
+                    .primary {
+                      font-weight: 700 !important;
+                      font-size: 13.5px !important;
+                    }
+
+          - type: heading
+            heading: Ceiling Fixture Bulbs
+            heading_style: subtitle
+          - type: tile
+            entity: light.office_office_1
+            name: "💡 Ceiling Bulb 1"
+            icon: mdi:ceiling-light
+            vertical: false
+            tap_action:
+              action: more-info
+            icon_tap_action:
+              action: toggle
+            features:
+              - type: toggle
+              - type: light-brightness
+              - type: light-color-temp
+            card_mod:
+              style: |
+                ha-card {
+                  {% if is_state('light.office_office_1', 'on') %}
+                    {% set rgb = state_attr('light.office_office_1', 'rgb_color') or [168, 85, 247] %}
+                    background: rgba({{ rgb[0] }}, {{ rgb[1] }}, {{ rgb[2] }}, 0.14) !important;
+                    border: 1px solid rgba({{ rgb[0] }}, {{ rgb[1] }}, {{ rgb[2] }}, 0.40) !important;
+                    box-shadow: 0 0 20px rgba({{ rgb[0] }}, {{ rgb[1] }}, {{ rgb[2] }}, 0.20) !important;
+                  {% else %}
+                    background: rgba(15, 23, 42, 0.75) !important;
+                    border: 1px solid rgba(255, 255, 255, 0.08) !important;
+                  {% endif %}
+                  border-radius: 18px !important;
+                  backdrop-filter: blur(16px) !important;
+                  transition: all 0.35s ease !important;
+                }
+          - type: tile
+            entity: light.office_office_2
+            name: "💡 Ceiling Bulb 2"
+            icon: mdi:ceiling-light
+            vertical: false
+            tap_action:
+              action: more-info
+            icon_tap_action:
+              action: toggle
+            features:
+              - type: toggle
+              - type: light-brightness
+              - type: light-color-temp
+            card_mod:
+              style: |
+                ha-card {
+                  {% if is_state('light.office_office_2', 'on') %}
+                    {% set rgb = state_attr('light.office_office_2', 'rgb_color') or [168, 85, 247] %}
+                    background: rgba({{ rgb[0] }}, {{ rgb[1] }}, {{ rgb[2] }}, 0.14) !important;
+                    border: 1px solid rgba({{ rgb[0] }}, {{ rgb[1] }}, {{ rgb[2] }}, 0.40) !important;
+                    box-shadow: 0 0 20px rgba({{ rgb[0] }}, {{ rgb[1] }}, {{ rgb[2] }}, 0.20) !important;
+                  {% else %}
+                    background: rgba(15, 23, 42, 0.75) !important;
+                    border: 1px solid rgba(255, 255, 255, 0.08) !important;
+                  {% endif %}
+                  border-radius: 18px !important;
+                  backdrop-filter: blur(16px) !important;
+                  transition: all 0.35s ease !important;
+                }
+
+          - type: heading
+            heading: Accent Lighting
+            heading_style: subtitle
+          - type: tile
+            entity: light.office_shelf_strip
+            name: "✨ Shelf Strip"
+            icon: mdi:led-strip-variant
+            vertical: false
+            tap_action:
+              action: more-info
+            icon_tap_action:
+              action: toggle
+            features:
+              - type: toggle
+              - type: light-brightness
+              - type: light-color-temp
+            card_mod:
+              style: |
+                ha-card {
+                  {% if is_state('light.office_shelf_strip', 'on') %}
+                    {% set rgb = state_attr('light.office_shelf_strip', 'rgb_color') or [56, 189, 248] %}
+                    background: rgba({{ rgb[0] }}, {{ rgb[1] }}, {{ rgb[2] }}, 0.14) !important;
+                    border: 1px solid rgba({{ rgb[0] }}, {{ rgb[1] }}, {{ rgb[2] }}, 0.40) !important;
+                    box-shadow: 0 0 20px rgba({{ rgb[0] }}, {{ rgb[1] }}, {{ rgb[2] }}, 0.20) !important;
+                  {% else %}
+                    background: rgba(15, 23, 42, 0.75) !important;
+                    border: 1px solid rgba(255, 255, 255, 0.08) !important;
+                  {% endif %}
+                  border-radius: 18px !important;
+                  backdrop-filter: blur(16px) !important;
+                  transition: all 0.35s ease !important;
+                }
+
+    footer:
+      card:
+        type: custom:dashboard-footer-card
+        background: rgba(10, 15, 29, 0.96)
+        blur: true
+        floating_mobile: true
+        floating_desktop: true
+        bottom_offset: 12px
+        max_width: 480px
+        icon_size: 24
+        font_size: 11
+        card_mod:
+          style: |
+            ha-card.footer-card {
+              background: rgba(10, 15, 29, 0.95) !important;
+              backdrop-filter: blur(24px) saturate(180%) !important;
+              -webkit-backdrop-filter: blur(24px) saturate(180%) !important;
+              border: 1px solid rgba(255, 255, 255, 0.18) !important;
+              box-shadow: 0 16px 36px rgba(0, 0, 0, 0.85), 0 0 1px rgba(255, 255, 255, 0.2) !important;
+              border-radius: 24px !important;
+            }
+
+            .route:not(.active) .route-icon-wrap ha-icon {
+              color: rgba(226, 232, 240, 0.75) !important;
+            }
+
+            .route:not(.active) .route-label {
+              color: rgba(203, 213, 225, 0.75) !important;
+              font-weight: 500 !important;
+            }
+
+            .route.active .route-label {
+              color: #ffffff !important;
+              font-weight: 700 !important;
+            }
+
+            .popup-menu {
+              background: rgba(10, 15, 29, 0.96) !important;
+              backdrop-filter: blur(24px) saturate(180%) !important;
+              -webkit-backdrop-filter: blur(24px) saturate(180%) !important;
+              border: 1px solid rgba(255, 255, 255, 0.18) !important;
+              box-shadow: 0 16px 36px rgba(0, 0, 0, 0.85) !important;
+              border-radius: 20px !important;
+              padding: 6px 0 !important;
+            }
+
+            .popup-item {
+              padding: 10px 18px !important;
+              color: #cbd5e1 !important;
+              font-size: 13px !important;
+              font-weight: 600 !important;
+            }
+
+            .popup-item:hover {
+              background: rgba(255, 255, 255, 0.08) !important;
+            }
+
+            .popup-item.active {
+              color: #fbbf24 !important;
+            }
+        routes:
+          - icon: mdi:lightbulb-group
+            label: Lighting
+            path: /smart-home/lights
+            tap_action: open-popup
+            hold_action: open-popup
+            swipe_action: open-popup
+            highlight_for_subroutes: true
+            icon_color: rgba(226, 232, 240, 0.75)
+            active_color: "#fbbf24"
+            badge_content: >-
+              {% set on_count = expand('light.master_bedroom_fan_hunter_light', 'light.master_bathroom_bathroom_lights', 'light.office_office_1', 'light.office_office_2', 'light.office_shelf_strip', 'switch.backyard_plug_itself_patio_lights', 'switch.backyard_plug_itself_deck_lights', 'light.fan_lights', 'light.garage_left', 'light.garage_right', 'light.1') | selectattr('state', 'eq', 'on') | list | count %}
+              {% if on_count > 0 %}{{ on_count }}{% endif %}
+            badge_color: "#fbbf24"
+            sub_routes:
+              - icon: mdi:view-dashboard
+                label: All Lights Overview
+                path: /smart-home/lights
+              - icon: mdi:garage
+                label: Garage
+                path: /smart-home/garage
+              - icon: mdi:outdoor-lamp
+                label: Porch
+                path: /smart-home/porch
+              - icon: mdi:desk
+                label: Office
+                path: /smart-home/office
+              - icon: mdi:silverware-fork-knife
+                label: Dining Room
+                path: /smart-home/dining
+              - icon: mdi:bed
+                label: Master Bedroom
+                path: /smart-home/bedroom
+              - icon: mdi:shower
+                label: Master Bathroom
+                path: /smart-home/bathroom
+              - icon: mdi:tree
+                label: Backyard
+                path: /smart-home/backyard
+          - icon: mdi:home-variant
+            label: Rooms
+            path: /smart-home/rooms
+            icon_color: rgba(226, 232, 240, 0.75)
+            active_color: "#38bdf8"
+          - icon: mdi:shield-home
+            label: Security
+            path: /smart-home/security
+            icon_color: rgba(226, 232, 240, 0.75)
+            active_color: "#2dd4bf"
+            badge_content: >-
+              {% if is_state('lock.front_door_sense_lock_lock_mechanism', 'unlocked') %}!{% endif %}
+            badge_color: "#ef4444"
+  # =========================================================================
+  # SUBVIEW: DINING ROOM
+  # =========================================================================
+  - title: Dining Room
+    path: dining
+    icon: mdi:silverware-fork-knife
+    subview: true
+    type: sections
+    max_columns: 2
+    background: radial-gradient(ellipse at 25% 0%, rgba(251,191,36,0.07) 0%, transparent 50%), linear-gradient(180deg, #09090f 0%, #0f0f18 30%, #0c0c14 70%, #060610 100%) fixed
+    card_mod:
+      style: |
+        hui-sections-view {
+          --ha-card-background: rgba(15, 23, 42, 0.75);
+          --ha-card-border-color: rgba(255, 255, 255, 0.08);
+          --ha-card-border-radius: 18px;
+        }
+    sections:
+      # SECTION 5: 🍽️ DINING ROOM
+      - type: grid
+        cards:
+          - type: heading
+            heading: "🍽️  Dining Room"
+            icon: mdi:chandelier
+          - type: heading
+            heading: All Dining Lights
+            heading_style: subtitle
+          - type: tile
+            entity: light.fan_lights
+            name: "🍽️ All Dining Lights"
+            icon: mdi:chandelier
+            vertical: false
+            tap_action:
+              action: toggle
+            icon_tap_action:
+              action: toggle
+            features:
+              - type: toggle
+              - type: light-brightness
+              - type: light-color-temp
+            card_mod:
+              style: |
+                ha-card {
+                  {% if is_state('light.fan_lights', 'on') %}
+                    background: rgba(251, 191, 36, 0.12) !important;
+                    border: 1px solid rgba(251, 191, 36, 0.35) !important;
+                    box-shadow: 0 0 24px rgba(251, 191, 36, 0.18), 0 4px 16px rgba(0, 0, 0, 0.3) !important;
+                  {% else %}
+                    background: rgba(15, 23, 42, 0.75) !important;
+                    border: 1px solid rgba(255, 255, 255, 0.08) !important;
+                    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2) !important;
+                  {% endif %}
+                  border-radius: 18px !important;
+                  backdrop-filter: blur(16px) !important;
+                  transition: all 0.35s ease !important;
+                }
+          - type: heading
+            heading: Color & Ambiance Themes
+            heading_style: subtitle
+          - type: grid
+            columns: 2
+            square: false
+            cards:
+              - type: tile
+                entity: script.dining_theme_warm_candlelight
+                name: "🕯️ Candlelight"
+                icon: mdi:candle
+                color: orange
+                vertical: false
+                tap_action:
+                  action: call-service
+                  service: script.dining_theme_warm_candlelight
+                icon_tap_action:
+                  action: call-service
+                  service: script.dining_theme_warm_candlelight
+                card_mod:
+                  style: |
+                    ha-card {
+                      background: rgba(249, 115, 22, 0.08) !important;
+                      border: 1px solid rgba(249, 115, 22, 0.22) !important;
+                      border-radius: 16px !important;
+                      backdrop-filter: blur(16px) !important;
+                      transition: all 0.25s ease !important;
+                    }
+                    ha-card:hover {
+                      background: rgba(249, 115, 22, 0.16) !important;
+                      border-color: rgba(249, 115, 22, 0.45) !important;
+                      box-shadow: 0 0 18px rgba(249, 115, 22, 0.25) !important;
+                    }
+                    ha-card:active {
+                      transform: scale(0.97) !important;
+                    }
+                    .secondary {
+                      display: none !important;
+                    }
+                    .primary {
+                      font-weight: 700 !important;
+                      font-size: 13.5px !important;
+                    }
+
+              - type: tile
+                entity: script.dining_theme_crisp_daylight
+                name: "☀️ Daylight"
+                icon: mdi:white-balance-sunny
+                color: light-blue
+                vertical: false
+                tap_action:
+                  action: call-service
+                  service: script.dining_theme_crisp_daylight
+                icon_tap_action:
+                  action: call-service
+                  service: script.dining_theme_crisp_daylight
+                card_mod:
+                  style: |
+                    ha-card {
+                      background: rgba(56, 189, 248, 0.08) !important;
+                      border: 1px solid rgba(56, 189, 248, 0.22) !important;
+                      border-radius: 16px !important;
+                      backdrop-filter: blur(16px) !important;
+                      transition: all 0.25s ease !important;
+                    }
+                    ha-card:hover {
+                      background: rgba(56, 189, 248, 0.16) !important;
+                      border-color: rgba(56, 189, 248, 0.45) !important;
+                      box-shadow: 0 0 18px rgba(56, 189, 248, 0.25) !important;
+                    }
+                    ha-card:active {
+                      transform: scale(0.97) !important;
+                    }
+                    .secondary {
+                      display: none !important;
+                    }
+                    .primary {
+                      font-weight: 700 !important;
+                      font-size: 13.5px !important;
+                    }
+
+              - type: tile
+                entity: script.dining_theme_fiesta_rainbow
+                name: "🎉 Fiesta"
+                icon: mdi:party-popper
+                color: pink
+                vertical: false
+                tap_action:
+                  action: call-service
+                  service: script.dining_theme_fiesta_rainbow
+                icon_tap_action:
+                  action: call-service
+                  service: script.dining_theme_fiesta_rainbow
+                card_mod:
+                  style: |
+                    ha-card {
+                      background: rgba(244, 114, 182, 0.08) !important;
+                      border: 1px solid rgba(244, 114, 182, 0.22) !important;
+                      border-radius: 16px !important;
+                      backdrop-filter: blur(16px) !important;
+                      transition: all 0.25s ease !important;
+                    }
+                    ha-card:hover {
+                      background: rgba(244, 114, 182, 0.16) !important;
+                      border-color: rgba(244, 114, 182, 0.45) !important;
+                      box-shadow: 0 0 18px rgba(244, 114, 182, 0.25) !important;
+                    }
+                    ha-card:active {
+                      transform: scale(0.97) !important;
+                    }
+                    .secondary {
+                      display: none !important;
+                    }
+                    .primary {
+                      font-weight: 700 !important;
+                      font-size: 13.5px !important;
+                    }
+
+              - type: tile
+                entity: script.dining_theme_sunset_glow
+                name: "🌅 Sunset Glow"
+                icon: mdi:weather-sunset
+                color: amber
+                vertical: false
+                tap_action:
+                  action: call-service
+                  service: script.dining_theme_sunset_glow
+                icon_tap_action:
+                  action: call-service
+                  service: script.dining_theme_sunset_glow
+                card_mod:
+                  style: |
+                    ha-card {
+                      background: rgba(245, 158, 11, 0.08) !important;
+                      border: 1px solid rgba(245, 158, 11, 0.22) !important;
+                      border-radius: 16px !important;
+                      backdrop-filter: blur(16px) !important;
+                      transition: all 0.25s ease !important;
+                    }
+                    ha-card:hover {
+                      background: rgba(245, 158, 11, 0.16) !important;
+                      border-color: rgba(245, 158, 11, 0.45) !important;
+                      box-shadow: 0 0 18px rgba(245, 158, 11, 0.25) !important;
+                    }
+                    ha-card:active {
+                      transform: scale(0.97) !important;
+                    }
+                    .secondary {
+                      display: none !important;
+                    }
+                    .primary {
+                      font-weight: 700 !important;
+                      font-size: 13.5px !important;
+                    }
+
+              - type: tile
+                entity: script.dining_theme_ocean_breeze
+                name: "🌊 Ocean"
+                icon: mdi:waves
+                color: teal
+                vertical: false
+                tap_action:
+                  action: call-service
+                  service: script.dining_theme_ocean_breeze
+                icon_tap_action:
+                  action: call-service
+                  service: script.dining_theme_ocean_breeze
+                card_mod:
+                  style: |
+                    ha-card {
+                      background: rgba(45, 212, 191, 0.08) !important;
+                      border: 1px solid rgba(45, 212, 191, 0.22) !important;
+                      border-radius: 16px !important;
+                      backdrop-filter: blur(16px) !important;
+                      transition: all 0.25s ease !important;
+                    }
+                    ha-card:hover {
+                      background: rgba(45, 212, 191, 0.16) !important;
+                      border-color: rgba(45, 212, 191, 0.45) !important;
+                      box-shadow: 0 0 18px rgba(45, 212, 191, 0.25) !important;
+                    }
+                    ha-card:active {
+                      transform: scale(0.97) !important;
+                    }
+                    .secondary {
+                      display: none !important;
+                    }
+                    .primary {
+                      font-weight: 700 !important;
+                      font-size: 13.5px !important;
+                    }
+
+              - type: tile
+                entity: script.dining_theme_neon_twilight
+                name: "🌌 Neon Twilight"
+                icon: mdi:weather-night
+                color: purple
+                vertical: false
+                tap_action:
+                  action: call-service
+                  service: script.dining_theme_neon_twilight
+                icon_tap_action:
+                  action: call-service
+                  service: script.dining_theme_neon_twilight
+                card_mod:
+                  style: |
+                    ha-card {
+                      background: rgba(168, 85, 247, 0.08) !important;
+                      border: 1px solid rgba(168, 85, 247, 0.22) !important;
+                      border-radius: 16px !important;
+                      backdrop-filter: blur(16px) !important;
+                      transition: all 0.25s ease !important;
+                    }
+                    ha-card:hover {
+                      background: rgba(168, 85, 247, 0.16) !important;
+                      border-color: rgba(168, 85, 247, 0.45) !important;
+                      box-shadow: 0 0 18px rgba(168, 85, 247, 0.25) !important;
+                    }
+                    ha-card:active {
+                      transform: scale(0.97) !important;
+                    }
+                    .secondary {
+                      display: none !important;
+                    }
+                    .primary {
+                      font-weight: 700 !important;
+                      font-size: 13.5px !important;
+                    }
+
+          - type: heading
+            heading: Individual Bulbs
+            heading_style: subtitle
+          - type: tile
+            entity: light.fan_1
+            name: "🕯️ Dining 1"
+            icon: mdi:ceiling-light
+            vertical: false
+            tap_action:
+              action: more-info
+            icon_tap_action:
+              action: toggle
+            features:
+              - type: toggle
+              - type: light-brightness
+              - type: light-color-temp
+            card_mod:
+              style: |
+                ha-card {
+                  {% if is_state('light.fan_1', 'on') %}
+                    {% set rgb = state_attr('light.fan_1', 'rgb_color') or [251, 191, 36] %}
+                    background: rgba({{ rgb[0] }}, {{ rgb[1] }}, {{ rgb[2] }}, 0.12) !important;
+                    border: 1px solid rgba({{ rgb[0] }}, {{ rgb[1] }}, {{ rgb[2] }}, 0.35) !important;
+                    box-shadow: 0 0 20px rgba({{ rgb[0] }}, {{ rgb[1] }}, {{ rgb[2] }}, 0.18) !important;
+                  {% else %}
+                    background: rgba(15, 23, 42, 0.75) !important;
+                    border: 1px solid rgba(255, 255, 255, 0.08) !important;
+                  {% endif %}
+                  border-radius: 18px !important;
+                  backdrop-filter: blur(16px) !important;
+                  transition: all 0.35s ease !important;
+                }
+          - type: tile
+            entity: light.4
+            name: "🕯️ Dining 2"
+            icon: mdi:ceiling-light
+            vertical: false
+            tap_action:
+              action: more-info
+            icon_tap_action:
+              action: toggle
+            features:
+              - type: toggle
+              - type: light-brightness
+              - type: light-color-temp
+            card_mod:
+              style: |
+                ha-card {
+                  {% if is_state('light.4', 'on') %}
+                    {% set rgb = state_attr('light.4', 'rgb_color') or [251, 191, 36] %}
+                    background: rgba({{ rgb[0] }}, {{ rgb[1] }}, {{ rgb[2] }}, 0.12) !important;
+                    border: 1px solid rgba({{ rgb[0] }}, {{ rgb[1] }}, {{ rgb[2] }}, 0.35) !important;
+                    box-shadow: 0 0 20px rgba({{ rgb[0] }}, {{ rgb[1] }}, {{ rgb[2] }}, 0.18) !important;
+                  {% else %}
+                    background: rgba(15, 23, 42, 0.75) !important;
+                    border: 1px solid rgba(255, 255, 255, 0.08) !important;
+                  {% endif %}
+                  border-radius: 18px !important;
+                  backdrop-filter: blur(16px) !important;
+                  transition: all 0.35s ease !important;
+                }
+          - type: tile
+            entity: light.2
+            name: "🕯️ Dining 3"
+            icon: mdi:ceiling-light
+            vertical: false
+            tap_action:
+              action: more-info
+            icon_tap_action:
+              action: toggle
+            features:
+              - type: toggle
+              - type: light-brightness
+              - type: light-color-temp
+            card_mod:
+              style: |
+                ha-card {
+                  {% if is_state('light.2', 'on') %}
+                    {% set rgb = state_attr('light.2', 'rgb_color') or [251, 191, 36] %}
+                    background: rgba({{ rgb[0] }}, {{ rgb[1] }}, {{ rgb[2] }}, 0.12) !important;
+                    border: 1px solid rgba({{ rgb[0] }}, {{ rgb[1] }}, {{ rgb[2] }}, 0.35) !important;
+                    box-shadow: 0 0 20px rgba({{ rgb[0] }}, {{ rgb[1] }}, {{ rgb[2] }}, 0.18) !important;
+                  {% else %}
+                    background: rgba(15, 23, 42, 0.75) !important;
+                    border: 1px solid rgba(255, 255, 255, 0.08) !important;
+                  {% endif %}
+                  border-radius: 18px !important;
+                  backdrop-filter: blur(16px) !important;
+                  transition: all 0.35s ease !important;
+                }
+          - type: tile
+            entity: light.3
+            name: "🕯️ Dining 4"
+            icon: mdi:ceiling-light
+            vertical: false
+            tap_action:
+              action: more-info
+            icon_tap_action:
+              action: toggle
+            features:
+              - type: toggle
+              - type: light-brightness
+              - type: light-color-temp
+            card_mod:
+              style: |
+                ha-card {
+                  {% if is_state('light.3', 'on') %}
+                    {% set rgb = state_attr('light.3', 'rgb_color') or [251, 191, 36] %}
+                    background: rgba({{ rgb[0] }}, {{ rgb[1] }}, {{ rgb[2] }}, 0.12) !important;
+                    border: 1px solid rgba({{ rgb[0] }}, {{ rgb[1] }}, {{ rgb[2] }}, 0.35) !important;
+                    box-shadow: 0 0 20px rgba({{ rgb[0] }}, {{ rgb[1] }}, {{ rgb[2] }}, 0.18) !important;
+                  {% else %}
+                    background: rgba(15, 23, 42, 0.75) !important;
+                    border: 1px solid rgba(255, 255, 255, 0.08) !important;
+                  {% endif %}
+                  border-radius: 18px !important;
+                  backdrop-filter: blur(16px) !important;
+                  transition: all 0.35s ease !important;
+                }
+          - type: tile
+            entity: light.fan_2
+            name: "🕯️ Dining 5"
+            icon: mdi:ceiling-light
+            vertical: false
+            tap_action:
+              action: more-info
+            icon_tap_action:
+              action: toggle
+            features:
+              - type: toggle
+              - type: light-brightness
+              - type: light-color-temp
+            card_mod:
+              style: |
+                ha-card {
+                  {% if is_state('light.fan_2', 'on') %}
+                    {% set rgb = state_attr('light.fan_2', 'rgb_color') or [251, 191, 36] %}
+                    background: rgba({{ rgb[0] }}, {{ rgb[1] }}, {{ rgb[2] }}, 0.12) !important;
+                    border: 1px solid rgba({{ rgb[0] }}, {{ rgb[1] }}, {{ rgb[2] }}, 0.35) !important;
+                    box-shadow: 0 0 20px rgba({{ rgb[0] }}, {{ rgb[1] }}, {{ rgb[2] }}, 0.18) !important;
+                  {% else %}
+                    background: rgba(15, 23, 42, 0.75) !important;
+                    border: 1px solid rgba(255, 255, 255, 0.08) !important;
+                  {% endif %}
+                  border-radius: 18px !important;
+                  backdrop-filter: blur(16px) !important;
+                  transition: all 0.35s ease !important;
+                }
+
+    footer:
+      card:
+        type: custom:dashboard-footer-card
+        background: rgba(10, 15, 29, 0.96)
+        blur: true
+        floating_mobile: true
+        floating_desktop: true
+        bottom_offset: 12px
+        max_width: 480px
+        icon_size: 24
+        font_size: 11
+        card_mod:
+          style: |
+            ha-card.footer-card {
+              background: rgba(10, 15, 29, 0.95) !important;
+              backdrop-filter: blur(24px) saturate(180%) !important;
+              -webkit-backdrop-filter: blur(24px) saturate(180%) !important;
+              border: 1px solid rgba(255, 255, 255, 0.18) !important;
+              box-shadow: 0 16px 36px rgba(0, 0, 0, 0.85), 0 0 1px rgba(255, 255, 255, 0.2) !important;
+              border-radius: 24px !important;
+            }
+
+            .route:not(.active) .route-icon-wrap ha-icon {
+              color: rgba(226, 232, 240, 0.75) !important;
+            }
+
+            .route:not(.active) .route-label {
+              color: rgba(203, 213, 225, 0.75) !important;
+              font-weight: 500 !important;
+            }
+
+            .route.active .route-label {
+              color: #ffffff !important;
+              font-weight: 700 !important;
+            }
+
+            .popup-menu {
+              background: rgba(10, 15, 29, 0.96) !important;
+              backdrop-filter: blur(24px) saturate(180%) !important;
+              -webkit-backdrop-filter: blur(24px) saturate(180%) !important;
+              border: 1px solid rgba(255, 255, 255, 0.18) !important;
+              box-shadow: 0 16px 36px rgba(0, 0, 0, 0.85) !important;
+              border-radius: 20px !important;
+              padding: 6px 0 !important;
+            }
+
+            .popup-item {
+              padding: 10px 18px !important;
+              color: #cbd5e1 !important;
+              font-size: 13px !important;
+              font-weight: 600 !important;
+            }
+
+            .popup-item:hover {
+              background: rgba(255, 255, 255, 0.08) !important;
+            }
+
+            .popup-item.active {
+              color: #fbbf24 !important;
+            }
+        routes:
+          - icon: mdi:lightbulb-group
+            label: Lighting
+            path: /smart-home/lights
+            tap_action: open-popup
+            hold_action: open-popup
+            swipe_action: open-popup
+            highlight_for_subroutes: true
+            icon_color: rgba(226, 232, 240, 0.75)
+            active_color: "#fbbf24"
+            badge_content: >-
+              {% set on_count = expand('light.master_bedroom_fan_hunter_light', 'light.master_bathroom_bathroom_lights', 'light.office_office_1', 'light.office_office_2', 'light.office_shelf_strip', 'switch.backyard_plug_itself_patio_lights', 'switch.backyard_plug_itself_deck_lights', 'light.fan_lights', 'light.garage_left', 'light.garage_right', 'light.1') | selectattr('state', 'eq', 'on') | list | count %}
+              {% if on_count > 0 %}{{ on_count }}{% endif %}
+            badge_color: "#fbbf24"
+            sub_routes:
+              - icon: mdi:view-dashboard
+                label: All Lights Overview
+                path: /smart-home/lights
+              - icon: mdi:garage
+                label: Garage
+                path: /smart-home/garage
+              - icon: mdi:outdoor-lamp
+                label: Porch
+                path: /smart-home/porch
+              - icon: mdi:desk
+                label: Office
+                path: /smart-home/office
+              - icon: mdi:silverware-fork-knife
+                label: Dining Room
+                path: /smart-home/dining
+              - icon: mdi:bed
+                label: Master Bedroom
+                path: /smart-home/bedroom
+              - icon: mdi:shower
+                label: Master Bathroom
+                path: /smart-home/bathroom
+              - icon: mdi:tree
+                label: Backyard
+                path: /smart-home/backyard
+          - icon: mdi:home-variant
+            label: Rooms
+            path: /smart-home/rooms
+            icon_color: rgba(226, 232, 240, 0.75)
+            active_color: "#38bdf8"
+          - icon: mdi:shield-home
+            label: Security
+            path: /smart-home/security
+            icon_color: rgba(226, 232, 240, 0.75)
+            active_color: "#2dd4bf"
+            badge_content: >-
+              {% if is_state('lock.front_door_sense_lock_lock_mechanism', 'unlocked') %}!{% endif %}
+            badge_color: "#ef4444"
+  # =========================================================================
+  # SUBVIEW: MASTER BEDROOM
+  # =========================================================================
+  - title: Master Bedroom
+    path: bedroom
+    icon: mdi:bed
+    subview: true
+    type: sections
+    max_columns: 2
+    background: radial-gradient(ellipse at 25% 0%, rgba(244,63,94,0.07) 0%, transparent 50%), linear-gradient(180deg, #09090f 0%, #0f0f18 30%, #0c0c14 70%, #060610 100%) fixed
+    card_mod:
+      style: |
+        hui-sections-view {
+          --ha-card-background: rgba(15, 23, 42, 0.75);
+          --ha-card-border-color: rgba(255, 255, 255, 0.08);
+          --ha-card-border-radius: 18px;
+        }
+    sections:
+      # SECTION 6: 🛏️ MASTER BEDROOM
+      - type: grid
+        cards:
+          - type: heading
+            heading: "🛏️  Master Bedroom"
+            icon: mdi:bed-king
+          - type: heading
+            heading: Ceiling Fan Fixture
+            heading_style: subtitle
+          - type: tile
+            entity: light.master_bedroom_fan_hunter_light
+            name: "🛏️ Ceiling Fan Light"
+            icon: mdi:ceiling-fan-light
+            vertical: false
+            tap_action:
+              action: toggle
+            icon_tap_action:
+              action: toggle
+            features:
+              - type: toggle
+              - type: light-brightness
+            card_mod:
+              style: |
+                ha-card {
+                  {% if is_state('light.master_bedroom_fan_hunter_light', 'on') %}
+                    background: rgba(251, 191, 36, 0.12) !important;
+                    border: 1px solid rgba(251, 191, 36, 0.35) !important;
+                    box-shadow: 0 0 24px rgba(251, 191, 36, 0.18), 0 4px 16px rgba(0, 0, 0, 0.3) !important;
+                  {% else %}
+                    background: rgba(15, 23, 42, 0.75) !important;
+                    border: 1px solid rgba(255, 255, 255, 0.08) !important;
+                    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2) !important;
+                  {% endif %}
+                  border-radius: 18px !important;
+                  backdrop-filter: blur(16px) !important;
+                  transition: all 0.35s ease !important;
+                }
+          - type: tile
+            entity: fan.master_bedroom_fan_hunter_fan
+            name: "🌀 Ceiling Fan"
+            icon: mdi:ceiling-fan
+            vertical: false
+            tap_action:
+              action: toggle
+            icon_tap_action:
+              action: toggle
+            features:
+              - type: toggle
+              - type: fan-speed
+            card_mod:
+              style: |
+                ha-card {
+                  {% if is_state('fan.master_bedroom_fan_hunter_fan', 'on') %}
+                    background: rgba(56, 189, 248, 0.12) !important;
+                    border: 1px solid rgba(56, 189, 248, 0.35) !important;
+                    box-shadow: 0 0 24px rgba(56, 189, 248, 0.18), 0 4px 16px rgba(0, 0, 0, 0.3) !important;
+                  {% else %}
+                    background: rgba(15, 23, 42, 0.75) !important;
+                    border: 1px solid rgba(255, 255, 255, 0.08) !important;
+                    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2) !important;
+                  {% endif %}
+                  border-radius: 18px !important;
+                  backdrop-filter: blur(16px) !important;
+                  transition: all 0.35s ease !important;
+                }
+
+    footer:
+      card:
+        type: custom:dashboard-footer-card
+        background: rgba(10, 15, 29, 0.96)
+        blur: true
+        floating_mobile: true
+        floating_desktop: true
+        bottom_offset: 12px
+        max_width: 480px
+        icon_size: 24
+        font_size: 11
+        card_mod:
+          style: |
+            ha-card.footer-card {
+              background: rgba(10, 15, 29, 0.95) !important;
+              backdrop-filter: blur(24px) saturate(180%) !important;
+              -webkit-backdrop-filter: blur(24px) saturate(180%) !important;
+              border: 1px solid rgba(255, 255, 255, 0.18) !important;
+              box-shadow: 0 16px 36px rgba(0, 0, 0, 0.85), 0 0 1px rgba(255, 255, 255, 0.2) !important;
+              border-radius: 24px !important;
+            }
+
+            .route:not(.active) .route-icon-wrap ha-icon {
+              color: rgba(226, 232, 240, 0.75) !important;
+            }
+
+            .route:not(.active) .route-label {
+              color: rgba(203, 213, 225, 0.75) !important;
+              font-weight: 500 !important;
+            }
+
+            .route.active .route-label {
+              color: #ffffff !important;
+              font-weight: 700 !important;
+            }
+
+            .popup-menu {
+              background: rgba(10, 15, 29, 0.96) !important;
+              backdrop-filter: blur(24px) saturate(180%) !important;
+              -webkit-backdrop-filter: blur(24px) saturate(180%) !important;
+              border: 1px solid rgba(255, 255, 255, 0.18) !important;
+              box-shadow: 0 16px 36px rgba(0, 0, 0, 0.85) !important;
+              border-radius: 20px !important;
+              padding: 6px 0 !important;
+            }
+
+            .popup-item {
+              padding: 10px 18px !important;
+              color: #cbd5e1 !important;
+              font-size: 13px !important;
+              font-weight: 600 !important;
+            }
+
+            .popup-item:hover {
+              background: rgba(255, 255, 255, 0.08) !important;
+            }
+
+            .popup-item.active {
+              color: #fbbf24 !important;
+            }
+        routes:
+          - icon: mdi:lightbulb-group
+            label: Lighting
+            path: /smart-home/lights
+            tap_action: open-popup
+            hold_action: open-popup
+            swipe_action: open-popup
+            highlight_for_subroutes: true
+            icon_color: rgba(226, 232, 240, 0.75)
+            active_color: "#fbbf24"
+            badge_content: >-
+              {% set on_count = expand('light.master_bedroom_fan_hunter_light', 'light.master_bathroom_bathroom_lights', 'light.office_office_1', 'light.office_office_2', 'light.office_shelf_strip', 'switch.backyard_plug_itself_patio_lights', 'switch.backyard_plug_itself_deck_lights', 'light.fan_lights', 'light.garage_left', 'light.garage_right', 'light.1') | selectattr('state', 'eq', 'on') | list | count %}
+              {% if on_count > 0 %}{{ on_count }}{% endif %}
+            badge_color: "#fbbf24"
+            sub_routes:
+              - icon: mdi:view-dashboard
+                label: All Lights Overview
+                path: /smart-home/lights
+              - icon: mdi:garage
+                label: Garage
+                path: /smart-home/garage
+              - icon: mdi:outdoor-lamp
+                label: Porch
+                path: /smart-home/porch
+              - icon: mdi:desk
+                label: Office
+                path: /smart-home/office
+              - icon: mdi:silverware-fork-knife
+                label: Dining Room
+                path: /smart-home/dining
+              - icon: mdi:bed
+                label: Master Bedroom
+                path: /smart-home/bedroom
+              - icon: mdi:shower
+                label: Master Bathroom
+                path: /smart-home/bathroom
+              - icon: mdi:tree
+                label: Backyard
+                path: /smart-home/backyard
+          - icon: mdi:home-variant
+            label: Rooms
+            path: /smart-home/rooms
+            icon_color: rgba(226, 232, 240, 0.75)
+            active_color: "#38bdf8"
+          - icon: mdi:shield-home
+            label: Security
+            path: /smart-home/security
+            icon_color: rgba(226, 232, 240, 0.75)
+            active_color: "#2dd4bf"
+            badge_content: >-
+              {% if is_state('lock.front_door_sense_lock_lock_mechanism', 'unlocked') %}!{% endif %}
+            badge_color: "#ef4444"
+  # =========================================================================
+  # SUBVIEW: MASTER BATHROOM
+  # =========================================================================
+  - title: Master Bathroom
+    path: bathroom
+    icon: mdi:shower
+    subview: true
+    type: sections
+    max_columns: 2
+    background: radial-gradient(ellipse at 25% 0%, rgba(6,182,212,0.07) 0%, transparent 50%), linear-gradient(180deg, #09090f 0%, #0f0f18 30%, #0c0c14 70%, #060610 100%) fixed
+    card_mod:
+      style: |
+        hui-sections-view {
+          --ha-card-background: rgba(15, 23, 42, 0.75);
+          --ha-card-border-color: rgba(255, 255, 255, 0.08);
+          --ha-card-border-radius: 18px;
+        }
+    sections:
+      # SECTION 7: 🛁 MASTER BATHROOM
+      - type: grid
+        cards:
+          - type: heading
+            heading: "🛁  Master Bathroom"
+            icon: mdi:shower-head
+          - type: heading
+            heading: Vanity & Overhead Fixtures
+            heading_style: subtitle
+          - type: tile
+            entity: light.master_bathroom_bathroom_lights
+            name: "🛁 Main Bathroom Lights"
+            icon: mdi:vanity-light
+            vertical: false
+            tap_action:
+              action: toggle
+            icon_tap_action:
+              action: toggle
+            features:
+              - type: toggle
+              - type: light-brightness
+            card_mod:
+              style: |
+                ha-card {
+                  {% if is_state('light.master_bathroom_bathroom_lights', 'on') %}
+                    background: rgba(45, 212, 191, 0.12) !important;
+                    border: 1px solid rgba(45, 212, 191, 0.35) !important;
+                    box-shadow: 0 0 24px rgba(45, 212, 191, 0.18), 0 4px 16px rgba(0, 0, 0, 0.3) !important;
+                  {% else %}
+                    background: rgba(15, 23, 42, 0.75) !important;
+                    border: 1px solid rgba(255, 255, 255, 0.08) !important;
+                    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2) !important;
+                  {% endif %}
+                  border-radius: 18px !important;
+                  backdrop-filter: blur(16px) !important;
+                  transition: all 0.35s ease !important;
+                }
+
+    footer:
+      card:
+        type: custom:dashboard-footer-card
+        background: rgba(10, 15, 29, 0.96)
+        blur: true
+        floating_mobile: true
+        floating_desktop: true
+        bottom_offset: 12px
+        max_width: 480px
+        icon_size: 24
+        font_size: 11
+        card_mod:
+          style: |
+            ha-card.footer-card {
+              background: rgba(10, 15, 29, 0.95) !important;
+              backdrop-filter: blur(24px) saturate(180%) !important;
+              -webkit-backdrop-filter: blur(24px) saturate(180%) !important;
+              border: 1px solid rgba(255, 255, 255, 0.18) !important;
+              box-shadow: 0 16px 36px rgba(0, 0, 0, 0.85), 0 0 1px rgba(255, 255, 255, 0.2) !important;
+              border-radius: 24px !important;
+            }
+
+            .route:not(.active) .route-icon-wrap ha-icon {
+              color: rgba(226, 232, 240, 0.75) !important;
+            }
+
+            .route:not(.active) .route-label {
+              color: rgba(203, 213, 225, 0.75) !important;
+              font-weight: 500 !important;
+            }
+
+            .route.active .route-label {
+              color: #ffffff !important;
+              font-weight: 700 !important;
+            }
+
+            .popup-menu {
+              background: rgba(10, 15, 29, 0.96) !important;
+              backdrop-filter: blur(24px) saturate(180%) !important;
+              -webkit-backdrop-filter: blur(24px) saturate(180%) !important;
+              border: 1px solid rgba(255, 255, 255, 0.18) !important;
+              box-shadow: 0 16px 36px rgba(0, 0, 0, 0.85) !important;
+              border-radius: 20px !important;
+              padding: 6px 0 !important;
+            }
+
+            .popup-item {
+              padding: 10px 18px !important;
+              color: #cbd5e1 !important;
+              font-size: 13px !important;
+              font-weight: 600 !important;
+            }
+
+            .popup-item:hover {
+              background: rgba(255, 255, 255, 0.08) !important;
+            }
+
+            .popup-item.active {
+              color: #fbbf24 !important;
+            }
+        routes:
+          - icon: mdi:lightbulb-group
+            label: Lighting
+            path: /smart-home/lights
+            tap_action: open-popup
+            hold_action: open-popup
+            swipe_action: open-popup
+            highlight_for_subroutes: true
+            icon_color: rgba(226, 232, 240, 0.75)
+            active_color: "#fbbf24"
+            badge_content: >-
+              {% set on_count = expand('light.master_bedroom_fan_hunter_light', 'light.master_bathroom_bathroom_lights', 'light.office_office_1', 'light.office_office_2', 'light.office_shelf_strip', 'switch.backyard_plug_itself_patio_lights', 'switch.backyard_plug_itself_deck_lights', 'light.fan_lights', 'light.garage_left', 'light.garage_right', 'light.1') | selectattr('state', 'eq', 'on') | list | count %}
+              {% if on_count > 0 %}{{ on_count }}{% endif %}
+            badge_color: "#fbbf24"
+            sub_routes:
+              - icon: mdi:view-dashboard
+                label: All Lights Overview
+                path: /smart-home/lights
+              - icon: mdi:garage
+                label: Garage
+                path: /smart-home/garage
+              - icon: mdi:outdoor-lamp
+                label: Porch
+                path: /smart-home/porch
+              - icon: mdi:desk
+                label: Office
+                path: /smart-home/office
+              - icon: mdi:silverware-fork-knife
+                label: Dining Room
+                path: /smart-home/dining
+              - icon: mdi:bed
+                label: Master Bedroom
+                path: /smart-home/bedroom
+              - icon: mdi:shower
+                label: Master Bathroom
+                path: /smart-home/bathroom
+              - icon: mdi:tree
+                label: Backyard
+                path: /smart-home/backyard
+          - icon: mdi:home-variant
+            label: Rooms
+            path: /smart-home/rooms
+            icon_color: rgba(226, 232, 240, 0.75)
+            active_color: "#38bdf8"
+          - icon: mdi:shield-home
+            label: Security
+            path: /smart-home/security
+            icon_color: rgba(226, 232, 240, 0.75)
+            active_color: "#2dd4bf"
+            badge_content: >-
+              {% if is_state('lock.front_door_sense_lock_lock_mechanism', 'unlocked') %}!{% endif %}
+            badge_color: "#ef4444"
+  # =========================================================================
+  # SUBVIEW: BACKYARD & PATIO
+  # =========================================================================
+  - title: Backyard & Patio
+    path: backyard
+    icon: mdi:tree
+    subview: true
+    type: sections
+    max_columns: 2
+    background: radial-gradient(ellipse at 25% 0%, rgba(16,185,129,0.07) 0%, transparent 50%), linear-gradient(180deg, #09090f 0%, #0f0f18 30%, #0c0c14 70%, #060610 100%) fixed
+    card_mod:
+      style: |
+        hui-sections-view {
+          --ha-card-background: rgba(15, 23, 42, 0.75);
+          --ha-card-border-color: rgba(255, 255, 255, 0.08);
+          --ha-card-border-radius: 18px;
+        }
+    sections:
+      # SECTION 8: 🌳 BACKYARD & PATIO
+      - type: grid
+        cards:
+          - type: heading
+            heading: "🌳  Backyard & Patio"
+            icon: mdi:patio-heater
+          - type: heading
+            heading: Outdoor String & Deck Fixtures
+            heading_style: subtitle
+          - type: tile
+            entity: switch.backyard_plug_itself
+            name: "🌳 All Backyard Lights"
+            icon: mdi:power-socket-us
+            vertical: false
+            tap_action:
+              action: toggle
+            icon_tap_action:
+              action: toggle
+            features:
+              - type: toggle
+            card_mod:
+              style: |
+                ha-card {
+                  {% if is_state('switch.backyard_plug_itself', 'on') %}
+                    background: rgba(34, 197, 94, 0.12) !important;
+                    border: 1px solid rgba(34, 197, 94, 0.35) !important;
+                    box-shadow: 0 0 24px rgba(34, 197, 94, 0.18), 0 4px 16px rgba(0, 0, 0, 0.3) !important;
+                  {% else %}
+                    background: rgba(15, 23, 42, 0.75) !important;
+                    border: 1px solid rgba(255, 255, 255, 0.08) !important;
+                    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2) !important;
+                  {% endif %}
+                  border-radius: 18px !important;
+                  backdrop-filter: blur(16px) !important;
+                  transition: all 0.35s ease !important;
+                }
+          - type: tile
+            entity: switch.backyard_plug_itself_patio_lights
+            name: "🏮 Patio String Lights"
+            icon: mdi:string-lights
+            vertical: false
+            tap_action:
+              action: toggle
+            icon_tap_action:
+              action: toggle
+            features:
+              - type: toggle
+            card_mod:
+              style: |
+                ha-card {
+                  {% if is_state('switch.backyard_plug_itself_patio_lights', 'on') %}
+                    background: rgba(251, 191, 36, 0.12) !important;
+                    border: 1px solid rgba(251, 191, 36, 0.35) !important;
+                    box-shadow: 0 0 24px rgba(251, 191, 36, 0.18), 0 4px 16px rgba(0, 0, 0, 0.3) !important;
+                  {% else %}
+                    background: rgba(15, 23, 42, 0.75) !important;
+                    border: 1px solid rgba(255, 255, 255, 0.08) !important;
+                    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2) !important;
+                  {% endif %}
+                  border-radius: 18px !important;
+                  backdrop-filter: blur(16px) !important;
+                  transition: all 0.35s ease !important;
+                }
+          - type: tile
+            entity: switch.backyard_plug_itself_deck_lights
+            name: "🌿 Deck Perimeter Lights"
+            icon: mdi:lightbulb-night
+            vertical: false
+            tap_action:
+              action: toggle
+            icon_tap_action:
+              action: toggle
+            features:
+              - type: toggle
+            card_mod:
+              style: |
+                ha-card {
+                  {% if is_state('switch.backyard_plug_itself_deck_lights', 'on') %}
+                    background: rgba(251, 191, 36, 0.12) !important;
+                    border: 1px solid rgba(251, 191, 36, 0.35) !important;
+                    box-shadow: 0 0 24px rgba(251, 191, 36, 0.18), 0 4px 16px rgba(0, 0, 0, 0.3) !important;
+                  {% else %}
+                    background: rgba(15, 23, 42, 0.75) !important;
+                    border: 1px solid rgba(255, 255, 255, 0.08) !important;
+                    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2) !important;
+                  {% endif %}
+                  border-radius: 18px !important;
+                  backdrop-filter: blur(16px) !important;
+                  transition: all 0.35s ease !important;
+                }
+
+    footer:
+      card:
+        type: custom:dashboard-footer-card
+        background: rgba(10, 15, 29, 0.96)
+        blur: true
+        floating_mobile: true
+        floating_desktop: true
+        bottom_offset: 12px
+        max_width: 480px
+        icon_size: 24
+        font_size: 11
+        card_mod:
+          style: |
+            ha-card.footer-card {
+              background: rgba(10, 15, 29, 0.95) !important;
+              backdrop-filter: blur(24px) saturate(180%) !important;
+              -webkit-backdrop-filter: blur(24px) saturate(180%) !important;
+              border: 1px solid rgba(255, 255, 255, 0.18) !important;
+              box-shadow: 0 16px 36px rgba(0, 0, 0, 0.85), 0 0 1px rgba(255, 255, 255, 0.2) !important;
+              border-radius: 24px !important;
+            }
+
+            .route:not(.active) .route-icon-wrap ha-icon {
+              color: rgba(226, 232, 240, 0.75) !important;
+            }
+
+            .route:not(.active) .route-label {
+              color: rgba(203, 213, 225, 0.75) !important;
+              font-weight: 500 !important;
+            }
+
+            .route.active .route-label {
+              color: #ffffff !important;
+              font-weight: 700 !important;
+            }
+
+            .popup-menu {
+              background: rgba(10, 15, 29, 0.96) !important;
+              backdrop-filter: blur(24px) saturate(180%) !important;
+              -webkit-backdrop-filter: blur(24px) saturate(180%) !important;
+              border: 1px solid rgba(255, 255, 255, 0.18) !important;
+              box-shadow: 0 16px 36px rgba(0, 0, 0, 0.85) !important;
+              border-radius: 20px !important;
+              padding: 6px 0 !important;
+            }
+
+            .popup-item {
+              padding: 10px 18px !important;
+              color: #cbd5e1 !important;
+              font-size: 13px !important;
+              font-weight: 600 !important;
+            }
+
+            .popup-item:hover {
+              background: rgba(255, 255, 255, 0.08) !important;
+            }
+
+            .popup-item.active {
+              color: #fbbf24 !important;
+            }
+        routes:
+          - icon: mdi:lightbulb-group
+            label: Lighting
+            path: /smart-home/lights
+            tap_action: open-popup
+            hold_action: open-popup
+            swipe_action: open-popup
+            highlight_for_subroutes: true
+            icon_color: rgba(226, 232, 240, 0.75)
+            active_color: "#fbbf24"
+            badge_content: >-
+              {% set on_count = expand('light.master_bedroom_fan_hunter_light', 'light.master_bathroom_bathroom_lights', 'light.office_office_1', 'light.office_office_2', 'light.office_shelf_strip', 'switch.backyard_plug_itself_patio_lights', 'switch.backyard_plug_itself_deck_lights', 'light.fan_lights', 'light.garage_left', 'light.garage_right', 'light.1') | selectattr('state', 'eq', 'on') | list | count %}
+              {% if on_count > 0 %}{{ on_count }}{% endif %}
+            badge_color: "#fbbf24"
+            sub_routes:
+              - icon: mdi:view-dashboard
+                label: All Lights Overview
+                path: /smart-home/lights
+              - icon: mdi:garage
+                label: Garage
+                path: /smart-home/garage
+              - icon: mdi:outdoor-lamp
+                label: Porch
+                path: /smart-home/porch
+              - icon: mdi:desk
+                label: Office
+                path: /smart-home/office
+              - icon: mdi:silverware-fork-knife
+                label: Dining Room
+                path: /smart-home/dining
+              - icon: mdi:bed
+                label: Master Bedroom
+                path: /smart-home/bedroom
+              - icon: mdi:shower
+                label: Master Bathroom
+                path: /smart-home/bathroom
+              - icon: mdi:tree
+                label: Backyard
+                path: /smart-home/backyard
+          - icon: mdi:home-variant
+            label: Rooms
+            path: /smart-home/rooms
+            icon_color: rgba(226, 232, 240, 0.75)
+            active_color: "#38bdf8"
+          - icon: mdi:shield-home
+            label: Security
+            path: /smart-home/security
+            icon_color: rgba(226, 232, 240, 0.75)
+            active_color: "#2dd4bf"
+            badge_content: >-
+              {% if is_state('lock.front_door_sense_lock_lock_mechanism', 'unlocked') %}!{% endif %}
+            badge_color: "#ef4444"

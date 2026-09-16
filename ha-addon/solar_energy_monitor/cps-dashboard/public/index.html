@@ -1,0 +1,2852 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CPS Smart Meter Live Feed • 15m / Hourly Intervals</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg-deep: #07090e;
+      --bg-surface: #0d121d;
+      --card-bg: rgba(18, 25, 38, 0.75);
+      --card-border: rgba(255, 255, 255, 0.08);
+      --card-hover: rgba(30, 41, 59, 0.85);
+      
+      --amber: #f59e0b;
+      --amber-glow: rgba(245, 158, 11, 0.25);
+      --emerald: #10b981;
+      --emerald-glow: rgba(16, 185, 129, 0.25);
+      --cyan: #06b6d4;
+      --cyan-glow: rgba(6, 182, 212, 0.25);
+      --purple: #8b5cf6;
+      --rose: #f43f5e;
+      
+      --text-main: #f1f5f9;
+      --text-muted: #94a3b8;
+      --text-dim: #64748b;
+      
+      --radius-lg: 18px;
+      --radius-md: 12px;
+      --radius-sm: 8px;
+      --shadow-subtle: 0 10px 30px -10px rgba(0, 0, 0, 0.6);
+      --shadow-glow: 0 0 25px rgba(245, 158, 11, 0.15);
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      background-color: var(--bg-deep);
+      background-image: 
+        radial-gradient(circle at 15% 15%, rgba(245, 158, 11, 0.04) 0%, transparent 40%),
+        radial-gradient(circle at 85% 20%, rgba(6, 182, 212, 0.04) 0%, transparent 40%),
+        radial-gradient(circle at 50% 85%, rgba(16, 185, 129, 0.03) 0%, transparent 50%);
+      background-attachment: fixed;
+      color: var(--text-main);
+      font-family: 'Outfit', sans-serif;
+      min-height: 100vh;
+      padding: 16px 18px 50px;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    body.embed-mode {
+      padding: 10px 10px 65px !important;
+      background-image: none !important;
+      background-color: var(--bg-deep) !important;
+    }
+
+    body.embed-mode .header-left,
+    body.embed-mode .status-banner,
+    body.embed-mode #syncAlertBanner {
+      display: none !important;
+    }
+
+    body.embed-mode header {
+      display: flex !important;
+      justify-content: center !important;
+      margin-bottom: 12px !important;
+      padding-bottom: 0 !important;
+      border-bottom: none !important;
+    }
+
+    body.embed-mode .controls-bar {
+      margin-bottom: 8px !important;
+      justify-content: center !important;
+    }
+
+    .container {
+      max-width: 100%;
+      width: 100%;
+      margin: 0 auto;
+    }
+
+    /* Header */
+    header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 16px;
+      margin-bottom: 20px;
+      padding-bottom: 16px;
+      border-bottom: 1px solid var(--card-border);
+    }
+
+    .header-left {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+
+    .logo-badge {
+      width: 44px;
+      height: 44px;
+      border-radius: var(--radius-md);
+      background: linear-gradient(135deg, rgba(245, 158, 11, 0.2), rgba(16, 185, 129, 0.2));
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: var(--shadow-glow);
+    }
+
+    .logo-badge svg {
+      width: 22px;
+      height: 22px;
+      fill: var(--amber);
+    }
+
+    h1 {
+      font-size: 1.4rem;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      background: linear-gradient(120deg, #ffffff 40%, #cbd5e1);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .header-sub {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-top: 2px;
+    }
+
+    .pulse-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--emerald);
+      box-shadow: 0 0 10px var(--emerald);
+      animation: pulse 2s infinite;
+    }
+
+    @keyframes pulse {
+      0% { transform: scale(0.95); opacity: 0.8; }
+      50% { transform: scale(1.2); opacity: 1; }
+      100% { transform: scale(0.95); opacity: 0.8; }
+    }
+
+    .controls-bar {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    .control-group {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: var(--radius-md);
+      padding: 6px 12px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      backdrop-filter: blur(12px);
+    }
+
+    .control-label {
+      font-size: 0.74rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--text-dim);
+      font-weight: 600;
+    }
+
+    select, input[type="date"] {
+      background: rgba(0, 0, 0, 0.4);
+      color: var(--text-main);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      border-radius: 6px;
+      padding: 6px 10px;
+      font-family: inherit;
+      font-size: 0.85rem;
+      outline: none;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    select:hover, input[type="date"]:hover {
+      border-color: var(--amber);
+    }
+
+    .btn {
+      background: linear-gradient(135deg, rgba(245, 158, 11, 0.18), rgba(245, 158, 11, 0.06));
+      border: 1px solid rgba(245, 158, 11, 0.35);
+      color: var(--amber);
+      border-radius: var(--radius-md);
+      padding: 8px 16px;
+      font-size: 0.84rem;
+      font-weight: 600;
+      font-family: inherit;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      transition: all 0.2s;
+    }
+
+    .btn:hover:not(:disabled) {
+      background: rgba(245, 158, 11, 0.28);
+      border-color: var(--amber);
+      transform: translateY(-1px);
+      box-shadow: 0 4px 15px var(--amber-glow);
+    }
+
+    .btn:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
+
+    .btn svg {
+      width: 14px;
+      height: 14px;
+      fill: currentColor;
+    }
+
+    .btn.spinning svg {
+      animation: spin 0.8s linear infinite;
+    }
+
+    @keyframes spin {
+      100% { transform: rotate(360deg); }
+    }
+
+    .btn-cyan {
+      background: linear-gradient(135deg, rgba(6, 182, 212, 0.22), rgba(6, 182, 212, 0.08));
+      border: 1px solid rgba(6, 182, 212, 0.45);
+      color: #22d3ee;
+    }
+
+    .btn-cyan:hover:not(:disabled) {
+      background: rgba(6, 182, 212, 0.35);
+      border-color: #22d3ee;
+      box-shadow: 0 4px 15px rgba(6, 182, 212, 0.35);
+    }
+
+    /* Notification Alert Banner */
+    .alert-banner {
+      border-radius: var(--radius-md);
+      padding: 10px 18px;
+      margin-bottom: 16px;
+      font-size: 0.82rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      animation: fadeIn 0.3s ease;
+    }
+
+    .alert-banner.info {
+      background: rgba(56, 189, 248, 0.1);
+      border: 1px solid rgba(56, 189, 248, 0.3);
+      color: #38bdf8;
+    }
+
+    .alert-banner.warning {
+      background: rgba(245, 158, 11, 0.12);
+      border: 1px solid rgba(245, 158, 11, 0.35);
+      color: var(--amber);
+    }
+
+    .alert-banner.error {
+      background: rgba(239, 68, 68, 0.15);
+      border: 1px solid rgba(239, 68, 68, 0.4);
+      color: #f87171;
+    }
+
+    .alert-banner.success {
+      background: rgba(16, 185, 129, 0.12);
+      border: 1px solid rgba(16, 185, 129, 0.35);
+      color: var(--emerald);
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(-4px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* Status Banner */
+    .status-banner {
+      background: linear-gradient(90deg, rgba(13, 18, 29, 0.8), rgba(22, 30, 46, 0.6));
+      border: 1px solid var(--card-border);
+      border-radius: var(--radius-md);
+      padding: 10px 18px;
+      margin-bottom: 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 12px;
+      font-size: 0.83rem;
+    }
+
+    .status-item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .status-tag {
+      background: rgba(255, 255, 255, 0.05);
+      padding: 2px 8px;
+      border-radius: 4px;
+      font-family: 'JetBrains Mono', monospace;
+      color: var(--text-muted);
+      font-size: 0.78rem;
+    }
+
+    /* Executive Highlights Ribbon */
+    .summary-ribbon {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+      gap: 14px;
+      margin-bottom: 22px;
+    }
+
+    .ribbon-card {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: var(--radius-md);
+      padding: 14px 18px;
+      backdrop-filter: blur(14px);
+      box-shadow: var(--shadow-subtle);
+      transition: all 0.2s;
+    }
+
+    .ribbon-card:hover {
+      border-color: rgba(255, 255, 255, 0.15);
+      transform: translateY(-2px);
+    }
+
+    .ribbon-title {
+      font-size: 0.72rem;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: var(--text-dim);
+      margin-bottom: 6px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .ribbon-val {
+      font-size: 1.45rem;
+      font-weight: 700;
+      font-family: 'JetBrains Mono', monospace;
+      display: flex;
+      align-items: baseline;
+      gap: 6px;
+    }
+
+    .ribbon-sub {
+      font-size: 0.76rem;
+      color: var(--text-muted);
+      margin-top: 4px;
+    }
+
+    /* Time-of-Use / Day-Parts Grid */
+    .tou-section {
+      margin-bottom: 24px;
+    }
+
+    .tou-header {
+      font-size: 0.85rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--text-dim);
+      margin-bottom: 12px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .tou-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap: 14px;
+    }
+
+    .tou-card {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: var(--radius-lg);
+      padding: 16px 18px;
+      backdrop-filter: blur(16px);
+      position: relative;
+      overflow: hidden;
+      box-shadow: var(--shadow-subtle);
+      transition: all 0.25s ease;
+    }
+
+    .tou-card:hover {
+      transform: translateY(-2px);
+      border-color: rgba(255, 255, 255, 0.15);
+      background: var(--card-hover);
+    }
+
+    .tou-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 3px;
+    }
+
+    .card-night::before { background: linear-gradient(90deg, #818cf8, #c084fc); }
+    .card-morning::before { background: linear-gradient(90deg, #38bdf8, #34d399); }
+    .card-afternoon::before { background: linear-gradient(90deg, #f59e0b, #fbbf24); box-shadow: 0 0 10px var(--amber); }
+    .card-evening::before { background: linear-gradient(90deg, #f43f5e, #fb7185); }
+
+    .tou-card-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 10px;
+    }
+
+    .tou-name {
+      font-size: 0.85rem;
+      font-weight: 700;
+      color: var(--text-main);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .tou-time {
+      font-size: 0.72rem;
+      color: var(--text-dim);
+      font-family: 'JetBrains Mono', monospace;
+    }
+
+    .tou-metric-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      margin-bottom: 10px;
+    }
+
+    .tou-net-val {
+      font-size: 1.35rem;
+      font-weight: 700;
+      font-family: 'JetBrains Mono', monospace;
+    }
+
+    .tou-badge {
+      font-size: 0.68rem;
+      font-weight: 700;
+      padding: 2px 8px;
+      border-radius: 12px;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .tou-stats-box {
+      background: rgba(0, 0, 0, 0.25);
+      border-radius: var(--radius-sm);
+      padding: 8px 10px;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 6px;
+      border: 1px solid rgba(255, 255, 255, 0.04);
+      font-size: 0.75rem;
+    }
+
+    .tou-sub-item {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+
+    .tou-sub-label {
+      font-size: 0.65rem;
+      color: var(--text-dim);
+      text-transform: uppercase;
+    }
+
+    .tou-sub-val {
+      font-family: 'JetBrains Mono', monospace;
+      font-weight: 600;
+    }
+
+    /* Section Cards */
+    .section-card {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: var(--radius-lg);
+      padding: 20px 22px;
+      margin-bottom: 22px;
+      backdrop-filter: blur(16px);
+      box-shadow: var(--shadow-subtle);
+    }
+
+    .section-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 16px;
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+
+    .section-title {
+      font-size: 1.05rem;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    /* Segmented Controls */
+    .segment-bar {
+      display: flex;
+      align-items: center;
+      background: rgba(0, 0, 0, 0.4);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 10px;
+      padding: 3px;
+      gap: 2px;
+    }
+
+    .segment-btn {
+      background: transparent;
+      border: none;
+      color: var(--text-muted);
+      font-family: inherit;
+      font-size: 0.78rem;
+      font-weight: 600;
+      padding: 5px 12px;
+      border-radius: 7px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .segment-btn:hover {
+      color: var(--text-main);
+    }
+
+    .segment-btn.active {
+      background: rgba(255, 255, 255, 0.12);
+      color: #ffffff;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
+    }
+
+    /* Chart */
+    .chart-legend {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      font-size: 0.78rem;
+    }
+
+    .legend-item {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      color: var(--text-muted);
+    }
+
+    .legend-color {
+      width: 10px;
+      height: 10px;
+      border-radius: 3px;
+    }
+
+    .chart-wrapper {
+      position: relative;
+      width: 100%;
+      height: 360px;
+      margin-top: 12px;
+    }
+
+    canvas#intervalChart {
+      width: 100%;
+      height: 100%;
+      display: block;
+    }
+
+    .chart-tooltip {
+      position: absolute;
+      pointer-events: none;
+      background: rgba(15, 23, 42, 0.96);
+      border: 1px solid rgba(255, 255, 255, 0.18);
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.7);
+      border-radius: 10px;
+      padding: 10px 14px;
+      font-size: 0.8rem;
+      color: var(--text-main);
+      display: none;
+      z-index: 100;
+      transform: translate(-50%, -115%);
+      white-space: nowrap;
+      backdrop-filter: blur(12px);
+    }
+
+    /* Smart Table & Controls */
+    .table-toolbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 12px;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
+    .table-search-input {
+      background: rgba(0, 0, 0, 0.35);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      color: var(--text-main);
+      border-radius: 8px;
+      padding: 6px 12px;
+      font-size: 0.82rem;
+      font-family: inherit;
+      outline: none;
+      transition: all 0.2s;
+      width: 220px;
+    }
+
+    .table-search-input:focus {
+      border-color: var(--cyan);
+      box-shadow: 0 0 10px var(--cyan-glow);
+    }
+
+    .table-container {
+      overflow-x: auto;
+      max-height: 480px;
+      overflow-y: auto;
+      border-radius: var(--radius-md);
+      border: 1px solid rgba(255, 255, 255, 0.06);
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      text-align: left;
+      font-size: 0.84rem;
+    }
+
+    thead {
+      background: rgba(13, 18, 29, 0.95);
+      position: sticky;
+      top: 0;
+      z-index: 10;
+      backdrop-filter: blur(8px);
+    }
+
+    th {
+      padding: 12px 14px;
+      color: var(--text-dim);
+      font-weight: 600;
+      text-transform: uppercase;
+      font-size: 0.70rem;
+      letter-spacing: 0.05em;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+      white-space: nowrap;
+    }
+
+    td {
+      padding: 10px 14px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.03);
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.80rem;
+      white-space: nowrap;
+    }
+
+    tr:hover td {
+      background: rgba(255, 255, 255, 0.03);
+    }
+
+    .power-pill {
+      background: rgba(255, 255, 255, 0.06);
+      padding: 2px 7px;
+      border-radius: 4px;
+      font-family: 'JetBrains Mono', monospace;
+      font-weight: 600;
+      color: var(--text-main);
+      font-size: 0.74rem;
+    }
+
+    .pill-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      padding: 2px 8px;
+      border-radius: 12px;
+      font-size: 0.68rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+
+    .badge-amber {
+      background: rgba(245, 158, 11, 0.15);
+      color: #fbbf24;
+      border: 1px solid rgba(245, 158, 11, 0.3);
+    }
+
+    .badge-emerald {
+      background: rgba(16, 185, 129, 0.15);
+      color: #34d399;
+      border: 1px solid rgba(16, 185, 129, 0.3);
+    }
+
+    .badge-cyan {
+      background: rgba(6, 182, 212, 0.15);
+      color: #38bdf8;
+      border: 1px solid rgba(6, 182, 212, 0.3);
+    }
+
+    .badge-rose {
+      background: rgba(244, 63, 94, 0.15);
+      color: #fb7185;
+      border: 1px solid rgba(244, 63, 94, 0.3);
+    }
+
+    .bar-meter {
+      height: 6px;
+      background: rgba(255, 255, 255, 0.06);
+      border-radius: 3px;
+      overflow: hidden;
+      display: inline-block;
+      width: 60px;
+      vertical-align: middle;
+      margin-left: 8px;
+    }
+
+    .bar-fill {
+      height: 100%;
+      border-radius: 3px;
+    }
+
+    .color-import { color: var(--amber); }
+    .color-solar { color: var(--emerald); }
+    .color-net { color: var(--cyan); }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+      body { padding: 12px 10px 40px; }
+      .header { flex-direction: column; align-items: flex-start; }
+      .controls-bar { width: 100%; }
+      .chart-wrapper { height: 280px; }
+      .summary-ribbon { grid-template-columns: 1fr 1fr; }
+      .tou-grid { grid-template-columns: 1fr; }
+    }
+  
+    /* Main View Switcher Tabs */
+    .view-switch-nav {
+      display: flex;
+      justify-content: center;
+      gap: 10px;
+      margin-bottom: 20px;
+      padding: 6px;
+      background: rgba(13, 18, 29, 0.85);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 16px;
+      width: fit-content;
+      margin-left: auto;
+      margin-right: auto;
+    }
+
+    .view-tab-btn {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 9px 20px;
+      border-radius: 12px;
+      font-size: 0.88rem;
+      font-weight: 600;
+      color: var(--text-muted);
+      background: transparent;
+      border: 1px solid transparent;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      font-family: inherit;
+    }
+
+    .view-tab-btn svg {
+      width: 17px;
+      height: 17px;
+      fill: currentColor;
+    }
+
+    .view-tab-btn:hover {
+      color: var(--text-main);
+      background: rgba(255, 255, 255, 0.04);
+    }
+
+    .view-tab-btn.active {
+      color: #ffffff;
+      background: linear-gradient(135deg, rgba(6, 182, 212, 0.3), rgba(16, 185, 129, 0.25));
+      border: 1px solid rgba(6, 182, 212, 0.5);
+      box-shadow: 0 0 20px rgba(6, 182, 212, 0.25);
+    }
+
+    /* Simulator UI Styles */
+    .sim-card {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: var(--radius-lg);
+      padding: 20px;
+      backdrop-filter: blur(16px);
+      box-shadow: var(--shadow-subtle);
+      margin-bottom: 18px;
+    }
+
+    .sim-grid-2 {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+    }
+    @media (max-width: 768px) {
+      .sim-grid-2 { grid-template-columns: 1fr; }
+    }
+
+    .sim-appliance-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+    }
+
+    .sim-checkbox-card {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 12px;
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: var(--radius-sm);
+      cursor: pointer;
+      font-size: 0.82rem;
+      transition: all 0.15s ease;
+      user-select: none;
+    }
+    .sim-checkbox-card:hover {
+      border-color: rgba(245, 158, 11, 0.5);
+      background: rgba(245, 158, 11, 0.05);
+    }
+    .sim-checkbox-card:has(input:checked) {
+      border-color: rgba(245, 158, 11, 0.8);
+      background: rgba(245, 158, 11, 0.15);
+      box-shadow: 0 0 12px rgba(245, 158, 11, 0.2);
+    }
+
+    .sim-range-input {
+      width: 100%;
+      accent-color: var(--emerald);
+      height: 6px;
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 4px;
+      cursor: pointer;
+    }
+
+    .sim-select {
+      width: 100%;
+      background: #0d121d;
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      color: var(--text-main);
+      padding: 10px 12px;
+      border-radius: var(--radius-sm);
+      font-family: inherit;
+      font-size: 0.85rem;
+      outline: none;
+    }
+    .sim-select:focus {
+      border-color: var(--cyan);
+      box-shadow: 0 0 10px var(--cyan-glow);
+    }
+
+    .sim-btn-group {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+    }
+    .sim-btn {
+      padding: 6px 12px;
+      border-radius: 8px;
+      border: 1px solid var(--card-border);
+      background: rgba(255, 255, 255, 0.03);
+      color: var(--text-muted);
+      font-size: 0.78rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.15s ease;
+      font-family: inherit;
+    }
+    .sim-btn:hover {
+      color: var(--text-main);
+      border-color: rgba(255, 255, 255, 0.2);
+    }
+    .sim-btn.active {
+      color: #ffffff;
+      background: rgba(16, 185, 129, 0.2);
+      border-color: var(--emerald);
+    }
+
+  </style>
+</head>
+<body>
+
+  <div class="container">
+
+    <!-- View Switcher Tabs -->
+    <div class="view-switch-nav">
+      <button class="view-tab-btn active" id="tabBtnExplorer" onclick="switchMainView('explorer')">
+        <svg viewBox="0 0 24 24"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zM9 17H7v-7h2v7zm4 0h-2V7h2v10zm4 0h-2v-4h2v4z"/></svg>
+        <span>Historical AMI Explorer</span>
+      </button>
+      <button class="view-tab-btn" id="tabBtnSimulator" onclick="switchMainView('simulator')">
+        <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 15v-4H7l6-9v4h4l-6 9z"/></svg>
+        <span>⚡ Solar Sizing Simulator</span>
+      </button>
+    </div>
+
+    <!-- Explorer View Container -->
+    <div id="viewExplorer">
+
+    <!-- Header -->
+    <header>
+      <div class="header-left">
+        <div class="logo-badge">
+          <svg viewBox="0 0 24 24"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>
+        </div>
+        <div>
+          <h1>CPS Energy • Smart Meter Monitor</h1>
+          <div class="header-sub">
+            <div class="pulse-dot"></div>
+            <span>Smart Meter AMI Feed</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="controls-bar">
+        <div class="control-group">
+          <span class="control-label">Date</span>
+          <input type="date" id="datePicker" list="availableDates">
+          <datalist id="availableDates"></datalist>
+          <span id="dateStatusBadge" class="pill-badge badge-emerald" style="font-size: 0.70rem; padding: 2px 7px;">Stored</span>
+        </div>
+
+        <button class="btn btn-cyan" id="queryDateBtn" onclick="querySelectedDate()" title="Query CPS Energy smart meter portal for this date">
+          <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 15v-4H7l6-9v4h4l-6 9z"/></svg>
+          <span id="queryDateBtnText">Query CPS</span>
+        </button>
+
+        <button class="btn" id="refreshBtn" onclick="loadData(true)" title="Check CPS Energy for live updates">
+          <svg viewBox="0 0 24 24"><path d="M17.65 6.35C16.2 4.9 14.21 4 12 4c-4.42 0-7.99 3.58-7.99 8s3.57 8 7.99 8c3.73 0 6.84-2.55 7.73-6h-2.08c-.82 2.33-3.04 4-5.65 4-3.31 0-6-2.69-6-6s2.69-6 6-6c1.66 0 3.14.69 4.22 1.78L13 11h7V4l-2.35 2.35z"/></svg>
+          <span id="refreshBtnText">Refresh</span>
+        </button>
+      </div>
+    </header>
+
+    <!-- Notification Alert Banner -->
+    <div id="syncAlertBanner" class="alert-banner info" style="display: none;">
+      <span id="syncAlertText"></span>
+      <button style="background:transparent; border:none; color:inherit; cursor:pointer; font-weight:bold;" onclick="dismissAlert()">✕</button>
+    </div>
+
+    <!-- Query Action Banner when selected date has no data in archive -->
+    <div id="noDataBanner" class="alert-banner warning" style="display: none; justify-content: space-between; align-items: center; background: rgba(245, 158, 11, 0.12); border: 1px solid rgba(245, 158, 11, 0.35); padding: 12px 18px;">
+      <div style="display: flex; align-items: center; gap: 10px;">
+        <span style="font-size: 1.2rem;">ℹ️</span>
+        <div>
+          <div style="font-weight: 700; color: var(--amber);" id="noDataTitle">No Archived Data for Selected Date</div>
+          <div style="font-size: 0.80rem; color: var(--text-muted); margin-top: 2px;" id="noDataDesc">This date has not yet been fetched and stored from CPS Energy. Click the button to query the portal now.</div>
+        </div>
+      </div>
+      <button class="btn btn-cyan" onclick="querySelectedDate()" style="white-space: nowrap; margin-left: 12px;">
+        <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 15v-4H7l6-9v4h4l-6 9z"/></svg>
+        <span>Fetch from CPS</span>
+      </button>
+    </div>
+
+    <!-- Status Banner -->
+    <div class="status-banner">
+      <div class="status-item">
+        <span style="color: var(--text-dim);">Latest AMI Batch:</span>
+        <span class="status-tag" id="latestAmiBadge">Loading...</span>
+        <span class="status-tag" id="sourceBadge" style="color: var(--emerald);">Ingested</span>
+      </div>
+      <div class="status-item" id="backfillStatusItem" style="display: none;">
+        <span style="color: var(--text-dim);">Archive Sync:</span>
+        <span class="status-tag" id="backfillStatusBadge" style="color: #38bdf8;">--</span>
+      </div>
+      <div class="status-item">
+        <span style="color: var(--text-dim);">Archive:</span>
+        <span class="status-tag" id="totalDaysBadge" style="color: #cbd5e1;">1,102 days</span>
+      </div>
+    </div>
+
+    <!-- Executive Summary Ribbon -->
+    <div class="summary-ribbon">
+      <div class="ribbon-card">
+        <div class="ribbon-title">
+          <span>Peak 15m Demand</span>
+          <span class="pill-badge badge-rose">Spike</span>
+        </div>
+        <div class="ribbon-val" style="color: #fb7185;">
+          <span id="summaryPeakWatts">0</span> <span style="font-size: 0.85rem; color: var(--text-muted);">W</span>
+        </div>
+        <div class="ribbon-sub" id="summaryPeakTime">Occurred at --:--</div>
+      </div>
+
+      <div class="ribbon-card">
+        <div class="ribbon-title">
+          <span>Grid Imported</span>
+          <span class="pill-badge badge-amber">Import</span>
+        </div>
+        <div class="ribbon-val color-import">
+          <span id="summaryImportKwh">0.00</span> <span style="font-size: 0.85rem; color: var(--text-muted);">kWh</span>
+        </div>
+        <div class="ribbon-sub" id="summaryImportCost">Estimated Utility Charge</div>
+      </div>
+
+      <div class="ribbon-card">
+        <div class="ribbon-title">
+          <span>Solar Backfeed</span>
+          <span class="pill-badge badge-emerald">Export</span>
+        </div>
+        <div class="ribbon-val color-solar">
+          <span id="summarySolarKwh">0.00</span> <span style="font-size: 0.85rem; color: var(--text-muted);">kWh</span>
+        </div>
+        <div class="ribbon-sub" id="summarySolarActive">Grid Credit Generation</div>
+      </div>
+
+      <div class="ribbon-card">
+        <div class="ribbon-title">
+          <span>Net Grid Balance</span>
+          <span class="pill-badge badge-cyan" id="summaryNetBadge">Net</span>
+        </div>
+        <div class="ribbon-val color-net">
+          <span id="summaryNetKwh">0.00</span> <span style="font-size: 0.85rem; color: var(--text-muted);">kWh</span>
+        </div>
+        <div class="ribbon-sub" id="summaryNetStatus">Net Consumption</div>
+      </div>
+    </div>
+
+    <!-- Time-of-Use / Day-Parts Breakdown -->
+    <div class="tou-section">
+      <div class="tou-header">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.5 2 2 6.5 2 12s4.5 10 10 10 10-4.5 10-10S17.5 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zm.5-13H11v6l5.2 3.2.8-1.3-4.5-2.7V7z"/></svg>
+        Time-of-Use & Day-Part Analysis
+      </div>
+      <div class="tou-grid">
+        <!-- Overnight -->
+        <div class="tou-card card-night">
+          <div class="tou-card-head">
+            <div class="tou-name">🌙 Overnight</div>
+            <div class="tou-time">12 AM - 6 AM</div>
+          </div>
+          <div class="tou-metric-row">
+            <div class="tou-net-val color-import" id="nightImport">0.00 kWh</div>
+            <div class="tou-badge badge-cyan">Baseload</div>
+          </div>
+          <div class="tou-stats-box">
+            <div class="tou-sub-item">
+              <span class="tou-sub-label">Avg Power</span>
+              <span class="tou-sub-val" id="nightAvgW">0 W</span>
+            </div>
+            <div class="tou-sub-item">
+              <span class="tou-sub-label">Peak Draw</span>
+              <span class="tou-sub-val" id="nightPeakW">0 W</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Morning -->
+        <div class="tou-card card-morning">
+          <div class="tou-card-head">
+            <div class="tou-name">🌅 Morning Ramp</div>
+            <div class="tou-time">6 AM - 12 PM</div>
+          </div>
+          <div class="tou-metric-row">
+            <div class="tou-net-val" id="morningNet">0.00 kWh</div>
+            <div class="tou-badge badge-amber">Solar Start</div>
+          </div>
+          <div class="tou-stats-box">
+            <div class="tou-sub-item">
+              <span class="tou-sub-label">Import</span>
+              <span class="tou-sub-val color-import" id="morningImport">0.00 kWh</span>
+            </div>
+            <div class="tou-sub-item">
+              <span class="tou-sub-label">Solar Backfeed</span>
+              <span class="tou-sub-val color-solar" id="morningExport">0.00 kWh</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Afternoon -->
+        <div class="tou-card card-afternoon">
+          <div class="tou-card-head">
+            <div class="tou-name">☀️ Afternoon Solar</div>
+            <div class="tou-time">12 PM - 6 PM</div>
+          </div>
+          <div class="tou-metric-row">
+            <div class="tou-net-val" id="afternoonNet">0.00 kWh</div>
+            <div class="tou-badge badge-emerald">Peak Solar</div>
+          </div>
+          <div class="tou-stats-box">
+            <div class="tou-sub-item">
+              <span class="tou-sub-label">Solar Backfeed</span>
+              <span class="tou-sub-val color-solar" id="afternoonExport">0.00 kWh</span>
+            </div>
+            <div class="tou-sub-item">
+              <span class="tou-sub-label">Grid Import</span>
+              <span class="tou-sub-val color-import" id="afternoonImport">0.00 kWh</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Evening -->
+        <div class="tou-card card-evening">
+          <div class="tou-card-head">
+            <div class="tou-name">🌆 Evening Peak</div>
+            <div class="tou-time">6 PM - 12 AM</div>
+          </div>
+          <div class="tou-metric-row">
+            <div class="tou-net-val color-import" id="eveningNet">0.00 kWh</div>
+            <div class="tou-badge badge-rose">Grid Peak</div>
+          </div>
+          <div class="tou-stats-box">
+            <div class="tou-sub-item">
+              <span class="tou-sub-label">Import</span>
+              <span class="tou-sub-val color-import" id="eveningImport">0.00 kWh</span>
+            </div>
+            <div class="tou-sub-item">
+              <span class="tou-sub-label">Peak Demand</span>
+              <span class="tou-sub-val" id="eveningPeakW" style="color:#fb7185;">0 W</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Timeline Chart Section -->
+    <div class="section-card">
+      <div class="section-header">
+        <div class="section-title">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" style="color: var(--amber);"><path d="M4 9h4v11H4zm6-5h4v16h-4zm6 8h4v8h-4z"/></svg>
+          24-Hour Energy Profile
+        </div>
+
+        <div style="display: flex; align-items: center; gap: 16px; flex-wrap: wrap;">
+          <div class="chart-legend">
+            <div class="legend-item">
+              <div class="legend-color" style="background: var(--amber);"></div>
+              <span>Grid Import</span>
+            </div>
+            <div class="legend-item">
+              <div class="legend-color" style="background: var(--emerald);"></div>
+              <span>Solar Backfeed</span>
+            </div>
+            <div class="legend-item">
+              <div class="legend-color" style="background: var(--rose);"></div>
+              <span>Peak Spike</span>
+            </div>
+          </div>
+
+          <div class="segment-bar">
+            <button class="segment-btn active" id="btnChartHourly" onclick="setChartResolution('hourly')">Hourly Bars (24)</button>
+            <button class="segment-btn" id="btnChart15m" onclick="setChartResolution('15m')">15m Granular (96)</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="chart-wrapper">
+        <canvas id="intervalChart"></canvas>
+        <div class="chart-tooltip" id="chartTooltip"></div>
+      </div>
+    </div>
+
+    <!-- Smart Tables Section -->
+    <div class="section-card">
+      <div class="section-header">
+        <div class="section-title">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" style="color: var(--cyan);"><path d="M3 3v18h18V3H3zm16 16H5V5h14v14zM7 7h10v2H7zm0 4h10v2H7zm0 4h7v2H7z"/></svg>
+          Interactive Interval Breakdown
+        </div>
+
+        <div class="segment-bar">
+          <button class="segment-btn active" id="tabHourly" onclick="switchTableTab('hourly')">🕒 Hourly Rollup (24h)</button>
+          <button class="segment-btn" id="tabPeaks" onclick="switchTableTab('peaks')">⚡ Peak Demand Spikes (Top 10)</button>
+          <button class="segment-btn" id="tabRaw" onclick="switchTableTab('raw')">📋 Raw 96 Intervals</button>
+        </div>
+      </div>
+
+      <div class="table-toolbar">
+        <div style="font-size: 0.8rem; color: var(--text-muted);" id="tableSummaryText">
+          Showing 24 hourly periods
+        </div>
+        <div id="tableFilterWrap" style="display: none;">
+          <input type="text" class="table-search-input" id="tableSearch" placeholder="Search time (e.g. 03:00, PM)..." oninput="filterRawTable()">
+        </div>
+      </div>
+
+      <div class="table-container">
+        <table>
+          <thead id="tableThead">
+            <!-- Dynamically populated -->
+          </thead>
+          <tbody id="tableTbody">
+            <tr><td colspan="7" style="text-align: center; color: var(--text-dim); padding: 30px;">Loading data...</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div> <!-- /viewExplorer -->
+
+  <!-- Simulator View Container -->
+  <div id="viewSimulator" style="display: none;">
+    <!-- Simulator KPI Summary -->
+    <div class="summary-ribbon" style="margin-bottom: 20px;">
+      <div class="ribbon-card">
+        <div class="ribbon-title">
+          <span>Total Daily Usage</span>
+          <span class="pill-badge badge-amber">Usage</span>
+        </div>
+        <div class="ribbon-val color-import">
+          <span id="simKpiUsage">33.3</span> <span style="font-size: 0.85rem; color: var(--text-muted);">kWh</span>
+        </div>
+        <div class="ribbon-sub" id="simKpiUsageSub">Base: 33.3 kWh + 0.0 add</div>
+      </div>
+
+      <div class="ribbon-card">
+        <div class="ribbon-title">
+          <span>Solar Generation</span>
+          <span class="pill-badge badge-emerald">Solar</span>
+        </div>
+        <div class="ribbon-val color-solar">
+          <span id="simKpiSolar">44.0</span> <span style="font-size: 0.85rem; color: var(--text-muted);">kWh</span>
+        </div>
+        <div class="ribbon-sub" id="simKpiSolarSub">Est. Array: ~9.2 kW DC</div>
+      </div>
+
+      <div class="ribbon-card">
+        <div class="ribbon-title">
+          <span>Daily Net Energy</span>
+          <span class="pill-badge badge-cyan" id="simKpiNetBadge">Surplus</span>
+        </div>
+        <div class="ribbon-val color-net" id="simKpiNet">
+          -10.7 <span style="font-size: 0.85rem; color: var(--text-muted);">kWh</span>
+        </div>
+        <div class="ribbon-sub" id="simKpiNetSub" style="color: var(--emerald);">Surplus Export to CPS</div>
+      </div>
+
+      <div class="ribbon-card">
+        <div class="ribbon-title">
+          <span>CPS Net Electric Bill</span>
+          <span class="pill-badge badge-purple">Tariff</span>
+        </div>
+        <div class="ribbon-val" id="simKpiCost" style="color: #cbd5e1;">
+          $0.45 <span style="font-size: 0.85rem; color: var(--text-muted);">/day</span>
+        </div>
+        <div class="ribbon-sub" id="simKpiCostSub" style="color: var(--emerald);">Saves $4.21/day ($128/mo)</div>
+      </div>
+    </div>
+
+    <!-- Simulator Chart Card -->
+    <div class="sim-card">
+      <div class="section-header" style="margin-bottom: 12px;">
+        <div>
+          <div class="section-title">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" style="color: var(--emerald);"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 15v-4H7l6-9v4h4l-6 9z"/></svg>
+            24-Hour Energy Profile: Generation vs. Load
+          </div>
+          <div style="font-size: 0.80rem; color: var(--text-muted); margin-top: 2px;">
+            Hover over any hour to see the power balance, battery state, and grid interaction.
+          </div>
+        </div>
+        <div style="display: flex; gap: 14px; font-size: 0.80rem; align-items: center;">
+          <div style="display: flex; align-items: center; gap: 6px;">
+            <span style="width: 10px; height: 10px; border-radius: 50%; background: #f59e0b; display: inline-block;"></span>
+            <span style="color: var(--text-muted);">Consumption</span>
+          </div>
+          <div style="display: flex; align-items: center; gap: 6px;">
+            <span style="width: 10px; height: 10px; border-radius: 50%; background: #10b981; display: inline-block;"></span>
+            <span style="color: var(--text-muted);">Solar Production</span>
+          </div>
+          <div id="simLegendBattery" style="display: none; align-items: center; gap: 6px;">
+            <span style="width: 10px; height: 10px; border-radius: 50%; background: #06b6d4; display: inline-block;"></span>
+            <span style="color: var(--text-muted);">Battery Flow</span>
+          </div>
+        </div>
+      </div>
+
+      <div style="position: relative; width: 100%; height: 280px; margin-bottom: 14px;">
+        <canvas id="simCanvas" style="width: 100%; height: 100%; display: block;"></canvas>
+      </div>
+
+      <!-- Time of Day Context Strip -->
+      <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; text-align: center; font-size: 0.80rem; border-top: 1px solid rgba(255, 255, 255, 0.08); padding-top: 12px;">
+        <div style="padding: 8px; border-radius: 10px; background: rgba(255, 255, 255, 0.02); border: 1px solid rgba(255, 255, 255, 0.05);">
+          <div style="font-weight: 700;">🌙 Night</div>
+          <div style="font-size: 0.70rem; color: var(--text-dim);">00:00 - 06:00</div>
+          <div id="simStripNight" style="color: #f59e0b; font-weight: 700; font-family: monospace; margin-top: 4px;">10.2 kWh</div>
+        </div>
+        <div style="padding: 8px; border-radius: 10px; background: rgba(255, 255, 255, 0.02); border: 1px solid rgba(255, 255, 255, 0.05);">
+          <div style="font-weight: 700;">🌅 Morning</div>
+          <div style="font-size: 0.70rem; color: var(--text-dim);">06:00 - 12:00</div>
+          <div id="simStripMorning" style="color: #10b981; font-weight: 700; font-family: monospace; margin-top: 4px;">4.1 kWh</div>
+        </div>
+        <div style="padding: 8px; border-radius: 10px; background: rgba(255, 255, 255, 0.02); border: 1px solid rgba(255, 255, 255, 0.05);">
+          <div style="font-weight: 700;">☀️ Midday Solar</div>
+          <div style="font-size: 0.70rem; color: var(--text-dim);">12:00 - 18:00</div>
+          <div id="simStripMidday" style="color: #10b981; font-weight: 700; font-family: monospace; margin-top: 4px;">4.2 kWh</div>
+        </div>
+        <div style="padding: 8px; border-radius: 10px; background: rgba(255, 255, 255, 0.02); border: 1px solid rgba(255, 255, 255, 0.05);">
+          <div style="font-weight: 700;">🌆 Evening Peak</div>
+          <div style="font-size: 0.70rem; color: var(--text-dim);">18:00 - 24:00</div>
+          <div id="simStripEvening" style="color: #fb7185; font-weight: 700; font-family: monospace; margin-top: 4px;">14.8 kWh</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Simulator Interactive Controls -->
+    <div class="sim-grid-2">
+      <!-- Left: Scenario & Appliances -->
+      <div class="sim-card">
+        <div style="font-weight: 700; margin-bottom: 12px; display: flex; align-items: center; gap: 8px;">
+          <span>⚙️</span> 1. Select Energy Usage Scenario
+        </div>
+
+        <div style="margin-bottom: 14px;">
+          <label style="font-size: 0.72rem; text-transform: uppercase; color: var(--text-muted); font-weight: 600; display: block; margin-bottom: 6px;">
+            Historical CPS Scenario
+          </label>
+          <select id="simScenarioSelect" class="sim-select">
+            <option value="all" selected>📅 3-Year Overall Average (33.3 kWh/day)</option>
+            <option value="summer">☀️ Summer Heat Wave Peak (43.1 kWh/day)</option>
+            <option value="winter">❄️ Winter Mild Baseline (25.5 kWh/day)</option>
+            <option value="shoulder">🍂 Spring / Fall Moderate (28.3 kWh/day)</option>
+            <option value="weekend">🛋️ Weekend Profile (32.5 kWh/day)</option>
+            <option value="weekday">💼 Weekday Profile (33.6 kWh/day)</option>
+            <option value="p90">⚡ 90th Percentile Stress Test (48.3 kWh/day)</option>
+          </select>
+        </div>
+
+        <div style="margin-bottom: 14px;">
+          <label style="font-size: 0.72rem; text-transform: uppercase; color: var(--text-muted); font-weight: 600; display: block; margin-bottom: 6px;">
+            Filter by Time of Usage
+          </label>
+          <div class="sim-btn-group">
+            <button class="sim-btn active" data-simfilter="all">24 Hours</button>
+            <button class="sim-btn" data-simfilter="night">Night</button>
+            <button class="sim-btn" data-simfilter="morning">Morning</button>
+            <button class="sim-btn" data-simfilter="midday">Midday</button>
+            <button class="sim-btn" data-simfilter="evening">Evening</button>
+          </div>
+        </div>
+
+        <div style="border-top: 1px solid rgba(255, 255, 255, 0.08); padding-top: 12px;">
+          <label style="font-size: 0.72rem; text-transform: uppercase; color: var(--text-muted); font-weight: 600; display: block; margin-bottom: 8px;">
+            Appliance What-If Toggles (Day-to-Day Variation)
+          </label>
+          <div class="sim-appliance-grid">
+            <label class="sim-checkbox-card">
+              <input type="checkbox" id="simToggleOven" style="accent-color: #f59e0b;">
+              <div>
+                <div style="font-weight: 600;">🥧 Electric Oven</div>
+                <div style="font-size: 0.70rem; color: var(--text-dim);">+3.5 kWh (5-7 PM)</div>
+              </div>
+            </label>
+            <label class="sim-checkbox-card">
+              <input type="checkbox" id="simToggleStove" style="accent-color: #f59e0b;">
+              <div>
+                <div style="font-weight: 600;">🍳 Stove / Range</div>
+                <div style="font-size: 0.70rem; color: var(--text-dim);">+1.8 kWh (6-7 PM)</div>
+              </div>
+            </label>
+            <label class="sim-checkbox-card">
+              <input type="checkbox" id="simToggleDryer" style="accent-color: #f59e0b;">
+              <div>
+                <div style="font-weight: 600;">👕 Electric Dryer</div>
+                <div style="font-size: 0.70rem; color: var(--text-dim);">+3.2 kWh (7-8 PM)</div>
+              </div>
+            </label>
+            <label class="sim-checkbox-card">
+              <input type="checkbox" id="simToggleMicrowave" style="accent-color: #f59e0b;">
+              <div>
+                <div style="font-weight: 600;">🍿 Microwave</div>
+                <div style="font-size: 0.70rem; color: var(--text-dim);">+0.4 kWh (Lunch/Snack)</div>
+              </div>
+            </label>
+          </div>
+        </div>
+      </div>
+
+      <!-- Right: Solar Sizing & Battery -->
+      <div class="sim-card">
+        <div style="font-weight: 700; margin-bottom: 12px; display: flex; align-items: center; gap: 8px;">
+          <span>☀️</span> 2. Adjust Solar Array & Battery
+        </div>
+
+        <div style="margin-bottom: 16px;">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+            <span style="font-size: 0.72rem; text-transform: uppercase; color: var(--text-muted); font-weight: 600;">Target Daily Solar</span>
+            <span id="simSliderValText" style="color: var(--emerald); font-weight: 800; font-family: monospace;">44.0 kWh/day</span>
+          </div>
+          <input type="range" id="simSolarSlider" min="10" max="75" step="1" value="44" class="sim-range-input">
+          <div style="display: flex; justify-content: space-between; font-size: 0.70rem; color: var(--text-dim); margin-top: 4px; font-family: monospace;">
+            <span>10 kWh</span>
+            <span>24 kWh (Current)</span>
+            <span>44 kWh (Net-Zero)</span>
+            <span>75 kWh</span>
+          </div>
+        </div>
+
+        <div style="margin-bottom: 16px;">
+          <span style="font-size: 0.72rem; text-transform: uppercase; color: var(--text-muted); font-weight: 600; display: block; margin-bottom: 6px;">Quick Presets</span>
+          <div class="sim-btn-group">
+            <button class="sim-preset-btn sim-btn" data-val="24">Current System (24 kWh)</button>
+            <button class="sim-preset-btn sim-btn" data-val="34">Median Day (34 kWh)</button>
+            <button class="sim-preset-btn sim-btn active" data-val="44">80% Conf. (44 kWh)</button>
+            <button class="sim-preset-btn sim-btn" data-val="49">90% Conf. (49 kWh)</button>
+            <button class="sim-preset-btn sim-btn" data-val="56">Summer Peak (56 kWh)</button>
+            <button class="sim-preset-btn sim-btn" data-val="65">100% Buffer (65 kWh)</button>
+          </div>
+        </div>
+
+        <div style="border-top: 1px solid rgba(255, 255, 255, 0.08); padding-top: 12px;">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+            <span style="font-size: 0.72rem; text-transform: uppercase; color: var(--text-muted); font-weight: 600;">Home Battery Storage</span>
+            <span id="simBatteryStatusText" style="color: var(--cyan); font-size: 0.75rem; font-weight: 600;">None (Direct Export)</span>
+          </div>
+          <select id="simBatterySelect" class="sim-select">
+            <option value="0" selected>🚫 No Battery (Sell midday solar to CPS @ $0.025/kWh)</option>
+            <option value="5">🔋 5.0 kWh Battery (Shifts ~35% of evening peak)</option>
+            <option value="10">🔋 10.0 kWh Battery (Shifts ~70% of evening peak)</option>
+            <option value="13.5">🔋 13.5 kWh Powerwall (Shifts 100% of evening peak!)</option>
+            <option value="20">🔋 20.0 kWh Dual Pack (Shifts entire evening + night)</option>
+          </select>
+          <p style="font-size: 0.72rem; color: var(--text-dim); margin-top: 6px;">
+            💡 Storing midday surplus avoids $0.14/kWh evening imports, rather than earning only $0.025/kWh export credit.
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Statistical Callout Card -->
+    <div class="sim-card" style="font-size: 0.80rem; color: var(--text-muted); line-height: 1.5;">
+      <div style="font-weight: 700; color: var(--text-main); margin-bottom: 6px;">
+        📈 Why Weekly Averaging Matters for Solar Sizing:
+      </div>
+      Across 1,097 days, your single-day standard deviation is <strong>±11.14 kWh</strong>. Over a <strong>7-day rolling window</strong>, the standard deviation collapses by <strong>18.1% (to ±9.13 kWh)</strong>. Days with high cooking, baking, or chores are balanced by lighter days, meaning an array generating <strong>42–45 kWh/day</strong> comfortably achieves net-zero electricity across 85%+ of weeks.
+    </div>
+  </div> <!-- /viewSimulator -->
+
+  </div> <!-- /container -->
+
+  <script>
+
+    // --- Simulator Controller ---
+    const SIM_PROFILES = {
+      all:      [2.381, 2.059, 1.664, 1.457, 1.374, 1.292, 1.283, 1.182, 0.794, 0.427, 0.221, 0.184, 0.215, 0.300, 0.435, 0.686, 1.117, 1.440, 2.127, 2.441, 2.601, 2.664, 2.421, 2.572],
+      summer:   [3.299, 2.887, 2.310, 2.016, 1.859, 1.735, 1.737, 1.559, 1.000, 0.547, 0.231, 0.187, 0.238, 0.334, 0.530, 0.895, 1.364, 1.426, 2.575, 3.114, 3.421, 3.479, 3.048, 3.442],
+      winter:   [1.575, 1.292, 1.118, 1.068, 0.989, 0.980, 0.981, 0.936, 0.713, 0.345, 0.216, 0.190, 0.181, 0.241, 0.341, 0.509, 0.930, 1.580, 1.784, 1.877, 1.920, 1.935, 1.933, 1.884],
+      shoulder: [2.319, 2.022, 1.611, 1.369, 1.321, 1.223, 1.205, 1.116, 0.730, 0.406, 0.218, 0.180, 0.220, 0.312, 0.435, 0.668, 1.086, 1.377, 2.072, 2.382, 2.526, 2.616, 2.348, 2.476],
+      weekend:  [2.366, 2.207, 1.654, 1.423, 1.342, 1.268, 1.286, 1.172, 0.763, 0.414, 0.203, 0.186, 0.231, 0.330, 0.436, 0.679, 1.107, 1.441, 2.051, 2.309, 2.465, 2.544, 2.211, 2.360],
+      weekday:  [2.387, 1.999, 1.668, 1.471, 1.387, 1.301, 1.282, 1.186, 0.806, 0.431, 0.228, 0.184, 0.208, 0.288, 0.435, 0.688, 1.121, 1.439, 2.158, 2.494, 2.655, 2.712, 2.505, 2.657],
+      p90:      [3.500, 3.100, 2.600, 2.200, 2.000, 1.900, 1.900, 1.800, 1.300, 0.800, 0.450, 0.350, 0.400, 0.550, 0.800, 1.200, 1.700, 2.200, 3.300, 3.800, 4.100, 4.200, 3.900, 4.000]
+    };
+
+    const SIM_SOLAR_WEIGHTS = [
+      0.000, 0.000, 0.000, 0.000, 0.000, 0.000, 0.000, 0.005,
+      0.035, 0.085, 0.135, 0.170, 0.180, 0.165, 0.125, 0.065,
+      0.025, 0.009, 0.001, 0.000, 0.000, 0.000, 0.000, 0.000
+    ];
+
+    let simFilter = 'all';
+    let simHoveredHour = null;
+
+    let simEventsInitialized = false;
+
+    function switchMainView(mode) {
+      const isExplorer = mode === 'explorer';
+      const expView = document.getElementById('viewExplorer');
+      const simView = document.getElementById('viewSimulator');
+      if (expView) expView.style.display = isExplorer ? 'block' : 'none';
+      if (simView) simView.style.display = isExplorer ? 'none' : 'block';
+
+      const tabExp = document.getElementById('tabBtnExplorer');
+      const tabSim = document.getElementById('tabBtnSimulator');
+      if (tabExp) tabExp.className = isExplorer ? 'view-tab-btn active' : 'view-tab-btn';
+      if (tabSim) tabSim.className = isExplorer ? 'view-tab-btn' : 'view-tab-btn active';
+
+      if (!isExplorer) {
+        initSimulatorEvents();
+        requestAnimationFrame(() => {
+          renderSimulator();
+        });
+      }
+    }
+
+    function initSimulatorEvents() {
+      if (simEventsInitialized) return;
+      simEventsInitialized = true;
+
+      // 1. Time-of-use filter buttons (24 Hours, Night, Morning, Midday, Evening)
+      const filterBtns = document.querySelectorAll('.sim-btn[data-simfilter]');
+      filterBtns.forEach(btn => {
+        btn.addEventListener('click', (e) => {
+          e.preventDefault();
+          filterBtns.forEach(b => b.classList.remove('active'));
+          btn.classList.add('active');
+          simFilter = btn.dataset.simfilter;
+          renderSimulator();
+        });
+      });
+
+      // 2. Preset solar sizing buttons
+      const presetBtns = document.querySelectorAll('.sim-preset-btn');
+      presetBtns.forEach(btn => {
+        btn.addEventListener('click', (e) => {
+          e.preventDefault();
+          presetBtns.forEach(b => b.classList.remove('active'));
+          btn.classList.add('active');
+          const val = parseFloat(btn.dataset.val);
+          const slider = document.getElementById('simSolarSlider');
+          if (slider) slider.value = val;
+          const valText = document.getElementById('simSliderValText');
+          if (valText) valText.textContent = `${val.toFixed(1)} kWh/day`;
+          renderSimulator();
+        });
+      });
+
+      // 3. Solar range slider (input & change)
+      const slider = document.getElementById('simSolarSlider');
+      if (slider) {
+        const updateSlider = (val) => {
+          const num = parseFloat(val);
+          const valText = document.getElementById('simSliderValText');
+          if (valText) valText.textContent = `${num.toFixed(1)} kWh/day`;
+          presetBtns.forEach(b => {
+            b.classList.toggle('active', parseFloat(b.dataset.val) === num);
+          });
+          renderSimulator();
+        };
+        slider.addEventListener('input', (e) => updateSlider(e.target.value));
+        slider.addEventListener('change', (e) => updateSlider(e.target.value));
+      }
+
+      // 4. Scenario select, Battery select, Appliance toggles
+      ['simScenarioSelect', 'simBatterySelect', 'simToggleOven', 'simToggleStove', 'simToggleDryer', 'simToggleMicrowave'].forEach(id => {
+        const el = document.getElementById(id);
+        if (el) {
+          el.addEventListener('change', () => renderSimulator());
+          el.addEventListener('input', () => renderSimulator());
+        }
+      });
+
+      // 5. Canvas hover and touch interactivity
+      const simCanvas = document.getElementById('simCanvas');
+      if (simCanvas) {
+        const handleSimPointer = (clientX) => {
+          const rect = simCanvas.getBoundingClientRect();
+          if (!rect.width || !rect.height) return;
+          const x = clientX - rect.left;
+          const [startHr, endHr] = getSimHourRange();
+          const numHrs = endHr - startHr + 1;
+          const padding = { left: 45, right: 20 };
+          const graphW = rect.width - padding.left - padding.right;
+
+          if (x >= padding.left && x <= rect.width - padding.right) {
+            const slotW = graphW / numHrs;
+            const relX = x - padding.left;
+            const idx = Math.floor(relX / slotW);
+            const hr = startHr + idx;
+            if (hr >= startHr && hr <= endHr && hr !== simHoveredHour) {
+              simHoveredHour = hr;
+              renderSimulator();
+            }
+          } else if (simHoveredHour !== null) {
+            simHoveredHour = null;
+            renderSimulator();
+          }
+        };
+
+        simCanvas.addEventListener('mousemove', (e) => handleSimPointer(e.clientX));
+        simCanvas.addEventListener('mouseleave', () => {
+          if (simHoveredHour !== null) {
+            simHoveredHour = null;
+            renderSimulator();
+          }
+        });
+
+        simCanvas.addEventListener('touchstart', (e) => {
+          if (e.touches && e.touches.length > 0) {
+            handleSimPointer(e.touches[0].clientX);
+          }
+        }, { passive: true });
+
+        simCanvas.addEventListener('touchmove', (e) => {
+          if (e.touches && e.touches.length > 0) {
+            handleSimPointer(e.touches[0].clientX);
+          }
+        }, { passive: true });
+
+        simCanvas.addEventListener('touchend', () => {
+          if (simHoveredHour !== null) {
+            simHoveredHour = null;
+            renderSimulator();
+          }
+        });
+      }
+    }
+
+    function getSimHourRange() {
+      if (simFilter === 'night') return [0, 5];
+      if (simFilter === 'morning') return [6, 11];
+      if (simFilter === 'midday') return [12, 17];
+      if (simFilter === 'evening') return [18, 23];
+      return [0, 23];
+    }
+
+    function renderSimulator() {
+      const scenarioKey = document.getElementById('simScenarioSelect')?.value || 'all';
+      const baseHourly = [...SIM_PROFILES[scenarioKey]];
+      const targetSolarKwh = parseFloat(document.getElementById('simSolarSlider')?.value || 44);
+      const batteryCapacity = parseFloat(document.getElementById('simBatterySelect')?.value || 0);
+
+      let applianceAdd = new Array(24).fill(0);
+      let totalApplianceKwh = 0;
+
+      if (document.getElementById('simToggleOven')?.checked) {
+        applianceAdd[17] += 1.75; applianceAdd[18] += 1.75; totalApplianceKwh += 3.5;
+      }
+      if (document.getElementById('simToggleStove')?.checked) {
+        applianceAdd[18] += 1.8; totalApplianceKwh += 1.8;
+      }
+      if (document.getElementById('simToggleDryer')?.checked) {
+        applianceAdd[19] += 3.2; totalApplianceKwh += 3.2;
+      }
+      if (document.getElementById('simToggleMicrowave')?.checked) {
+        applianceAdd[12] += 0.2; applianceAdd[20] += 0.2; totalApplianceKwh += 0.4;
+      }
+
+      const hourlyConsumption = baseHourly.map((v, i) => v + applianceAdd[i]);
+      const totalUsageKwh = hourlyConsumption.reduce((a, b) => a + b, 0);
+      const baseUsageKwh = baseHourly.reduce((a, b) => a + b, 0);
+      const hourlySolar = SIM_SOLAR_WEIGHTS.map(w => w * targetSolarKwh);
+
+      let batterySoC = 0;
+      const hourlyBatteryFlow = new Array(24).fill(0);
+      const hourlyGridImport = new Array(24).fill(0);
+      const hourlyGridExport = new Array(24).fill(0);
+
+      for (let h = 0; h < 24; h++) {
+        const netGen = hourlySolar[h] - hourlyConsumption[h];
+        if (netGen > 0) {
+          if (batteryCapacity > 0 && batterySoC < batteryCapacity) {
+            const chargeRoom = batteryCapacity - batterySoC;
+            const chargeAmount = Math.min(netGen, chargeRoom);
+            batterySoC += chargeAmount;
+            hourlyBatteryFlow[h] = -chargeAmount;
+            hourlyGridExport[h] = netGen - chargeAmount;
+          } else {
+            hourlyGridExport[h] = netGen;
+          }
+        }
+      }
+
+      const dischargeHours = [18, 19, 20, 21, 22, 23, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17];
+      for (const h of dischargeHours) {
+        if (hourlySolar[h] < hourlyConsumption[h]) {
+          const deficit = hourlyConsumption[h] - hourlySolar[h];
+          if (batteryCapacity > 0 && batterySoC > 0) {
+            const dischargeAmount = Math.min(deficit, batterySoC);
+            batterySoC -= dischargeAmount;
+            hourlyBatteryFlow[h] = dischargeAmount;
+            hourlyGridImport[h] = deficit - dischargeAmount;
+          } else {
+            hourlyGridImport[h] = deficit;
+          }
+        }
+      }
+
+      const totalImportKwh = hourlyGridImport.reduce((a, b) => a + b, 0);
+      const totalExportKwh = hourlyGridExport.reduce((a, b) => a + b, 0);
+      const netKwh = totalImportKwh - totalExportKwh;
+
+      const importCost = totalImportKwh * 0.14;
+      const exportCredit = totalExportKwh * 0.025;
+      const netBill = Math.max(0, importCost - exportCredit);
+      const baseCost = totalUsageKwh * 0.14;
+      const dailySavings = Math.max(0, baseCost - netBill);
+
+      const elUsage = document.getElementById('simKpiUsage');
+      if (elUsage) elUsage.textContent = totalUsageKwh.toFixed(1);
+      const elUsageSub = document.getElementById('simKpiUsageSub');
+      if (elUsageSub) elUsageSub.textContent = `Base: ${baseUsageKwh.toFixed(1)} + ${totalApplianceKwh.toFixed(1)} add`;
+
+      const elSolar = document.getElementById('simKpiSolar');
+      if (elSolar) elSolar.textContent = targetSolarKwh.toFixed(1);
+      const elSolarSub = document.getElementById('simKpiSolarSub');
+      if (elSolarSub) elSolarSub.textContent = `Est. Array: ~${(targetSolarKwh / 4.8).toFixed(1)} kW DC`;
+
+      const elNet = document.getElementById('simKpiNet');
+      const elNetBadge = document.getElementById('simKpiNetBadge');
+      const elNetSub = document.getElementById('simKpiNetSub');
+      if (elNet) {
+        elNet.innerHTML = `${(netKwh > 0 ? '+' : '')}${netKwh.toFixed(1)} <span style="font-size: 0.85rem; color: var(--text-muted);">kWh</span>`;
+        if (netKwh <= 0) {
+          elNet.style.color = '#10b981';
+          if (elNetBadge) { elNetBadge.textContent = 'Net Zero'; elNetBadge.className = 'pill-badge badge-emerald'; }
+          if (elNetSub) { elNetSub.textContent = `Surplus: ${Math.abs(netKwh).toFixed(1)} kWh/day`; elNetSub.style.color = '#10b981'; }
+        } else {
+          elNet.style.color = '#f59e0b';
+          if (elNetBadge) { elNetBadge.textContent = 'Deficit'; elNetBadge.className = 'pill-badge badge-amber'; }
+          if (elNetSub) { elNetSub.textContent = `Grid Deficit: ${netKwh.toFixed(1)} kWh/day`; elNetSub.style.color = '#f59e0b'; }
+        }
+      }
+
+      const elCost = document.getElementById('simKpiCost');
+      if (elCost) elCost.innerHTML = `$${netBill.toFixed(2)} <span style="font-size: 0.85rem; color: var(--text-muted);">/day</span>`;
+      const elCostSub = document.getElementById('simKpiCostSub');
+      if (elCostSub) elCostSub.textContent = `Saves $${dailySavings.toFixed(2)}/day ($${(dailySavings * 30.4).toFixed(0)}/mo)`;
+
+      const elBatStatus = document.getElementById('simBatteryStatusText');
+      const elLegBat = document.getElementById('simLegendBattery');
+      if (elBatStatus) {
+        elBatStatus.textContent = batteryCapacity > 0 ? `${batteryCapacity} kWh Pack Active` : 'None (Direct Export)';
+      }
+      if (elLegBat) {
+        elLegBat.style.display = batteryCapacity > 0 ? 'flex' : 'none';
+      }
+
+      const nightK = hourlyConsumption.slice(0, 6).reduce((a, b) => a + b, 0);
+      const mornK = hourlyConsumption.slice(6, 12).reduce((a, b) => a + b, 0);
+      const midK = hourlyConsumption.slice(12, 18).reduce((a, b) => a + b, 0);
+      const eveK = hourlyConsumption.slice(18, 24).reduce((a, b) => a + b, 0);
+      const sn = document.getElementById('simStripNight'); if (sn) sn.textContent = `${nightK.toFixed(1)} kWh`;
+      const sm = document.getElementById('simStripMorning'); if (sm) sm.textContent = `${mornK.toFixed(1)} kWh`;
+      const sd = document.getElementById('simStripMidday'); if (sd) sd.textContent = `${midK.toFixed(1)} kWh`;
+      const se = document.getElementById('simStripEvening'); if (se) se.textContent = `${eveK.toFixed(1)} kWh`;
+
+      drawSimChart(hourlyConsumption, hourlySolar, hourlyBatteryFlow, batteryCapacity);
+    }
+
+    function drawSimChart(consumption, solar, batteryFlow, batteryCapacity) {
+      const simCanvas = document.getElementById('simCanvas');
+      if (!simCanvas) return;
+      const rect = simCanvas.getBoundingClientRect();
+      if (!rect.width || !rect.height) return;
+      const sCtx = simCanvas.getContext('2d');
+      const dpr = window.devicePixelRatio || 1;
+      simCanvas.width = rect.width * dpr;
+      simCanvas.height = rect.height * dpr;
+      sCtx.resetTransform();
+      sCtx.scale(dpr, dpr);
+
+      const w = rect.width;
+      const h = rect.height;
+      sCtx.clearRect(0, 0, w, h);
+
+      const [startHr, endHr] = getSimHourRange();
+      const numHrs = endHr - startHr + 1;
+      const padding = { top: 20, right: 20, bottom: 30, left: 45 };
+      const graphW = w - padding.left - padding.right;
+      const graphH = h - padding.top - padding.bottom;
+
+      let maxY = 4.0;
+      for (let hr = startHr; hr <= endHr; hr++) {
+        if (consumption[hr] > maxY) maxY = consumption[hr];
+        if (solar[hr] > maxY) maxY = solar[hr];
+      }
+      maxY = Math.ceil(maxY * 1.15 * 2) / 2;
+
+      sCtx.strokeStyle = 'rgba(255, 255, 255, 0.07)';
+      sCtx.lineWidth = 1;
+      sCtx.font = '10px ui-monospace, monospace';
+      sCtx.fillStyle = 'rgba(148, 163, 184, 0.7)';
+      sCtx.textAlign = 'right';
+      sCtx.textBaseline = 'middle';
+
+      for (let i = 0; i <= 4; i++) {
+        const yVal = (maxY / 4) * i;
+        const yPos = padding.top + graphH - (yVal / maxY) * graphH;
+        sCtx.beginPath();
+        sCtx.moveTo(padding.left, yPos);
+        sCtx.lineTo(w - padding.right, yPos);
+        sCtx.stroke();
+        sCtx.fillText(`${yVal.toFixed(1)} kW`, padding.left - 6, yPos);
+      }
+
+      const slotW = graphW / numHrs;
+      const barW = Math.max(4, slotW * 0.45);
+
+      for (let idx = 0; idx < numHrs; idx++) {
+        const hr = startHr + idx;
+        const val = consumption[hr];
+        const barH = (val / maxY) * graphH;
+        const x = padding.left + idx * slotW + (slotW - barW) / 2;
+        const y = padding.top + graphH - barH;
+
+        const grad = sCtx.createLinearGradient(0, y, 0, padding.top + graphH);
+        grad.addColorStop(0, '#f59e0b');
+        grad.addColorStop(1, 'rgba(245, 158, 11, 0.15)');
+
+        sCtx.fillStyle = grad;
+        sCtx.beginPath();
+        sCtx.roundRect(x, y, barW, barH, [4, 4, 0, 0]);
+        sCtx.fill();
+
+        if (simHoveredHour === hr) {
+          sCtx.strokeStyle = '#fbbf24';
+          sCtx.lineWidth = 2;
+          sCtx.stroke();
+        }
+      }
+
+      sCtx.beginPath();
+      let first = true;
+      for (let idx = 0; idx < numHrs; idx++) {
+        const hr = startHr + idx;
+        const val = solar[hr];
+        const x = padding.left + idx * slotW + slotW / 2;
+        const y = padding.top + graphH - (val / maxY) * graphH;
+        if (first) { sCtx.moveTo(x, y); first = false; }
+        else { sCtx.lineTo(x, y); }
+      }
+      const lastX = padding.left + (numHrs - 1) * slotW + slotW / 2;
+      const firstX = padding.left + slotW / 2;
+      sCtx.lineTo(lastX, padding.top + graphH);
+      sCtx.lineTo(firstX, padding.top + graphH);
+      sCtx.closePath();
+
+      const solarGrad = sCtx.createLinearGradient(0, padding.top, 0, padding.top + graphH);
+      solarGrad.addColorStop(0, 'rgba(16, 185, 129, 0.35)');
+      solarGrad.addColorStop(1, 'rgba(16, 185, 129, 0.02)');
+      sCtx.fillStyle = solarGrad;
+      sCtx.fill();
+
+      sCtx.beginPath();
+      first = true;
+      for (let idx = 0; idx < numHrs; idx++) {
+        const hr = startHr + idx;
+        const val = solar[hr];
+        const x = padding.left + idx * slotW + slotW / 2;
+        const y = padding.top + graphH - (val / maxY) * graphH;
+        if (first) { sCtx.moveTo(x, y); first = false; }
+        else { sCtx.lineTo(x, y); }
+      }
+      sCtx.strokeStyle = '#10b981';
+      sCtx.lineWidth = 2.5;
+      sCtx.stroke();
+
+      for (let idx = 0; idx < numHrs; idx++) {
+        const hr = startHr + idx;
+        const val = solar[hr];
+        if (val > 0.05) {
+          const x = padding.left + idx * slotW + slotW / 2;
+          const y = padding.top + graphH - (val / maxY) * graphH;
+          sCtx.beginPath();
+          sCtx.arc(x, y, simHoveredHour === hr ? 5 : 3, 0, Math.PI * 2);
+          sCtx.fillStyle = '#10b981';
+          sCtx.fill();
+          sCtx.strokeStyle = '#ffffff';
+          sCtx.lineWidth = 1.5;
+          sCtx.stroke();
+        }
+      }
+
+      if (batteryCapacity > 0) {
+        for (let idx = 0; idx < numHrs; idx++) {
+          const hr = startHr + idx;
+          const flow = batteryFlow[hr];
+          if (flow > 0) {
+            const x = padding.left + idx * slotW + (slotW - barW) / 2;
+            const flowH = (flow / maxY) * graphH;
+            const y = padding.top + graphH - flowH;
+            sCtx.fillStyle = 'rgba(6, 182, 212, 0.45)';
+            sCtx.beginPath();
+            sCtx.roundRect(x, y, barW, flowH, 3);
+            sCtx.fill();
+          }
+        }
+      }
+
+      sCtx.fillStyle = 'rgba(148, 163, 184, 0.8)';
+      sCtx.textAlign = 'center';
+      sCtx.textBaseline = 'top';
+      sCtx.font = '10px ui-monospace, monospace';
+
+      for (let idx = 0; idx < numHrs; idx++) {
+        const hr = startHr + idx;
+        if (numHrs <= 12 || hr % 2 === 0) {
+          const x = padding.left + idx * slotW + slotW / 2;
+          const label = `${hr === 0 ? '12A' : (hr < 12 ? hr + 'A' : (hr === 12 ? '12P' : (hr - 12) + 'P'))}`;
+          sCtx.fillText(label, x, padding.top + graphH + 6);
+        }
+      }
+
+      if (simHoveredHour !== null && simHoveredHour >= startHr && simHoveredHour <= endHr) {
+        const idx = simHoveredHour - startHr;
+        const x = padding.left + idx * slotW + slotW / 2;
+        const consVal = consumption[simHoveredHour];
+        const solVal = solar[simHoveredHour];
+        const netVal = consVal - solVal;
+
+        const tipW = 140;
+        const tipH = 75;
+        let tipX = x - tipW / 2;
+        if (tipX < padding.left) tipX = padding.left;
+        if (tipX + tipW > w - padding.right) tipX = w - padding.right - tipW;
+        const tipY = padding.top + 8;
+
+        sCtx.fillStyle = 'rgba(15, 23, 42, 0.94)';
+        sCtx.strokeStyle = 'rgba(255, 255, 255, 0.15)';
+        sCtx.lineWidth = 1;
+        sCtx.beginPath();
+        sCtx.roundRect(tipX, tipY, tipW, tipH, 8);
+        sCtx.fill();
+        sCtx.stroke();
+
+        sCtx.textAlign = 'left';
+        sCtx.font = 'bold 11px sans-serif';
+        sCtx.fillStyle = '#ffffff';
+        sCtx.fillText(`🕒 ${simHoveredHour}:00 - ${(simHoveredHour+1)%24}:00`, tipX + 10, tipY + 16);
+
+        sCtx.font = '10px ui-monospace, monospace';
+        sCtx.fillStyle = '#fbbf24';
+        sCtx.fillText(`Load:  ${consVal.toFixed(2)} kWh`, tipX + 10, tipY + 34);
+
+        sCtx.fillStyle = '#34d399';
+        sCtx.fillText(`Solar: ${solVal.toFixed(2)} kWh`, tipX + 10, tipY + 49);
+
+        sCtx.fillStyle = netVal > 0 ? '#f87171' : '#38bdf8';
+        sCtx.fillText(`Net:   ${netVal > 0 ? '+' : ''}${netVal.toFixed(2)} kWh`, tipX + 10, tipY + 64);
+      }
+    }
+
+    let globalData = null;
+    let canvas, ctx;
+    let currentChartResolution = 'hourly'; // 'hourly' or '15m'
+    let currentTableTab = 'hourly'; // 'hourly', 'peaks', or 'raw'
+
+    // Detect iframe or ?embed=true
+    try {
+      const urlParams = new URLSearchParams(window.location.search);
+      if (urlParams.get('embed') === 'true' || window.self !== window.top) {
+        document.body.classList.add('embed-mode');
+      }
+    } catch (e) {}
+
+    function getApiUrl(endpoint) {
+      const base = window.location.pathname.replace(/\/+$/, '');
+      const cleanEndpoint = endpoint.startsWith('/') ? endpoint : '/' + endpoint;
+      return base + cleanEndpoint;
+    }
+
+    function showAlert(text, type = 'info') {
+      const banner = document.getElementById('syncAlertBanner');
+      const textEl = document.getElementById('syncAlertText');
+      if (textEl && banner) {
+        textEl.innerHTML = text;
+        banner.className = `alert-banner ${type}`;
+        banner.style.display = 'flex';
+      }
+    }
+
+    function dismissAlert() {
+      const banner = document.getElementById('syncAlertBanner');
+      if (banner) banner.style.display = 'none';
+    }
+
+    let cachedDatesSet = new Set();
+
+    function updateDateBadge() {
+      const picker = document.getElementById('datePicker');
+      const badge = document.getElementById('dateStatusBadge');
+      const queryBtnText = document.getElementById('queryDateBtnText');
+      const queryBtn = document.getElementById('queryDateBtn');
+      if (!picker || !badge) return;
+      const val = picker.value;
+      if (cachedDatesSet.has(val)) {
+        badge.innerText = 'Stored';
+        badge.className = 'pill-badge badge-emerald';
+        badge.title = `${val} is saved in local archive`;
+        if (queryBtnText) queryBtnText.innerText = 'Re-Query CPS';
+        if (queryBtn) queryBtn.title = `Force live re-query from CPS Energy portal for ${val}`;
+      } else if (globalData && globalData.date === val && (globalData.noDataFromUtility || globalData.pendingUtilityPost)) {
+        badge.innerText = 'Pending Utility';
+        badge.className = 'pill-badge badge-amber';
+        badge.title = `CPS Energy has not published smart meter intervals for ${val} yet`;
+        if (queryBtnText) queryBtnText.innerText = '🔄 Re-Check CPS';
+        if (queryBtn) queryBtn.title = `Re-query CPS Energy portal to check if intervals for ${val} have posted`;
+      } else {
+        badge.innerText = 'Not Stored';
+        badge.className = 'pill-badge badge-amber';
+        badge.title = `${val} is not in local archive`;
+        if (queryBtnText) queryBtnText.innerText = '⚡ Query CPS';
+        if (queryBtn) queryBtn.title = `Query CPS Energy smart meter portal to retrieve and save data for ${val}`;
+      }
+    }
+
+    async function querySelectedDate() {
+      const date = document.getElementById('datePicker').value;
+      if (!date) return;
+      const queryBtn = document.getElementById('queryDateBtn');
+      const queryBtnText = document.getElementById('queryDateBtnText');
+      if (queryBtn) {
+        queryBtn.disabled = true;
+        queryBtn.classList.add('spinning');
+      }
+      if (queryBtnText) queryBtnText.innerText = 'Querying...';
+      showAlert(`⚡ Connecting to CPS Energy portal for ${date}... Authenticating session and retrieving 96 intervals...`, 'info');
+
+      try {
+        await loadData(true);
+      } finally {
+        if (queryBtn) {
+          queryBtn.disabled = false;
+          queryBtn.classList.remove('spinning');
+        }
+        updateDateBadge();
+      }
+    }
+
+    async function loadHistoryDates() {
+      try {
+        const res = await fetch(getApiUrl('/api/history'));
+        const data = await res.json();
+        if (data && data.dates && data.dates.length > 0) {
+          cachedDatesSet = new Set(data.dates);
+          const datalist = document.getElementById('availableDates');
+          if (datalist) {
+            datalist.innerHTML = '';
+            data.dates.forEach(d => {
+              const opt = document.createElement('option');
+              opt.value = d;
+              opt.label = `${d} (Saved Ingestion)`;
+              datalist.appendChild(opt);
+            });
+          }
+          const picker = document.getElementById('datePicker');
+          if (picker) {
+            picker.min = data.dates[data.dates.length - 1];
+            updateMaxAllowedDate();
+            if (!picker.value || picker.value > picker.max) {
+              updateMaxAllowedDate(true);
+            }
+          }
+          const totalDaysBadge = document.getElementById('totalDaysBadge');
+          if (totalDaysBadge) totalDaysBadge.innerText = `${data.dates.length} days synced`;
+          updateDateBadge();
+        }
+      } catch (e) {
+        console.warn('Could not load history dates:', e);
+      }
+    }
+
+    async function checkBackfillStatus() {
+      try {
+        const res = await fetch(getApiUrl('/api/backfill-status'));
+        const data = await res.json();
+        const item = document.getElementById('backfillStatusItem');
+        const badge = document.getElementById('backfillStatusBadge');
+        if (!item || !badge) return;
+
+        if (data.status === 'running') {
+          item.style.display = 'flex';
+          badge.innerText = `Ingesting ${data.currentDate} (${data.percentComplete}% • ${data.totalSavedDays} days saved)`;
+          badge.style.color = '#38bdf8';
+        } else if (data.status === 'completed') {
+          item.style.display = 'flex';
+          badge.innerText = `Archive Synced (${data.totalSavedDays} days)`;
+          badge.style.color = 'var(--emerald)';
+        } else if (data.totalSavedDays > 5) {
+          item.style.display = 'flex';
+          badge.innerText = `Archive: ${data.totalSavedDays} days`;
+        }
+      } catch (e) {}
+    }
+
+    async function loadData(forceRefresh = false) {
+      const date = document.getElementById('datePicker').value;
+      const refreshBtn = document.getElementById('refreshBtn');
+      const refreshText = document.getElementById('refreshBtnText');
+      const noDataBanner = document.getElementById('noDataBanner');
+      const noDataTitle = document.getElementById('noDataTitle');
+      const noDataDesc = document.getElementById('noDataDesc');
+      
+      refreshBtn.disabled = true;
+      refreshBtn.classList.add('spinning');
+      if (refreshText) refreshText.innerText = forceRefresh ? 'Connecting...' : 'Loading...';
+
+      try {
+        const url = getApiUrl(`/api/data?date=${date}${forceRefresh ? '&refresh=true' : ''}`);
+        const res = await fetch(url);
+        const data = await res.json();
+
+        if (data.notInArchive) {
+          if (noDataBanner) {
+            noDataBanner.style.display = 'flex';
+            if (noDataTitle) noDataTitle.innerText = `No Archived Data for ${date}`;
+            if (noDataDesc) noDataDesc.innerText = data.message || `This date has not yet been fetched and stored from CPS Energy. Click the button to query the portal now.`;
+          }
+          showAlert(`ℹ️ ${data.message || 'Date not in local archive.'}`, 'warning');
+          return;
+        }
+
+        if (data.error) {
+          if (noDataBanner) noDataBanner.style.display = 'none';
+          showAlert(`⚠️ ${data.error}`, 'error');
+          if (!globalData) {
+            document.getElementById('tableTbody').innerHTML = `
+              <tr><td colspan="7" style="text-align: center; color: var(--text-dim); padding: 30px;">
+                ${data.error}<br><button class="btn btn-cyan" style="margin: 12px auto;" onclick="querySelectedDate()">⚡ Query CPS Portal Now</button>
+              </td></tr>
+            `;
+          }
+          return;
+        }
+
+        // Handle case where CPS Energy returned no consumption / 0 intervals for the date (utility processing delay)
+        if (data.noDataFromUtility || (data.intervalsCount === 0 && !data.error)) {
+          if (noDataBanner) {
+            noDataBanner.style.display = 'flex';
+            if (noDataTitle) noDataTitle.innerText = `⏳ Smart Meter Data Pending from Utility`;
+            const gasNote = data.gasCcf > 0 ? ` (Natural gas usage of ${data.gasCcf} CCF was recorded for this date)` : '';
+            if (noDataDesc) noDataDesc.innerText = `CPS Energy has not yet published 15-minute smart meter readings for ${date}.${gasNote} Electric smart meter data typically posts with a 24–48 hour delay.`;
+          }
+          showAlert(`⏳ CPS Energy Notice: Smart meter intervals for ${date} have not yet been posted by the utility (24–48h processing delay). Please check back later.`, 'warning');
+
+          globalData = data;
+          updateDateBadge();
+          renderAll(data);
+          return;
+        }
+
+        if (noDataBanner) noDataBanner.style.display = 'none';
+
+        if (data.warning) {
+          showAlert(`ℹ️ ${data.warning}`, 'warning');
+        } else if (forceRefresh || data.source === 'live') {
+          showAlert(`🟢 Live query successful! Retrieved and stored ${data.intervalsCount || 96} smart meter intervals for ${date}.`, 'success');
+          setTimeout(dismissAlert, 5000);
+        } else {
+          dismissAlert();
+        }
+
+        if (data.intervals && data.intervals.length > 0) {
+          cachedDatesSet.add(date);
+          updateDateBadge();
+          const datalist = document.getElementById('availableDates');
+          if (datalist && ![...datalist.options].some(o => o.value === date)) {
+            const opt = document.createElement('option');
+            opt.value = date;
+            opt.label = `${date} (Saved Ingestion)`;
+            datalist.prepend(opt);
+          }
+        }
+
+        globalData = data;
+        renderAll(data);
+      } catch (err) {
+        showAlert(`Network error: ${err.message}`, 'error');
+      } finally {
+        refreshBtn.disabled = false;
+        refreshBtn.classList.remove('spinning');
+        if (refreshText) refreshText.innerText = 'Refresh';
+      }
+    }
+
+    function renderAll(data) {
+      const { meta = {}, rollups = {}, intervals = [] } = data;
+      const isPending = data.noDataFromUtility || (intervals.length === 0);
+
+      // Status Badge
+      const sourceBadge = document.getElementById('sourceBadge');
+      if (sourceBadge) {
+        if (isPending) {
+          sourceBadge.innerText = 'Pending Utility Post';
+          sourceBadge.style.color = 'var(--amber)';
+          sourceBadge.style.background = 'rgba(245, 158, 11, 0.15)';
+        } else if (data.source === 'live') {
+          sourceBadge.innerText = 'Live Feed';
+          sourceBadge.style.color = 'var(--emerald)';
+          sourceBadge.style.background = 'rgba(16, 185, 129, 0.15)';
+        } else {
+          sourceBadge.innerText = 'Ingested';
+          sourceBadge.style.color = '#38bdf8';
+          sourceBadge.style.background = 'rgba(56, 189, 248, 0.15)';
+        }
+      }
+
+      document.getElementById('latestAmiBadge').innerText = isPending ? 'Pending Publication' : (meta.latestAmiFormatted || 'Synced');
+
+      // Executive Ribbon
+      const peakW = isPending ? 0 : (data.peakDemandWatts || 0);
+      const peakTime = isPending ? 'Awaiting utility data' : (data.peakDemandTime || 'N/A');
+      const impTot = isPending ? 0 : (rollups.dayTotals?.importKwh || 0);
+      const expTot = isPending ? 0 : (rollups.dayTotals?.exportKwh || 0);
+      const netTot = isPending ? 0 : (rollups.dayTotals?.netKwh || 0);
+
+      document.getElementById('summaryPeakWatts').innerText = isPending ? '--' : peakW.toLocaleString();
+      document.getElementById('summaryPeakTime').innerText = isPending ? 'Awaiting utility data' : `Spike at ${peakTime}`;
+      document.getElementById('summaryImportKwh').innerText = isPending ? '--' : impTot.toFixed(2);
+      document.getElementById('summaryImportCost').innerText = isPending ? (data.gasCcf > 0 ? `${data.gasCcf} CCF gas recorded` : 'Awaiting utility data') : `Est. $ ${(impTot * 0.14).toFixed(2)} at $0.14/kWh`;
+      document.getElementById('summarySolarKwh').innerText = isPending ? '--' : expTot.toFixed(2);
+      document.getElementById('summarySolarActive').innerText = isPending ? 'Awaiting utility data' : (expTot > 0 ? `Export credit: $ ${(expTot * 0.01).toFixed(2)}` : 'No backfeed recorded');
+
+      const netEl = document.getElementById('summaryNetKwh');
+      netEl.innerText = isPending ? '--' : ((netTot >= 0 ? '+' : '') + netTot.toFixed(2));
+      const netBadge = document.getElementById('summaryNetBadge');
+      const netStatus = document.getElementById('summaryNetStatus');
+      if (isPending) {
+        netEl.className = 'ribbon-val';
+        netBadge.className = 'pill-badge badge-amber';
+        netBadge.innerText = 'Pending';
+        netStatus.innerText = 'Awaiting CPS Publication';
+      } else if (netTot > 0) {
+        netEl.className = 'ribbon-val color-import';
+        netBadge.className = 'pill-badge badge-amber';
+        netBadge.innerText = 'Net Import';
+        netStatus.innerText = 'Grid Dependent Day';
+      } else {
+        netEl.className = 'ribbon-val color-solar';
+        netBadge.className = 'pill-badge badge-emerald';
+        netBadge.innerText = 'Net Export';
+        netStatus.innerText = 'Self-Sustaining Day';
+      }
+
+      // Compute Time-of-Use Blocks
+      renderDayParts(intervals);
+
+      // Render Charts & Tables
+      renderChart();
+      renderTable();
+    }
+
+    function renderDayParts(intervals) {
+      if (!intervals || intervals.length === 0) {
+        document.getElementById('nightImport').innerText = '--';
+        document.getElementById('nightAvgW').innerText = '--';
+        document.getElementById('nightPeakW').innerText = '--';
+        document.getElementById('morningNet').innerText = '--';
+        document.getElementById('morningImport').innerText = '--';
+        document.getElementById('morningExport').innerText = '--';
+        document.getElementById('afternoonNet').innerText = '--';
+        document.getElementById('afternoonImport').innerText = '--';
+        document.getElementById('afternoonExport').innerText = '--';
+        document.getElementById('eveningNet').innerText = '--';
+        document.getElementById('eveningImport').innerText = '--';
+        document.getElementById('eveningExport').innerText = '--';
+        return;
+      }
+
+      const blocks = {
+        night: { imp: 0, exp: 0, peakW: 0, count: 0 },
+        morning: { imp: 0, exp: 0, peakW: 0, count: 0 },
+        afternoon: { imp: 0, exp: 0, peakW: 0, count: 0 },
+        evening: { imp: 0, exp: 0, peakW: 0, count: 0 }
+      };
+
+      intervals.forEach(d => {
+        const h = d.hour;
+        let b;
+        if (h >= 0 && h < 6) b = blocks.night;
+        else if (h >= 6 && h < 12) b = blocks.morning;
+        else if (h >= 12 && h < 18) b = blocks.afternoon;
+        else b = blocks.evening;
+
+        b.imp += d.importKwh;
+        b.exp += d.exportKwh;
+        b.count++;
+        if (d.avgWatts > b.peakW) b.peakW = d.avgWatts;
+      });
+
+      // Overnight
+      document.getElementById('nightImport').innerText = `${blocks.night.imp.toFixed(2)} kWh`;
+      const nightAvgW = blocks.night.count > 0 ? Math.round((blocks.night.imp / (blocks.night.count * 0.25)) * 1000) : 0;
+      document.getElementById('nightAvgW').innerText = `${nightAvgW} W`;
+      document.getElementById('nightPeakW').innerText = `${blocks.night.peakW} W`;
+
+      // Morning
+      const mNet = blocks.morning.imp - blocks.morning.exp;
+      document.getElementById('morningNet').innerText = `${(mNet >= 0 ? '+' : '') + mNet.toFixed(2)} kWh`;
+      document.getElementById('morningImport').innerText = `${blocks.morning.imp.toFixed(2)} kWh`;
+      document.getElementById('morningExport').innerText = `${blocks.morning.exp.toFixed(2)} kWh`;
+
+      // Afternoon
+      const aNet = blocks.afternoon.imp - blocks.afternoon.exp;
+      document.getElementById('afternoonNet').innerText = `${(aNet >= 0 ? '+' : '') + aNet.toFixed(2)} kWh`;
+      document.getElementById('afternoonExport').innerText = `${blocks.afternoon.exp.toFixed(2)} kWh`;
+      document.getElementById('afternoonImport').innerText = `${blocks.afternoon.imp.toFixed(2)} kWh`;
+
+      // Evening
+      document.getElementById('eveningNet').innerText = `+${blocks.evening.imp.toFixed(2)} kWh`;
+      document.getElementById('eveningImport').innerText = `${blocks.evening.imp.toFixed(2)} kWh`;
+      document.getElementById('eveningPeakW').innerText = `${blocks.evening.peakW.toLocaleString()} W`;
+    }
+
+    // Chart Resolution Control
+    function setChartResolution(res) {
+      currentChartResolution = res;
+      document.getElementById('btnChartHourly').className = res === 'hourly' ? 'segment-btn active' : 'segment-btn';
+      document.getElementById('btnChart15m').className = res === '15m' ? 'segment-btn active' : 'segment-btn';
+      renderChart();
+    }
+
+    // Table Tab Control
+    function switchTableTab(tab) {
+      currentTableTab = tab;
+      document.getElementById('tabHourly').className = tab === 'hourly' ? 'segment-btn active' : 'segment-btn';
+      document.getElementById('tabPeaks').className = tab === 'peaks' ? 'segment-btn active' : 'segment-btn';
+      document.getElementById('tabRaw').className = tab === 'raw' ? 'segment-btn active' : 'segment-btn';
+      
+      const filterWrap = document.getElementById('tableFilterWrap');
+      filterWrap.style.display = tab === 'raw' ? 'block' : 'none';
+
+      renderTable();
+    }
+
+    // Aggregates 96 intervals into 24 hourly bins
+    function getHourlyData(intervals) {
+      const hours = [];
+      for (let h = 0; h < 24; h++) {
+        hours.push({
+          hour: h,
+          label: `${h.toString().padStart(2, '0')}:00 - ${((h + 1) % 24).toString().padStart(2, '0')}:00`,
+          shortLabel: `${h === 0 ? '12 AM' : h < 12 ? h + ' AM' : h === 12 ? '12 PM' : (h - 12) + ' PM'}`,
+          importKwh: 0,
+          exportKwh: 0,
+          netKwh: 0,
+          peakW: 0,
+          peakTime: '',
+          intervalsCount: 0
+        });
+      }
+
+      intervals.forEach(d => {
+        const h = d.hour;
+        if (h >= 0 && h < 24) {
+          hours[h].importKwh += d.importKwh;
+          hours[h].exportKwh += d.exportKwh;
+          hours[h].intervalsCount++;
+          if (d.avgWatts > hours[h].peakW) {
+            hours[h].peakW = d.avgWatts;
+            hours[h].peakTime = d.category || d.time;
+          }
+        }
+      });
+
+      hours.forEach(item => {
+        item.netKwh = item.importKwh - item.exportKwh;
+        item.avgWatts = Math.round(item.importKwh * 1000);
+      });
+
+      return hours;
+    }
+
+    function renderChart() {
+      if (!globalData) return;
+      canvas = document.getElementById('intervalChart');
+      if (!canvas) return;
+      ctx = canvas.getContext('2d');
+
+      const dpr = window.devicePixelRatio || 1;
+      const rect = canvas.getBoundingClientRect();
+      canvas.width = rect.width * dpr;
+      canvas.height = rect.height * dpr;
+      ctx.scale(dpr, dpr);
+
+      const W = rect.width;
+      const H = rect.height;
+      const padLeft = 50;
+      const padRight = 20;
+      const padBottom = 34;
+      const padTop = 30;
+      const chartW = W - padLeft - padRight;
+      const chartH = H - padTop - padBottom;
+
+      ctx.clearRect(0, 0, W, H);
+
+      if (!globalData.intervals || globalData.intervals.length === 0 || globalData.noDataFromUtility) {
+        ctx.fillStyle = 'rgba(245, 158, 11, 0.04)';
+        ctx.strokeStyle = 'rgba(245, 158, 11, 0.25)';
+        ctx.lineWidth = 1;
+        if (ctx.roundRect) {
+          ctx.beginPath();
+          ctx.roundRect(padLeft, padTop, chartW, chartH, 8);
+          ctx.fill();
+          ctx.stroke();
+        } else {
+          ctx.fillRect(padLeft, padTop, chartW, chartH);
+          ctx.strokeRect(padLeft, padTop, chartW, chartH);
+        }
+
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.font = '600 15px Inter, -apple-system, sans-serif';
+        ctx.fillStyle = '#f59e0b';
+        ctx.fillText('⏳ Smart Meter Interval Data Not Yet Published by Utility', W / 2, H / 2 - 14);
+
+        ctx.font = '400 12px Inter, -apple-system, sans-serif';
+        ctx.fillStyle = '#94a3b8';
+        const dateStr = globalData.date || 'this date';
+        ctx.fillText(`CPS Energy has not posted 15-minute readings for ${dateStr} yet.`, W / 2, H / 2 + 12);
+        ctx.fillText(`Electric smart meter intervals typically post with a 24–48 hour processing delay.`, W / 2, H / 2 + 30);
+        return;
+      }
+
+      if (currentChartResolution === 'hourly') {
+        renderHourlyChart(ctx, W, H, padLeft, padRight, padTop, padBottom, chartW, chartH);
+      } else {
+        render15mChart(ctx, W, H, padLeft, padRight, padTop, padBottom, chartW, chartH);
+      }
+    }
+
+    function renderHourlyChart(ctx, W, H, padLeft, padRight, padTop, padBottom, chartW, chartH) {
+      const hours = getHourlyData(globalData.intervals);
+      let maxVal = 0.5;
+      hours.forEach(d => {
+        if (d.importKwh > maxVal) maxVal = d.importKwh;
+        if (d.exportKwh > maxVal) maxVal = d.exportKwh;
+      });
+      maxVal = Math.ceil(maxVal * 1.25 * 10) / 10;
+
+      // Grid Lines
+      drawGrid(ctx, W, H, padLeft, padRight, padTop, padBottom, chartW, chartH, maxVal, 'kWh');
+
+      const n = hours.length;
+      const barSlot = chartW / n;
+      const barWidth = Math.max(8, barSlot * 0.65);
+
+      // Find peak hour
+      let peakIdx = 0;
+      hours.forEach((h, i) => { if (h.importKwh > hours[peakIdx].importKwh) peakIdx = i; });
+
+      hours.forEach((d, i) => {
+        const x = padLeft + barSlot * i + (barSlot - barWidth) / 2;
+
+        // Import Bar
+        if (d.importKwh > 0) {
+          const hImp = (d.importKwh / maxVal) * chartH;
+          const yImp = padTop + chartH - hImp;
+          const grad = ctx.createLinearGradient(0, yImp, 0, padTop + chartH);
+          if (i === peakIdx) {
+            grad.addColorStop(0, '#f43f5e');
+            grad.addColorStop(1, 'rgba(244, 63, 94, 0.4)');
+          } else {
+            grad.addColorStop(0, '#fbbf24');
+            grad.addColorStop(1, 'rgba(245, 158, 11, 0.35)');
+          }
+          ctx.fillStyle = grad;
+          ctx.beginPath();
+          ctx.roundRect(x, yImp, barWidth, hImp, [4, 4, 0, 0]);
+          ctx.fill();
+        }
+
+        // Solar Export Bar
+        if (d.exportKwh > 0) {
+          const hExp = (d.exportKwh / maxVal) * chartH;
+          const yExp = padTop + chartH - hExp;
+          const gradExp = ctx.createLinearGradient(0, yExp, 0, padTop + chartH);
+          gradExp.addColorStop(0, '#34d399');
+          gradExp.addColorStop(1, 'rgba(16, 185, 129, 0.4)');
+          ctx.fillStyle = gradExp;
+          ctx.beginPath();
+          ctx.roundRect(x + barWidth * 0.2, yExp, barWidth * 0.6, hExp, [3, 3, 0, 0]);
+          ctx.fill();
+        }
+
+        // Labels every 2 hours
+        if (i % 2 === 0) {
+          ctx.fillStyle = '#94a3b8';
+          ctx.font = '10px Outfit';
+          ctx.textAlign = 'center';
+          ctx.fillText(d.shortLabel, x + barWidth / 2, H - 12);
+        }
+      });
+
+      // Peak Label Badge
+      if (hours[peakIdx] && hours[peakIdx].importKwh > 0) {
+        const peakX = padLeft + barSlot * peakIdx + barSlot / 2;
+        const peakY = padTop + chartH - (hours[peakIdx].importKwh / maxVal) * chartH - 8;
+        ctx.fillStyle = '#fb7185';
+        ctx.font = 'bold 9px JetBrains Mono';
+        ctx.textAlign = 'center';
+        ctx.fillText(`PEAK ${hours[peakIdx].importKwh.toFixed(1)} kWh`, peakX, Math.max(14, peakY));
+      }
+    }
+
+    function render15mChart(ctx, W, H, padLeft, padRight, padTop, padBottom, chartW, chartH) {
+      const intervals = globalData.intervals;
+      let maxVal = 0.2;
+      intervals.forEach(d => {
+        if (d.importKwh > maxVal) maxVal = d.importKwh;
+        if (d.exportKwh > maxVal) maxVal = d.exportKwh;
+      });
+      maxVal = Math.ceil(maxVal * 1.25 * 10) / 10;
+
+      drawGrid(ctx, W, H, padLeft, padRight, padTop, padBottom, chartW, chartH, maxVal, 'kWh');
+
+      const n = intervals.length;
+      const barWidth = Math.max(1.5, (chartW / n) - 1);
+
+      intervals.forEach((d, i) => {
+        const x = padLeft + (chartW / n) * i + 0.5;
+
+        // Import
+        const hImp = (d.importKwh / maxVal) * chartH;
+        const yImp = padTop + chartH - hImp;
+        ctx.fillStyle = d.avgWatts > 3500 ? '#f43f5e' : (i >= n - 4 ? '#fbbf24' : 'rgba(245, 158, 11, 0.8)');
+        ctx.fillRect(x, yImp, barWidth, hImp);
+
+        // Export
+        if (d.exportKwh > 0) {
+          const hExp = (d.exportKwh / maxVal) * chartH;
+          const yExp = padTop + chartH - hExp;
+          ctx.fillStyle = 'rgba(16, 185, 129, 0.9)';
+          ctx.fillRect(x + barWidth / 3, yExp, barWidth / 2, hExp);
+        }
+
+        // Labels every 3 hours (every 12 intervals)
+        if (i % 12 === 0) {
+          ctx.fillStyle = '#94a3b8';
+          ctx.font = '9px Outfit';
+          ctx.textAlign = 'center';
+          const label = d.category || `${Math.floor(i / 4)}:00`;
+          ctx.fillText(label, x + barWidth / 2, H - 12);
+        }
+      });
+    }
+
+    function drawGrid(ctx, W, H, padLeft, padRight, padTop, padBottom, chartW, chartH, maxVal, unit) {
+      ctx.strokeStyle = 'rgba(255, 255, 255, 0.06)';
+      ctx.lineWidth = 1;
+      ctx.fillStyle = '#64748b';
+      ctx.font = '10px JetBrains Mono';
+      ctx.textAlign = 'right';
+
+      const steps = 4;
+      for (let i = 0; i <= steps; i++) {
+        const y = padTop + (chartH / steps) * i;
+        const val = (maxVal * (1 - i / steps)).toFixed(2);
+        ctx.beginPath();
+        ctx.moveTo(padLeft, y);
+        ctx.lineTo(W - padRight, y);
+        ctx.stroke();
+        ctx.fillText(`${val} ${unit}`, padLeft - 8, y + 3);
+      }
+    }
+
+    // Chart Tooltip Hover
+    const tooltip = document.getElementById('chartTooltip');
+    document.getElementById('intervalChart').addEventListener('mousemove', (e) => {
+      if (!globalData || !globalData.intervals) return;
+      const rect = canvas.getBoundingClientRect();
+      const x = e.clientX - rect.left;
+      const padLeft = 50;
+      const chartW = rect.width - padLeft - 20;
+
+      if (currentChartResolution === 'hourly') {
+        const hours = getHourlyData(globalData.intervals);
+        const idx = Math.floor(((x - padLeft) / chartW) * 24);
+        if (idx >= 0 && idx < 24) {
+          const h = hours[idx];
+          tooltip.style.display = 'block';
+          tooltip.style.left = `${e.clientX}px`;
+          tooltip.style.top = `${e.clientY}px`;
+          tooltip.innerHTML = `
+            <div style="font-weight: 700; color: #f8fafc; margin-bottom: 4px;">${h.label} (${h.shortLabel})</div>
+            <div style="color: var(--amber);">Grid Import: <strong>${h.importKwh.toFixed(3)} kWh</strong> (${h.avgWatts} W avg)</div>
+            <div style="color: var(--emerald);">Solar Backfeed: <strong>${h.exportKwh.toFixed(3)} kWh</strong></div>
+            <div style="color: var(--cyan);">Net Grid Flow: <strong>${(h.netKwh >= 0 ? '+' : '') + h.netKwh.toFixed(3)} kWh</strong></div>
+            <div style="color: #fb7185; margin-top: 2px;">Peak Demand: <strong>${h.peakW.toLocaleString()} W</strong> (${h.peakTime})</div>
+          `;
+        } else {
+          tooltip.style.display = 'none';
+        }
+      } else {
+        const intervals = globalData.intervals;
+        const n = intervals.length;
+        const idx = Math.floor(((x - padLeft) / chartW) * n);
+        if (idx >= 0 && idx < n) {
+          const d = intervals[idx];
+          tooltip.style.display = 'block';
+          tooltip.style.left = `${e.clientX}px`;
+          tooltip.style.top = `${e.clientY}px`;
+          tooltip.innerHTML = `
+            <div style="font-weight: 700; color: #f8fafc; margin-bottom: 4px;">${d.time}</div>
+            <div style="color: var(--amber);">Grid Import: <strong>${d.importKwh.toFixed(4)} kWh</strong> (${d.avgWatts.toLocaleString()} W)</div>
+            <div style="color: var(--emerald);">Solar Backfeed: <strong>${d.exportKwh.toFixed(4)} kWh</strong></div>
+            <div style="color: var(--cyan);">Net Flow: <strong>${(d.netKwh >= 0 ? '+' : '') + d.netKwh.toFixed(4)} kWh</strong></div>
+          `;
+        } else {
+          tooltip.style.display = 'none';
+        }
+      }
+    });
+
+    document.getElementById('intervalChart').addEventListener('mouseleave', () => {
+      tooltip.style.display = 'none';
+    });
+
+    // Render Table based on active tab
+    function renderTable() {
+      if (!globalData) return;
+      const thead = document.getElementById('tableThead');
+      const tbody = document.getElementById('tableTbody');
+      const summaryText = document.getElementById('tableSummaryText');
+
+      if (!globalData.intervals || globalData.intervals.length === 0 || globalData.noDataFromUtility) {
+        summaryText.innerText = 'No smart meter intervals published yet by CPS Energy';
+        thead.innerHTML = `
+          <tr>
+            <th>Status</th>
+            <th colspan="6">Utility Notice</th>
+          </tr>
+        `;
+        tbody.innerHTML = `
+          <tr>
+            <td style="text-align: center; vertical-align: middle;"><span class="pill-badge badge-amber">⏳ Pending</span></td>
+            <td colspan="6" style="padding: 30px 20px; color: var(--text-dim);">
+              <div style="font-size: 1.15rem; font-weight: 600; color: var(--amber); margin-bottom: 6px;">CPS Energy has not yet published 15-minute smart meter readings for ${globalData.date || 'this date'}.</div>
+              <div style="font-size: 0.85rem; color: var(--text-muted); line-height: 1.5; max-width: 600px;">
+                Electric smart meter data is collected, validated, and published by CPS Energy with an expected 24–48 hour delay.
+                ${globalData.gasCcf > 0 ? `<br><span style="color: var(--cyan); font-weight: 500;">Natural gas consumption of ${globalData.gasCcf} CCF was recorded for this date.</span>` : ''}
+                <br>Click <strong>Re-Check CPS</strong> later today or tomorrow to retrieve intervals as soon as they are posted.
+              </div>
+            </td>
+          </tr>
+        `;
+        return;
+      }
+
+      if (currentTableTab === 'hourly') {
+        const hours = getHourlyData(globalData.intervals);
+        summaryText.innerText = 'Showing 24 Hourly Consolidated Summaries';
+        thead.innerHTML = `
+          <tr>
+            <th>Hour Window</th>
+            <th>Grid Import</th>
+            <th>Solar Backfeed</th>
+            <th>Net Balance</th>
+            <th>Peak Demand</th>
+            <th>Profile Category</th>
+          </tr>
+        `;
+
+        let maxHourImp = 0.1;
+        hours.forEach(h => { if (h.importKwh > maxHourImp) maxHourImp = h.importKwh; });
+
+        tbody.innerHTML = '';
+        hours.forEach(h => {
+          const tr = document.createElement('tr');
+          const pct = Math.min(100, Math.round((h.importKwh / maxHourImp) * 100));
+
+          let tagHtml;
+          if (h.peakW >= 4000) {
+            tagHtml = '<span class="pill-badge badge-rose">⚡ Heavy Load</span>';
+          } else if (h.exportKwh > h.importKwh) {
+            tagHtml = '<span class="pill-badge badge-emerald">☀️ Solar Surplus</span>';
+          } else if (h.importKwh < 0.4) {
+            tagHtml = '<span class="pill-badge badge-cyan">🌱 Minimal Draw</span>';
+          } else {
+            tagHtml = '<span class="pill-badge badge-amber">🏠 Normal</span>';
+          }
+
+          tr.innerHTML = `
+            <td style="font-weight: 600; color: #f8fafc;">${h.label}</td>
+            <td class="color-import">
+              ${h.importKwh.toFixed(3)} kWh
+              <div class="bar-meter"><div class="bar-fill" style="width:${pct}%; background:var(--amber);"></div></div>
+            </td>
+            <td class="color-solar">${h.exportKwh > 0 ? h.exportKwh.toFixed(3) + ' kWh' : '-'}</td>
+            <td class="color-net">${(h.netKwh >= 0 ? '+' : '') + h.netKwh.toFixed(3)} kWh</td>
+            <td><span class="power-pill" style="${h.peakW >= 4000 ? 'color:#fb7185; border:1px solid rgba(244,63,94,0.4);' : ''}">${h.peakW.toLocaleString()} W</span></td>
+            <td>${tagHtml}</td>
+          `;
+          tbody.appendChild(tr);
+        });
+
+      } else if (currentTableTab === 'peaks') {
+        // Top 10 Demand Spikes
+        const sorted = [...globalData.intervals].sort((a, b) => b.avgWatts - a.avgWatts).slice(0, 10);
+        summaryText.innerText = 'Showing Top 10 Highest Power Demand Spikes';
+        thead.innerHTML = `
+          <tr>
+            <th>Rank</th>
+            <th>Interval Window</th>
+            <th>Peak Demand (Power)</th>
+            <th>Energy (15-Min)</th>
+            <th>Solar Backfeed</th>
+            <th>Net Flow</th>
+            <th>Severity</th>
+          </tr>
+        `;
+
+        tbody.innerHTML = '';
+        sorted.forEach((d, idx) => {
+          const tr = document.createElement('tr');
+          const isTop3 = idx < 3;
+          tr.innerHTML = `
+            <td style="font-weight: 700; color: ${isTop3 ? '#fb7185' : 'var(--text-dim)'};">#${idx + 1}</td>
+            <td style="font-weight: 600; color: #f8fafc;">${d.time}</td>
+            <td><span class="power-pill" style="font-weight:700; color:${d.avgWatts > 4000 ? '#fb7185' : 'var(--amber)'}; font-size: 0.85rem;">${d.avgWatts.toLocaleString()} W (${(d.avgWatts/1000).toFixed(2)} kW)</span></td>
+            <td class="color-import">${d.importKwh.toFixed(4)} kWh</td>
+            <td class="color-solar">${d.exportKwh > 0 ? d.exportKwh.toFixed(4) + ' kWh' : '-'}</td>
+            <td class="color-net">${(d.netKwh >= 0 ? '+' : '') + d.netKwh.toFixed(4)} kWh</td>
+            <td>
+              <span class="pill-badge ${d.avgWatts > 4500 ? 'badge-rose' : d.avgWatts > 3000 ? 'badge-amber' : 'badge-cyan'}">
+                ${d.avgWatts > 4500 ? '🔥 Severe' : d.avgWatts > 3000 ? '⚡ High' : 'Moderate'}
+              </span>
+            </td>
+          `;
+          tbody.appendChild(tr);
+        });
+
+      } else if (currentTableTab === 'raw') {
+        summaryText.innerText = `Showing all ${globalData.intervals.length} raw intervals (Reverse Chronological)`;
+        thead.innerHTML = `
+          <tr>
+            <th>#</th>
+            <th>Interval Window</th>
+            <th>Grid Import</th>
+            <th>Avg Power</th>
+            <th>Solar Backfeed</th>
+            <th>Net Flow</th>
+            <th>Status</th>
+          </tr>
+        `;
+        filterRawTable();
+      }
+    }
+
+    function filterRawTable() {
+      if (!globalData) return;
+      const tbody = document.getElementById('tableTbody');
+      if (!tbody) return;
+      tbody.innerHTML = '';
+
+      if (!globalData.intervals || globalData.intervals.length === 0 || globalData.noDataFromUtility) {
+        tbody.innerHTML = `
+          <tr><td colspan="7" style="text-align: center; color: var(--text-dim); padding: 36px 20px;">
+            <div style="font-size: 1.4rem; margin-bottom: 8px;">⏳ Pending Utility Posting</div>
+            <div style="font-weight: 600; color: var(--amber); margin-bottom: 6px;">CPS Energy has not yet published 15-minute smart meter readings for ${globalData?.date || 'this date'}.</div>
+            <div style="font-size: 0.85rem; color: var(--text-muted); max-width: 500px; margin: 0 auto; line-height: 1.5;">Smart meter interval data is collected and validated by CPS Energy with an expected 24–48 hour processing delay. Click the <strong>Re-Check CPS</strong> button later to check again.</div>
+          </td></tr>
+        `;
+        return;
+      }
+
+      const query = (document.getElementById('tableSearch')?.value || '').toLowerCase().trim();
+
+      const reversed = [...globalData.intervals].reverse();
+      const filtered = query
+        ? reversed.filter(x => (x.time && x.time.toLowerCase().includes(query)) || (x.category && x.category.toLowerCase().includes(query)))
+        : reversed;
+
+      if (filtered.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="7" style="text-align: center; color: var(--text-dim); padding: 24px;">No intervals match search query.</td></tr>';
+        return;
+      }
+
+      filtered.forEach((intv, idx) => {
+        const isRecent = idx < 4 && !query;
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td style="color: var(--text-dim);">${intv.index + 1}</td>
+          <td style="font-weight: 500;">${intv.time}</td>
+          <td class="color-import">${intv.importKwh.toFixed(4)} kWh</td>
+          <td><span class="power-pill">${intv.avgWatts.toLocaleString()} W</span></td>
+          <td class="color-solar">${intv.exportKwh > 0 ? intv.exportKwh.toFixed(4) + ' kWh' : '-'}</td>
+          <td class="color-net">${(intv.netKwh >= 0 ? '+' : '') + intv.netKwh.toFixed(4)} kWh</td>
+          <td>
+            ${isRecent ? '<span class="pill-badge badge-amber">Recent</span>' : '<span style="color: var(--text-dim);">Recorded</span>'}
+          </td>
+        `;
+        tbody.appendChild(tr);
+      });
+    }
+
+    window.addEventListener('resize', () => {
+      if (globalData) renderChart();
+      const simView = document.getElementById('viewSimulator');
+      if (simView && simView.style.display !== 'none') {
+        renderSimulator();
+      }
+    });
+
+    function updateMaxAllowedDate(forceToday = false) {
+      const now = new Date();
+      // Allow selecting up to today in America/Chicago timezone
+      const todayStr = new Intl.DateTimeFormat('en-CA', { timeZone: 'America/Chicago' }).format(now);
+      const picker = document.getElementById('datePicker');
+      if (picker) {
+        picker.max = todayStr;
+        if (forceToday || !picker.value) {
+          picker.value = todayStr;
+        }
+      }
+    }
+
+    const datePickerEl = document.getElementById('datePicker');
+    if (datePickerEl) {
+      datePickerEl.addEventListener('change', () => {
+        if (datePickerEl.max && datePickerEl.value > datePickerEl.max) {
+          datePickerEl.value = datePickerEl.max;
+        }
+        updateDateBadge();
+        loadData();
+      });
+
+      datePickerEl.addEventListener('input', () => {
+        if (datePickerEl.max && datePickerEl.value > datePickerEl.max) {
+          datePickerEl.value = datePickerEl.max;
+        }
+        updateDateBadge();
+      });
+    }
+
+    // Initialize simulator controls and initial state
+    initSimulatorEvents();
+    renderSimulator();
+    document.addEventListener('DOMContentLoaded', () => {
+      initSimulatorEvents();
+      renderSimulator();
+    });
+
+    // Initialize available dates and load data
+    updateMaxAllowedDate(true);
+    loadHistoryDates().then(() => loadData());
+    checkBackfillStatus();
+
+    // Auto-refresh data every 60s and backfill status every 8s
+    setInterval(() => loadData(false), 60000);
+    setInterval(checkBackfillStatus, 8000);
+  </script>
+</body>
+</html>

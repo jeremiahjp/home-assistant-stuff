@@ -1,6 +1,6 @@
 name: "Solar & Energy Monitor"
-description: "Unified SolarEdge Modbus TCP & Emporia Vue Live Energy Monitor"
-version: "1.0.0"
+description: "Unified SolarEdge Modbus TCP, Emporia Vue & CPS Energy Smart Meter Monitor"
+version: "1.2.5"
 slug: "solar_energy_monitor"
 init: false
 arch:
@@ -11,8 +11,14 @@ arch:
   - i386
 startup: application
 boot: auto
+ingress: true
+ingress_port: 3355
+panel_icon: "mdi:chart-timeline-variant-shimmer"
+panel_title: "CPS Energy"
+ports:
+  3355/tcp: 3355
 options:
-  inverter_ip: "192.168.1.100"
+  inverter_ip: "192.168.68.72"
   modbus_port: 502
   poll_interval_ms: 2000
   emporia_user: ""
@@ -22,6 +28,9 @@ options:
   mqtt_broker: "mqtt://core-mosquitto:1883"
   mqtt_user: "solar"
   mqtt_pass: ""
+  cps_user: ""
+  cps_pass: ""
+  cps_meter_id: ""
 schema:
   inverter_ip: str
   modbus_port: int
@@ -33,3 +42,6 @@ schema:
   mqtt_broker: str
   mqtt_user: str
   mqtt_pass: password
+  cps_user: str
+  cps_pass: password
+  cps_meter_id: str

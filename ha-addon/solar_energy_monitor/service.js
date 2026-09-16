@@ -3,11 +3,19 @@
 //  Continuously polls SolarEdge (Modbus) + Emporia Vue (Cloud),
 //  logs persistent energy accumulation to /data, and publishes to Home Assistant (MQTT).
 // ============================================================================
-const ModbusRTU = require("modbus-serial");
-const { EmporiaVue, Scale } = require("emporia-vue-lib");
 const fs = require("fs");
 const path = require("path");
+const ModbusRTU = require("modbus-serial");
+const { EmporiaVue, Scale } = require("emporia-vue-lib");
 const HaMqttPublisher = require("./ha-mqtt");
+
+// Load local .env only during standalone desktop development
+// (In Home Assistant OS, all settings come from the built-in Configuration tab /data/options.json)
+if (fs.existsSync(path.join(__dirname, ".env"))) {
+  try {
+    require("./env");
+  } catch (_) {}
+}
 
 // --- Read Home Assistant Add-on Options (/data/options.json) ---
 let haOptions = {};
@@ -35,7 +43,9 @@ const EXPORT_RATE_KWH = haOptions.export_rate_kwh !== undefined
 const EMPORIA_USER = haOptions.emporia_user || process.env.EMPORIA_USER || "";
 const EMPORIA_PASS = haOptions.emporia_pass || process.env.EMPORIA_PASS || "";
 
-const POLL_INTERVAL = Number(haOptions.poll_interval_ms || process.env.POLL_INTERVAL_MS) || 2000;
+const DEFAULT_INTERVAL = Number(haOptions.poll_interval_ms || process.env.POLL_INTERVAL_MS) || 2000;
+let modbusIntervalMs = Number(haOptions.modbus_poll_interval_ms || process.env.MODBUS_POLL_INTERVAL_MS) || 1000;
+let emporiaIntervalMs = Number(haOptions.emporia_poll_interval_ms || process.env.EMPORIA_POLL_INTERVAL_MS) || DEFAULT_INTERVAL;
 
 // Persistent energy log file (/data directory is preserved across HA container restarts)
 const DATA_DIR = fs.existsSync("/data") ? "/data" : __dirname;
@@ -58,6 +68,39 @@ const haMqtt = new HaMqttPublisher({
 let emporiaReady = false;
 let emporiaDeviceGids = [];
 let lastPollTime = null;
+let lastSolar = null;
+let lastEmporia = null;
+let latestHvacWatts = 0;
+let latestOutdoorWatts = 0;
+let latestBlowerWatts = 0;
+let latestDryerWatts = 0;
+let latestOvenWatts = 0;
+let latestWasherWatts = 0;
+let lastSaveTime = 0;
+
+haMqtt.onHvacPower = (watts) => {
+  latestHvacWatts = watts;
+};
+
+haMqtt.onOutdoorPower = (watts) => {
+  latestOutdoorWatts = watts;
+};
+
+haMqtt.onBlowerPower = (watts) => {
+  latestBlowerWatts = watts;
+};
+
+haMqtt.onDryerPower = (watts) => {
+  latestDryerWatts = watts;
+};
+
+haMqtt.onOvenPower = (watts) => {
+  latestOvenWatts = watts;
+};
+
+haMqtt.onWasherPower = (watts) => {
+  latestWasherWatts = watts;
+};
 
 // --- Daemon Error Tracking & Diagnostics ---
 const recentErrors = [];
@@ -115,6 +158,36 @@ function saveEnergyLog(logData) {
 
 const energyLog = loadEnergyLog();
 
+// Load saved runtime preferences if present
+if (energyLog._settings) {
+  if (energyLog._settings.modbusIntervalMs) modbusIntervalMs = energyLog._settings.modbusIntervalMs;
+  if (energyLog._settings.emporiaIntervalMs) emporiaIntervalMs = energyLog._settings.emporiaIntervalMs;
+}
+
+haMqtt.onConnect = () => {
+  haMqtt.publishSetting("modbus_poll_interval_ms", modbusIntervalMs);
+  haMqtt.publishSetting("emporia_poll_interval_ms", emporiaIntervalMs);
+};
+
+haMqtt.onSettingChange = (key, val) => {
+  const num = Number(val);
+  if (isNaN(num) || num < 1 || num > 60000) return;
+  energyLog._settings = energyLog._settings || {};
+  if (key === "modbus_poll_interval_ms") {
+    modbusIntervalMs = num;
+    energyLog._settings.modbusIntervalMs = num;
+    saveEnergyLog(energyLog);
+    haMqtt.publishSetting("modbus_poll_interval_ms", num);
+    console.log(`[Config] SolarEdge Modbus polling interval updated live to: ${num}ms`);
+  } else if (key === "emporia_poll_interval_ms") {
+    emporiaIntervalMs = num;
+    energyLog._settings.emporiaIntervalMs = num;
+    saveEnergyLog(energyLog);
+    haMqtt.publishSetting("emporia_poll_interval_ms", num);
+    console.log(`[Config] Emporia Vue polling interval updated live to: ${num}ms`);
+  }
+};
+
 function getTodayEntry(logData) {
   const now = new Date();
   const dateKey = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}-${String(now.getDate()).padStart(2, "0")}`;
@@ -126,9 +199,19 @@ function getTodayEntry(logData) {
       gridExportKwh: 0,
       peakSolarW: 0,
       peakConsumptionW: 0,
+      hvacKwh: 0,
+      hvacRuntimeMinutes: 0,
       lastUpdated: now.toISOString(),
     };
   }
+  if (logData[dateKey].hvacKwh === undefined) logData[dateKey].hvacKwh = 0;
+  if (logData[dateKey].hvacRuntimeMinutes === undefined) logData[dateKey].hvacRuntimeMinutes = 0;
+  if (logData[dateKey].dryerKwh === undefined) logData[dateKey].dryerKwh = 0;
+  if (logData[dateKey].dryerRuntimeMinutes === undefined) logData[dateKey].dryerRuntimeMinutes = 0;
+  if (logData[dateKey].ovenKwh === undefined) logData[dateKey].ovenKwh = 0;
+  if (logData[dateKey].ovenRuntimeMinutes === undefined) logData[dateKey].ovenRuntimeMinutes = 0;
+  if (logData[dateKey].washerKwh === undefined) logData[dateKey].washerKwh = 0;
+  if (logData[dateKey].washerRuntimeMinutes === undefined) logData[dateKey].washerRuntimeMinutes = 0;
   return logData[dateKey];
 }
 
@@ -221,104 +304,235 @@ async function fetchEmporia() {
   }
 }
 
+function processAndPublish() {
+  try {
+    const now = new Date();
+    const solarProdW = lastSolar ? lastSolar.acWatts : 0;
+    const subpanelW = lastEmporia ? lastEmporia.mainNetWatts : 0;
+    const hvacEstimatedW = latestHvacWatts || 0;
+    const outdoorW = (latestOutdoorWatts !== undefined && latestOutdoorWatts > 0)
+      ? latestOutdoorWatts
+      : Math.max(0, hvacEstimatedW - (latestBlowerWatts || 0));
+    const blowerW = Math.max(0, hvacEstimatedW - outdoorW);
+    const dryerW = latestDryerWatts || 0;
+    const ovenW = latestOvenWatts || 0;
+    const washerW = latestWasherWatts || 0;
+
+    // Total house load: subpanel (feeder) + outdoor 240V loads (AC condenser, Dryer, Oven)
+    // Note: Washer is on Breaker #15 inside the subpanel, so subpanelW already includes it!
+    const houseConsumptionW = Math.max(0, subpanelW + outdoorW + dryerW + ovenW);
+    const gridNetW = houseConsumptionW - solarProdW;
+    const selfPoweredPct = houseConsumptionW > 0
+      ? Math.min((solarProdW / houseConsumptionW) * 100, 100)
+      : (solarProdW > 0 ? 100 : 0);
+
+    // Accumulation
+    const today = getTodayEntry(energyLog);
+    if (lastPollTime !== null) {
+      const elapsedHrs = (now.getTime() - lastPollTime) / 3600000;
+      if (elapsedHrs > 0 && elapsedHrs < 30 / 3600) {
+        today.solarKwh += (solarProdW / 1000) * elapsedHrs;
+        today.consumptionKwh += (houseConsumptionW / 1000) * elapsedHrs;
+        if (hvacEstimatedW > 50) {
+          today.hvacKwh += (hvacEstimatedW / 1000) * elapsedHrs;
+          today.hvacRuntimeMinutes += elapsedHrs * 60;
+        }
+        if (dryerW > 50) {
+          today.dryerKwh += (dryerW / 1000) * elapsedHrs;
+          today.dryerRuntimeMinutes += elapsedHrs * 60;
+        }
+        if (ovenW > 50) {
+          today.ovenKwh += (ovenW / 1000) * elapsedHrs;
+          today.ovenRuntimeMinutes += elapsedHrs * 60;
+        }
+        if (washerW > 50) {
+          today.washerKwh += (washerW / 1000) * elapsedHrs;
+          today.washerRuntimeMinutes += elapsedHrs * 60;
+        }
+        if (gridNetW > 0) {
+          today.gridImportKwh += (gridNetW / 1000) * elapsedHrs;
+        } else {
+          today.gridExportKwh += (Math.abs(gridNetW) / 1000) * elapsedHrs;
+        }
+      }
+    }
+    if (solarProdW > today.peakSolarW) today.peakSolarW = solarProdW;
+    if (houseConsumptionW > today.peakConsumptionW) today.peakConsumptionW = houseConsumptionW;
+    today.lastUpdated = now.toISOString();
+    lastPollTime = now.getTime();
+
+    // Throttled disk writes to avoid high I/O
+    const nowMs = Date.now();
+    if (nowMs - lastSaveTime > 10000) {
+      saveEnergyLog(energyLog);
+      lastSaveTime = nowMs;
+    }
+
+    const lifetimeKwh = lastSolar ? lastSolar.lifetimeKwh : 0;
+    const heatSinkF = lastSolar ? (lastSolar.heatSinkC * 9) / 5 + 32 : 0;
+
+    const midnight = new Date(now.getFullYear(), now.getMonth(), now.getDate()).getTime();
+    const minsSinceMidnight = Math.max(1, (now.getTime() - midnight) / 60000);
+    const hvacDutyCyclePct = Math.min(100, (today.hvacRuntimeMinutes / minsSinceMidnight) * 100);
+
+    if (haMqtt.connected) {
+      haMqtt.publishData({
+        solarProdW,
+        houseConsumptionW,
+        subpanelWatts: subpanelW,
+        hvacEstimatedWatts: hvacEstimatedW,
+        outdoorWatts: outdoorW,
+        blowerWatts: blowerW,
+        dryerWatts: dryerW,
+        dryerTodayKwh: today.dryerKwh,
+        dryerTodayRuntimeMin: Math.round(today.dryerRuntimeMinutes),
+        dryerTodayCost: today.dryerKwh * IMPORT_RATE_KWH,
+        ovenWatts: ovenW,
+        ovenTodayKwh: today.ovenKwh,
+        ovenTodayRuntimeMin: Math.round(today.ovenRuntimeMinutes),
+        ovenTodayCost: today.ovenKwh * IMPORT_RATE_KWH,
+        washerWatts: washerW,
+        washerTodayKwh: today.washerKwh,
+        washerTodayRuntimeMin: Math.round(today.washerRuntimeMinutes),
+        washerTodayCost: today.washerKwh * IMPORT_RATE_KWH,
+        gridNetW,
+        selfPoweredPct,
+        dcWatts: lastSolar ? lastSolar.dcWatts : 0,
+        heatSinkF,
+        solarTodayKwh: today.solarKwh,
+        houseTodayKwh: today.consumptionKwh,
+        gridImportTodayKwh: today.gridImportKwh,
+        gridExportTodayKwh: today.gridExportKwh,
+        hvacTodayKwh: today.hvacKwh,
+        hvacTodayRuntimeMin: Math.round(today.hvacRuntimeMinutes),
+        hvacTodayCost: today.hvacKwh * IMPORT_RATE_KWH,
+        hvacDutyCyclePct,
+        importRateKwh: IMPORT_RATE_KWH,
+        lifetimeKwh,
+        importCostToday: today.gridImportKwh * IMPORT_RATE_KWH,
+        exportCreditToday: today.gridExportKwh * EXPORT_RATE_KWH,
+        netCostToday: (today.gridImportKwh * IMPORT_RATE_KWH) - (today.gridExportKwh * EXPORT_RATE_KWH),
+        circuits: lastEmporia ? lastEmporia.circuits : [],
+        uptimeHours: process.uptime() / 3600,
+        memoryMb: process.memoryUsage().rss / 1024 / 1024,
+        errorCount: totalErrorCount,
+        lastError: lastErrorString,
+        errorLog: recentErrors,
+      });
+    }
+  } catch (err) {
+    recordDaemonError("Publish Cycle", err);
+  }
+}
+
+async function runModbusLoop() {
+  console.log(`[Modbus Loop] Started (every ${modbusIntervalMs}ms)`);
+  while (true) {
+    try {
+      const solar = await fetchSolarEdge();
+      if (solar) {
+        lastSolar = solar;
+        processAndPublish();
+      }
+    } catch (err) {
+      recordDaemonError("Modbus Loop", err);
+    }
+    await new Promise(r => setTimeout(r, modbusIntervalMs));
+  }
+}
+
+async function runEmporiaLoop() {
+  console.log(`[Emporia Loop] Started (every ${emporiaIntervalMs}ms)`);
+  while (true) {
+    try {
+      if (!emporiaReady) {
+        try {
+          if (EMPORIA_USER && EMPORIA_PASS) {
+            await vue.login({ username: EMPORIA_USER, password: EMPORIA_PASS });
+            const devices = await vue.getDevices();
+            emporiaDeviceGids = devices.map(d => d.deviceGid);
+            emporiaReady = true;
+            console.log(`[${new Date().toLocaleTimeString()}] Emporia authenticated (${devices.length} devices).`);
+          }
+        } catch (err) {
+          recordDaemonError("Emporia Auth", err.message);
+          await new Promise(r => setTimeout(r, 10000));
+          continue;
+        }
+      }
+      if (emporiaReady) {
+        const emporia = await fetchEmporia();
+        if (emporia) {
+          lastEmporia = emporia;
+          processAndPublish();
+        }
+      }
+    } catch (err) {
+      recordDaemonError("Emporia Loop", err);
+    }
+    await new Promise(r => setTimeout(r, emporiaIntervalMs));
+  }
+}
+
 async function main() {
   console.log(`[${new Date().toLocaleTimeString()}] Starting Solar & Energy Daemon (HA Add-on)...`);
-  console.log(`[Config] Inverter: ${INVERTER_IP}:${MODBUS_PORT} | Polling: ${POLL_INTERVAL}ms`);
+  console.log(`[Config] Inverter: ${INVERTER_IP}:${MODBUS_PORT} | Modbus Interval: ${modbusIntervalMs}ms`);
+  console.log(`[Config] Emporia Vue Cloud | Emporia Interval: ${emporiaIntervalMs}ms`);
   console.log(`[Config] MQTT: ${HA_MQTT_BROKER} (User: ${HA_MQTT_USER})`);
   console.log(`[Config] Persistence path: ${ENERGY_LOG_FILE}`);
 
   // Connect to Home Assistant MQTT
   haMqtt.connect();
 
-  // Authenticate Emporia Vue
-  try {
-    await vue.login({ username: EMPORIA_USER, password: EMPORIA_PASS });
-    const devices = await vue.getDevices();
-    emporiaDeviceGids = devices.map(d => d.deviceGid);
-    emporiaReady = true;
-    console.log(`[${new Date().toLocaleTimeString()}] Emporia authenticated (${devices.length} devices).`);
-  } catch (err) {
-    console.warn(`[${new Date().toLocaleTimeString()}] Emporia login failed:`, err.message);
-  }
-
-  // Modbus check
+  // Modbus initial check
   const mbOk = await ensureModbusConnection();
   console.log(`[${new Date().toLocaleTimeString()}] Modbus TCP connected: ${mbOk}`);
 
-  let lastSolar = null;
-  let lastEmporia = null;
+  // Start independent polling loops
+  runModbusLoop();
+  runEmporiaLoop();
 
-  while (true) {
-    try {
+  // Start CPS Ingress Web Dashboard Server (Port 3355)
+  try {
+    const { startServer } = require("./cps-dashboard/server");
+    startServer(3355).catch(err => {
+      console.warn("[CPS Server] Dashboard server warning:", err.message);
+    });
+  } catch (e) {
+    console.warn("[CPS Server] Could not load cps-dashboard/server:", e.message);
+  }
+
+  // Start CPS Smart Meter Sync Daemon (Startup push + daily scheduled sync)
+  try {
+    const { runSync } = require("./cps-sync");
+    // Initial startup sync (runs in background so it doesn't block main startup)
+    setTimeout(() => {
+      const yesterday = new Date();
+      yesterday.setDate(yesterday.getDate() - 1);
+      const targetDate = yesterday.toISOString().split("T")[0];
+      console.log(`[CPS Daemon] Triggering startup sync for ${targetDate}...`);
+      runSync(targetDate).catch(err => {
+        console.warn("[CPS Daemon] Startup sync warning:", err.message);
+      });
+    }, 4000);
+
+    // Periodic interval: Check every minute for 4:00 AM and 6:00 AM
+    setInterval(() => {
       const now = new Date();
-      const [solar, emporia] = await Promise.all([
-        fetchSolarEdge(),
-        emporiaReady ? fetchEmporia() : Promise.resolve(null),
-      ]);
-
-      if (solar) lastSolar = solar;
-      if (emporia) lastEmporia = emporia;
-
-      const solarProdW = lastSolar ? lastSolar.acWatts : 0;
-      const houseConsumptionW = lastEmporia ? lastEmporia.mainNetWatts : 0;
-      const gridNetW = houseConsumptionW - solarProdW;
-      const selfPoweredPct = houseConsumptionW > 0
-        ? Math.min((solarProdW / houseConsumptionW) * 100, 100)
-        : (solarProdW > 0 ? 100 : 0);
-
-      // Accumulation
-      const today = getTodayEntry(energyLog);
-      if (lastPollTime !== null) {
-        const elapsedHrs = (now.getTime() - lastPollTime) / 3600000;
-        if (elapsedHrs > 0 && elapsedHrs < 30 / 3600) {
-          today.solarKwh += (solarProdW / 1000) * elapsedHrs;
-          today.consumptionKwh += (houseConsumptionW / 1000) * elapsedHrs;
-          if (gridNetW > 0) {
-            today.gridImportKwh += (gridNetW / 1000) * elapsedHrs;
-          } else {
-            today.gridExportKwh += (Math.abs(gridNetW) / 1000) * elapsedHrs;
-          }
-        }
-      }
-      if (solarProdW > today.peakSolarW) today.peakSolarW = solarProdW;
-      if (houseConsumptionW > today.peakConsumptionW) today.peakConsumptionW = houseConsumptionW;
-      today.lastUpdated = now.toISOString();
-      lastPollTime = now.getTime();
-
-      saveEnergyLog(energyLog);
-
-      const lifetimeKwh = lastSolar ? lastSolar.lifetimeKwh : 0;
-      const heatSinkF = lastSolar ? (lastSolar.heatSinkC * 9) / 5 + 32 : 0;
-
-      if (haMqtt.connected) {
-        haMqtt.publishData({
-          solarProdW,
-          houseConsumptionW,
-          gridNetW,
-          selfPoweredPct,
-          dcWatts: lastSolar ? lastSolar.dcWatts : 0,
-          heatSinkF,
-          solarTodayKwh: today.solarKwh,
-          houseTodayKwh: today.consumptionKwh,
-          gridImportTodayKwh: today.gridImportKwh,
-          gridExportTodayKwh: today.gridExportKwh,
-          lifetimeKwh,
-          importCostToday: today.gridImportKwh * IMPORT_RATE_KWH,
-          exportCreditToday: today.gridExportKwh * EXPORT_RATE_KWH,
-          netCostToday: (today.gridImportKwh * IMPORT_RATE_KWH) - (today.gridExportKwh * EXPORT_RATE_KWH),
-          circuits: lastEmporia ? lastEmporia.circuits : [],
-          uptimeHours: process.uptime() / 3600,
-          memoryMb: process.memoryUsage().rss / 1024 / 1024,
-          errorCount: totalErrorCount,
-          lastError: lastErrorString,
-          errorLog: recentErrors,
+      const hours = now.getHours();
+      const mins = now.getMinutes();
+      if ((hours === 4 || hours === 6) && mins === 0) {
+        console.log("[CPS Daemon] Scheduled time reached, triggering daily sync...");
+        const yesterday = new Date();
+        yesterday.setDate(yesterday.getDate() - 1);
+        const targetDate = yesterday.toISOString().split("T")[0];
+        runSync(targetDate).catch(err => {
+          console.warn("[CPS Daemon] Daily sync error:", err.message);
         });
       }
-    } catch (err) {
-      recordDaemonError("Poll Cycle", err);
-    }
-
-    await new Promise(r => setTimeout(r, POLL_INTERVAL));
+    }, 60000);
+  } catch (e) {
+    console.warn("[CPS Daemon] Could not load cps-sync:", e.message);
   }
 }
 
