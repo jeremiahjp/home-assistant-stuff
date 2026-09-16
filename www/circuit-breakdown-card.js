@@ -54,17 +54,21 @@ class CircuitBreakdownCard extends HTMLElement {
           color: #f8fafc;
           font-family: var(--ha-font-family, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif);
           box-sizing: border-box;
+          overflow: hidden;
         }
         .header {
           display: flex;
           justify-content: space-between;
           align-items: center;
           margin-bottom: 12px;
+          gap: 10px;
         }
         .header-left {
           display: flex;
           align-items: center;
           gap: 10px;
+          min-width: 0;
+          flex: 1;
         }
         .header-icon-box {
           width: 38px;
@@ -77,21 +81,29 @@ class CircuitBreakdownCard extends HTMLElement {
           justify-content: center;
           color: #38bdf8;
           font-size: 20px;
+          flex-shrink: 0;
         }
         .header-titles {
           display: flex;
           flex-direction: column;
           gap: 2px;
+          min-width: 0;
         }
         .header-title {
           font-size: 15px;
           font-weight: 700;
           color: #f8fafc;
           letter-spacing: -0.2px;
+          white-space: nowrap;
+          overflow: hidden;
+          text-overflow: ellipsis;
         }
         .header-subtitle {
           font-size: 11px;
           color: #94a3b8;
+          white-space: nowrap;
+          overflow: hidden;
+          text-overflow: ellipsis;
         }
         .header-right {
           text-align: right;
@@ -99,12 +111,14 @@ class CircuitBreakdownCard extends HTMLElement {
           flex-direction: column;
           align-items: flex-end;
           gap: 1px;
+          flex-shrink: 0;
         }
         .total-watts {
           font-size: 22px;
           font-weight: 800;
           color: #38bdf8;
           line-height: 1.1;
+          white-space: nowrap;
         }
         .total-label {
           font-size: 10px;
@@ -112,6 +126,7 @@ class CircuitBreakdownCard extends HTMLElement {
           letter-spacing: 0.5px;
           color: #94a3b8;
           font-weight: 600;
+          white-space: nowrap;
         }
         /* Multi-segment Progress Bar */
         .progress-track {
@@ -143,6 +158,7 @@ class CircuitBreakdownCard extends HTMLElement {
           padding: 8px 12px;
           transition: all 0.2s ease;
           cursor: pointer;
+          gap: 8px;
         }
         .item-row:hover {
           background: rgba(255, 255, 255, 0.06);
@@ -151,6 +167,8 @@ class CircuitBreakdownCard extends HTMLElement {
           display: flex;
           align-items: center;
           gap: 10px;
+          min-width: 0;
+          flex: 1;
         }
         .item-icon-box {
           width: 32px;
@@ -160,20 +178,28 @@ class CircuitBreakdownCard extends HTMLElement {
           align-items: center;
           justify-content: center;
           font-size: 16px;
+          flex-shrink: 0;
         }
         .item-info {
           display: flex;
           flex-direction: column;
           gap: 2px;
+          min-width: 0;
         }
         .item-name {
           font-size: 13px;
           font-weight: 600;
           color: #f1f5f9;
+          white-space: nowrap;
+          overflow: hidden;
+          text-overflow: ellipsis;
         }
         .item-desc {
           font-size: 11px;
           color: #64748b;
+          white-space: nowrap;
+          overflow: hidden;
+          text-overflow: ellipsis;
         }
         .item-right {
           text-align: right;
@@ -181,15 +207,32 @@ class CircuitBreakdownCard extends HTMLElement {
           flex-direction: column;
           align-items: flex-end;
           gap: 2px;
+          flex-shrink: 0;
         }
         .item-watts {
           font-size: 14px;
           font-weight: 700;
+          white-space: nowrap;
         }
         .item-pct {
           font-size: 10px;
           color: #94a3b8;
           font-weight: 600;
+          white-space: nowrap;
+        }
+        @media (max-width: 480px) {
+          ha-card {
+            padding: 12px 14px !important;
+          }
+          .header {
+            margin-bottom: 10px;
+          }
+          .total-watts {
+            font-size: 20px;
+          }
+          .item-row {
+            padding: 7px 10px;
+          }
         }
       </style>
       <ha-card>

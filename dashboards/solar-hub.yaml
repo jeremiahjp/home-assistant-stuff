@@ -1481,11 +1481,24 @@ views:
                 }
                 .heading { text-align: center !important; justify-content: center !important; }
           - type: grid
-            columns: 2
+            columns: 1
             square: false
+            card_mod:
+              style: |
+                #root {
+                  display: grid !important;
+                  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)) !important;
+                  gap: 14px !important;
+                }
+                @media (max-width: 768px) {
+                  #root {
+                    grid-template-columns: 1fr !important;
+                    gap: 12px !important;
+                  }
+                }
             cards:
               - type: custom:circuit-breakdown-card
-                title: "#12 Master Bedroom & Bath"
+                title: "#12 Master Bedroom"
                 subtitle: "15A Circuit • Submetering Load Disaggregation"
                 icon: mdi:bed
                 circuit_entity: sensor.home_solar_energy_monitor_circuit_master_bed
@@ -1502,17 +1515,28 @@ views:
                     color: "#fbbf24"
                     state_entity: light.master_bedroom_fan_hunter_light
                     spec: "2x Cree A19 8.8W (17.6W max)"
+                  - entity: sensor.master_bedroom_baseload_power
+                    name: Outlets & Standby Baseload
+                    icon: mdi:power-socket-us
+                    color: "#64748b"
+                    spec: "Phone chargers, nightstands, phantom draw"
+              - type: custom:circuit-breakdown-card
+                title: "#10 Master Bath & Closet"
+                subtitle: "15A Circuit • Submetering Load Disaggregation"
+                icon: mdi:shower
+                circuit_entity: sensor.home_solar_energy_monitor_circuit_master_bath_closet
+                loads:
                   - entity: sensor.master_bathroom_lights_power
                     name: Master Bathroom Vanity & Shower
                     icon: mdi:vanity-light
                     color: "#c084fc"
                     state_entity: light.master_bathroom_bathroom_lights
                     spec: "4x 8.8W A19 + 2x 7.2W BR30 (49.6W max)"
-                  - entity: sensor.master_bedroom_baseload_power
-                    name: Outlets & Standby Baseload
+                  - entity: sensor.master_bath_baseload_power
+                    name: Outlets, Exhaust & Baseload
                     icon: mdi:power-socket-us
                     color: "#64748b"
-                    spec: "Phone chargers, nightstands, phantom draw"
+                    spec: "Exhaust fan, GFCI outlets, closet lights"
               - type: custom:circuit-breakdown-card
                 title: "#8 Study / Office Workstation"
                 subtitle: "15A Circuit • Submetering Load Disaggregation"
@@ -1770,11 +1794,11 @@ views:
                     icon: mdi:desktop-tower
                   - entity: sensor.home_solar_energy_monitor_circuit_master_bath_closet
                     name: "#10 (15A) Master Bath & Closet • Vue CT"
-                    secondary_info: MASTER BATH MASTER CLOSET MASTER HALL LIGHT
+                    secondary_info: "MASTER BATH • Vanity, Shower & Closet Lights"
                     icon: mdi:shower
                   - entity: sensor.home_solar_energy_monitor_circuit_master_bed
                     name: "#12 (15A) Master Bedroom • Vue CT"
-                    secondary_info: "MASTER BEDROOM • Fan, Bed Light & Bath Lights"
+                    secondary_info: "MASTER BEDROOM • Fan, Light & Outlets"
                     icon: mdi:bed
                   - entity: sensor.home_solar_energy_monitor_circuit_bed_bathroom_3
                     name: "#14 (15A) Bed #2 & Hall Bath #2 • Vue CT"
