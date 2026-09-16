@@ -1508,7 +1508,7 @@ views:
                     icon: mdi:fan
                     color: "#38bdf8"
                     state_entity: fan.master_bedroom_fan_hunter_fan
-                    spec: "Hunter 52\" AC Motor"
+                    spec: "Hunter Aerodyne 52\" (WhisperWind 4-Speed)"
                   - entity: sensor.master_bedroom_light_power
                     name: Master Fan Light
                     icon: mdi:lightbulb

@@ -301,9 +301,10 @@ class CircuitBreakdownCard extends HTMLElement {
           if (dev.entity_id.startsWith('fan.')) {
             if (dev.state === 'on') {
               const spd = dev.attributes.percentage || 0;
-              desc = `Speed: ${spd}% • Active Motor Draw`;
+              const spdName = spd <= 25 ? 'Low' : spd <= 50 ? 'Med-Low' : spd <= 75 ? 'Med-High' : 'High';
+              desc = `Speed: ${spd}% (${spdName})${load.spec ? ' • ' + load.spec : ' • Active Draw'}`;
             } else {
-              desc = 'Fan Off • 0 W';
+              desc = `Fan Off${load.spec ? ' • ' + load.spec : ' • 0 W'}`;
             }
           } else if (dev.entity_id.startsWith('light.')) {
             if (dev.state === 'on') {
