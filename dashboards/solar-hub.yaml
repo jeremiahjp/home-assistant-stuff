@@ -262,7 +262,7 @@ views:
             cards:
               - type: gauge
                 entity: sensor.solar_adjusted_cooling_usage_today
-                name: Solar Cooling Budget
+                name: Net AC Runtime
                 needle: true
                 min: 0
                 max: 8
@@ -332,7 +332,7 @@ views:
                     <span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:#10b981;box-shadow:0 0 8px #10b981;"></span>
                     SOLAR OFFSET ACTIVE • 100% GRID-FREE (EXPORTING {{ (grid_net_w | abs / 1000) | round(1) }} kW)
                   </span>
-                  <span style="color:#94a3b8;">Gross AC: <strong style="color:#f1f5f9;">{{ run }}h</strong> &nbsp;•&nbsp; Solar Offset: <strong style="color:#10b981;">-{{ earned }}h ({{ offset_pct }}%)</strong> &nbsp;•&nbsp; Adjusted Budget: <strong style="color:#22d3ee;">{{ net_run }}h / 8.0h ({{ budget_pct }}%)</strong></span>
+                  <span style="color:#94a3b8;">Gross AC: <strong style="color:#f1f5f9;">{{ run }}h</strong> &nbsp;•&nbsp; Solar Offset: <strong style="color:#10b981;">-{{ earned }}h ({{ offset_pct }}%)</strong> &nbsp;•&nbsp; Net AC Runtime: <strong style="color:#22d3ee;">{{ net_run }}h / 8.0h ({{ budget_pct }}%)</strong></span>
                 </div>
               {% elif net_run <= 4.5 %}
                 <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;font-size:12px;">
@@ -340,7 +340,7 @@ views:
                     <span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:#10b981;box-shadow:0 0 8px #10b981;"></span>
                     ON TRACK • {{ offset_pct }}% AC OFFSET BY SOLAR
                   </span>
-                  <span style="color:#94a3b8;">Gross AC: <strong style="color:#f1f5f9;">{{ run }}h</strong> &nbsp;•&nbsp; Solar Offset: <strong style="color:#10b981;">-{{ earned }}h ({{ offset_pct }}%)</strong> &nbsp;•&nbsp; Adjusted Budget: <strong style="color:#22d3ee;">{{ net_run }}h / 8.0h ({{ budget_pct }}%)</strong></span>
+                  <span style="color:#94a3b8;">Gross AC: <strong style="color:#f1f5f9;">{{ run }}h</strong> &nbsp;•&nbsp; Solar Offset: <strong style="color:#10b981;">-{{ earned }}h ({{ offset_pct }}%)</strong> &nbsp;•&nbsp; Net AC Runtime: <strong style="color:#22d3ee;">{{ net_run }}h / 8.0h ({{ budget_pct }}%)</strong></span>
                 </div>
               {% elif net_run <= 6.0 %}
                 <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;font-size:12px;">
@@ -348,7 +348,7 @@ views:
                     <span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:#f59e0b;box-shadow:0 0 8px #f59e0b;"></span>
                     APPROACHING BUDGET LIMIT • {{ budget_pct }}% USED
                   </span>
-                  <span style="color:#94a3b8;">Gross AC: <strong style="color:#f1f5f9;">{{ run }}h</strong> &nbsp;•&nbsp; Solar Offset: <strong style="color:#10b981;">-{{ earned }}h ({{ offset_pct }}%)</strong> &nbsp;•&nbsp; Adjusted Budget: <strong style="color:#f59e0b;">{{ net_run }}h / 8.0h</strong></span>
+                  <span style="color:#94a3b8;">Gross AC: <strong style="color:#f1f5f9;">{{ run }}h</strong> &nbsp;•&nbsp; Solar Offset: <strong style="color:#10b981;">-{{ earned }}h ({{ offset_pct }}%)</strong> &nbsp;•&nbsp; Net AC Runtime: <strong style="color:#f59e0b;">{{ net_run }}h / 8.0h</strong></span>
                 </div>
               {% else %}
                 <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;font-size:12px;">
@@ -356,7 +356,7 @@ views:
                     <span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:#ef4444;box-shadow:0 0 8px #ef4444;"></span>
                     BUDGET CRITICAL • {{ budget_pct }}% USED
                   </span>
-                  <span style="color:#f87171;">Gross AC: <strong style="color:#f1f5f9;">{{ run }}h</strong> &nbsp;•&nbsp; Solar Offset: <strong style="color:#10b981;">-{{ earned }}h ({{ offset_pct }}%)</strong> &nbsp;•&nbsp; Adjusted Budget: <strong style="color:#ef4444;">{{ net_run }}h / 8.0h</strong></span>
+                  <span style="color:#f87171;">Gross AC: <strong style="color:#f1f5f9;">{{ run }}h</strong> &nbsp;•&nbsp; Solar Offset: <strong style="color:#10b981;">-{{ earned }}h ({{ offset_pct }}%)</strong> &nbsp;•&nbsp; Net AC Runtime: <strong style="color:#ef4444;">{{ net_run }}h / 8.0h</strong></span>
                 </div>
               {% endif %}
           - type: grid
@@ -2086,7 +2086,7 @@ views:
             cards:
               - type: gauge
                 entity: sensor.solar_adjusted_cooling_usage_today
-                name: Solar Cooling Budget
+                name: Net AC Runtime
                 needle: true
                 min: 0
                 max: 8
@@ -2156,7 +2156,7 @@ views:
                     <span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:#10b981;box-shadow:0 0 8px #10b981;"></span>
                     SOLAR OFFSET ACTIVE • 100% GRID-FREE (EXPORTING {{ (grid_net_w | abs / 1000) | round(1) }} kW)
                   </span>
-                  <span style="color:#94a3b8;">Gross AC: <strong style="color:#f1f5f9;">{{ run }}h</strong> &nbsp;•&nbsp; Solar Offset: <strong style="color:#10b981;">-{{ earned }}h ({{ offset_pct }}%)</strong> &nbsp;•&nbsp; Adjusted Budget: <strong style="color:#22d3ee;">{{ net_run }}h / 8.0h ({{ budget_pct }}%)</strong></span>
+                  <span style="color:#94a3b8;">Gross AC: <strong style="color:#f1f5f9;">{{ run }}h</strong> &nbsp;•&nbsp; Solar Offset: <strong style="color:#10b981;">-{{ earned }}h ({{ offset_pct }}%)</strong> &nbsp;•&nbsp; Net AC Runtime: <strong style="color:#22d3ee;">{{ net_run }}h / 8.0h ({{ budget_pct }}%)</strong></span>
                 </div>
               {% elif net_run <= 4.5 %}
                 <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;font-size:12px;">
@@ -2164,7 +2164,7 @@ views:
                     <span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:#10b981;box-shadow:0 0 8px #10b981;"></span>
                     ON TRACK • {{ offset_pct }}% AC OFFSET BY SOLAR
                   </span>
-                  <span style="color:#94a3b8;">Gross AC: <strong style="color:#f1f5f9;">{{ run }}h</strong> &nbsp;•&nbsp; Solar Offset: <strong style="color:#10b981;">-{{ earned }}h ({{ offset_pct }}%)</strong> &nbsp;•&nbsp; Adjusted Budget: <strong style="color:#22d3ee;">{{ net_run }}h / 8.0h ({{ budget_pct }}%)</strong></span>
+                  <span style="color:#94a3b8;">Gross AC: <strong style="color:#f1f5f9;">{{ run }}h</strong> &nbsp;•&nbsp; Solar Offset: <strong style="color:#10b981;">-{{ earned }}h ({{ offset_pct }}%)</strong> &nbsp;•&nbsp; Net AC Runtime: <strong style="color:#22d3ee;">{{ net_run }}h / 8.0h ({{ budget_pct }}%)</strong></span>
                 </div>
               {% elif net_run <= 6.0 %}
                 <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;font-size:12px;">
@@ -2172,7 +2172,7 @@ views:
                     <span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:#f59e0b;box-shadow:0 0 8px #f59e0b;"></span>
                     APPROACHING BUDGET LIMIT • {{ budget_pct }}% USED
                   </span>
-                  <span style="color:#94a3b8;">Gross AC: <strong style="color:#f1f5f9;">{{ run }}h</strong> &nbsp;•&nbsp; Solar Offset: <strong style="color:#10b981;">-{{ earned }}h ({{ offset_pct }}%)</strong> &nbsp;•&nbsp; Adjusted Budget: <strong style="color:#f59e0b;">{{ net_run }}h / 8.0h</strong></span>
+                  <span style="color:#94a3b8;">Gross AC: <strong style="color:#f1f5f9;">{{ run }}h</strong> &nbsp;•&nbsp; Solar Offset: <strong style="color:#10b981;">-{{ earned }}h ({{ offset_pct }}%)</strong> &nbsp;•&nbsp; Net AC Runtime: <strong style="color:#f59e0b;">{{ net_run }}h / 8.0h</strong></span>
                 </div>
               {% else %}
                 <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;font-size:12px;">
@@ -2180,7 +2180,7 @@ views:
                     <span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:#ef4444;box-shadow:0 0 8px #ef4444;"></span>
                     BUDGET CRITICAL • {{ budget_pct }}% USED
                   </span>
-                  <span style="color:#f87171;">Gross AC: <strong style="color:#f1f5f9;">{{ run }}h</strong> &nbsp;•&nbsp; Solar Offset: <strong style="color:#10b981;">-{{ earned }}h ({{ offset_pct }}%)</strong> &nbsp;•&nbsp; Adjusted Budget: <strong style="color:#ef4444;">{{ net_run }}h / 8.0h</strong></span>
+                  <span style="color:#f87171;">Gross AC: <strong style="color:#f1f5f9;">{{ run }}h</strong> &nbsp;•&nbsp; Solar Offset: <strong style="color:#10b981;">-{{ earned }}h ({{ offset_pct }}%)</strong> &nbsp;•&nbsp; Net AC Runtime: <strong style="color:#ef4444;">{{ net_run }}h / 8.0h</strong></span>
                 </div>
               {% endif %}
           - type: horizontal-stack
