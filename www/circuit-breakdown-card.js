@@ -313,6 +313,13 @@ class CircuitBreakdownCard extends HTMLElement {
             } else {
               desc = `${load.spec ? load.spec + ' • ' : ''}OFF`;
             }
+          } else if (dev.entity_id.startsWith('media_player.')) {
+            if (dev.state === 'on') {
+              const src = dev.attributes.source || 'Active';
+              desc = `App: ${src}${load.spec ? ' • ' + load.spec : ''}`;
+            } else {
+              desc = `Standby (0.5W)${load.spec ? ' • ' + load.spec : ''}`;
+            }
           }
         }
       } else if (load.state_entities && load.state_entities.length > 0) {

@@ -1503,6 +1503,12 @@ views:
                 icon: mdi:bed
                 circuit_entity: sensor.home_solar_energy_monitor_circuit_master_bed
                 loads:
+                  - entity: sensor.master_bedroom_tv_power
+                    name: LG 65" OLED TV
+                    icon: mdi:television
+                    color: "#a855f7"
+                    state_entity: media_player.lg_oled
+                    spec: "OLED65CXPUA"
                   - entity: sensor.master_bedroom_fan_power
                     name: Hunter Ceiling Fan
                     icon: mdi:fan
