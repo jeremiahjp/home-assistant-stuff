@@ -43,6 +43,11 @@ class CircuitBreakdownCard extends HTMLElement {
       <style>
         :host {
           display: block;
+          min-width: 0 !important;
+          max-width: 100% !important;
+          width: 100% !important;
+          box-sizing: border-box !important;
+          overflow: hidden !important;
         }
         ha-card {
           background: rgba(15, 23, 42, 0.75) !important;
@@ -53,8 +58,11 @@ class CircuitBreakdownCard extends HTMLElement {
           padding: 16px 18px !important;
           color: #f8fafc;
           font-family: var(--ha-font-family, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif);
-          box-sizing: border-box;
-          overflow: hidden;
+          box-sizing: border-box !important;
+          width: 100% !important;
+          max-width: 100% !important;
+          min-width: 0 !important;
+          overflow: hidden !important;
         }
         .header {
           display: flex;
@@ -62,6 +70,9 @@ class CircuitBreakdownCard extends HTMLElement {
           align-items: center;
           margin-bottom: 12px;
           gap: 10px;
+          min-width: 0;
+          max-width: 100%;
+          overflow: hidden;
         }
         .header-left {
           display: flex;
@@ -69,6 +80,7 @@ class CircuitBreakdownCard extends HTMLElement {
           gap: 10px;
           min-width: 0;
           flex: 1;
+          overflow: hidden;
         }
         .header-icon-box {
           width: 38px;
@@ -88,6 +100,8 @@ class CircuitBreakdownCard extends HTMLElement {
           flex-direction: column;
           gap: 2px;
           min-width: 0;
+          flex: 1;
+          overflow: hidden;
         }
         .header-title {
           font-size: 15px;
@@ -97,6 +111,7 @@ class CircuitBreakdownCard extends HTMLElement {
           white-space: nowrap;
           overflow: hidden;
           text-overflow: ellipsis;
+          max-width: 100%;
         }
         .header-subtitle {
           font-size: 11px;
@@ -104,6 +119,7 @@ class CircuitBreakdownCard extends HTMLElement {
           white-space: nowrap;
           overflow: hidden;
           text-overflow: ellipsis;
+          max-width: 100%;
         }
         .header-right {
           text-align: right;
@@ -133,10 +149,12 @@ class CircuitBreakdownCard extends HTMLElement {
           display: flex;
           height: 10px;
           width: 100%;
+          max-width: 100%;
           background: rgba(255, 255, 255, 0.08);
           border-radius: 6px;
           overflow: hidden;
           margin-bottom: 14px;
+          box-sizing: border-box;
         }
         .progress-segment {
           height: 100%;
@@ -147,6 +165,9 @@ class CircuitBreakdownCard extends HTMLElement {
           display: flex;
           flex-direction: column;
           gap: 8px;
+          min-width: 0;
+          max-width: 100%;
+          overflow: hidden;
         }
         .item-row {
           display: flex;
@@ -159,6 +180,10 @@ class CircuitBreakdownCard extends HTMLElement {
           transition: all 0.2s ease;
           cursor: pointer;
           gap: 8px;
+          min-width: 0;
+          max-width: 100%;
+          box-sizing: border-box !important;
+          overflow: hidden;
         }
         .item-row:hover {
           background: rgba(255, 255, 255, 0.06);
@@ -169,6 +194,7 @@ class CircuitBreakdownCard extends HTMLElement {
           gap: 10px;
           min-width: 0;
           flex: 1;
+          overflow: hidden;
         }
         .item-icon-box {
           width: 32px;
@@ -185,6 +211,8 @@ class CircuitBreakdownCard extends HTMLElement {
           flex-direction: column;
           gap: 2px;
           min-width: 0;
+          flex: 1;
+          overflow: hidden;
         }
         .item-name {
           font-size: 13px;
@@ -193,6 +221,7 @@ class CircuitBreakdownCard extends HTMLElement {
           white-space: nowrap;
           overflow: hidden;
           text-overflow: ellipsis;
+          max-width: 100%;
         }
         .item-desc {
           font-size: 11px;
@@ -200,6 +229,7 @@ class CircuitBreakdownCard extends HTMLElement {
           white-space: nowrap;
           overflow: hidden;
           text-overflow: ellipsis;
+          max-width: 100%;
         }
         .item-right {
           text-align: right;
@@ -222,16 +252,43 @@ class CircuitBreakdownCard extends HTMLElement {
         }
         @media (max-width: 480px) {
           ha-card {
-            padding: 12px 14px !important;
+            padding: 12px 12px !important;
           }
           .header {
             margin-bottom: 10px;
+            gap: 8px;
+          }
+          .header-icon-box {
+            width: 32px;
+            height: 32px;
+            font-size: 16px;
           }
           .total-watts {
-            font-size: 20px;
+            font-size: 18px;
+          }
+          .total-label {
+            font-size: 9px;
           }
           .item-row {
-            padding: 7px 10px;
+            padding: 6px 10px;
+            gap: 6px;
+          }
+          .item-icon-box {
+            width: 28px;
+            height: 28px;
+            font-size: 14px;
+          }
+          .item-name {
+            font-size: 12px;
+          }
+          .item-desc {
+            font-size: 10px;
+          }
+          .item-watts {
+            font-size: 13px;
+          }
+          .item-pct {
+            font-size: 9px;
           }
         }
       </style>

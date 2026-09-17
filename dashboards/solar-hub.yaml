@@ -1475,21 +1475,39 @@ views:
                   text-align: center !important;
                   justify-content: center !important;
                   display: flex !important;
+                  max-width: 100% !important;
+                  overflow: hidden !important;
+                  box-sizing: border-box !important;
                 }
-                .heading { text-align: center !important; justify-content: center !important; }
+                .heading {
+                  text-align: center !important;
+                  justify-content: center !important;
+                  white-space: normal !important;
+                  word-break: break-word !important;
+                }
           - type: grid
             columns: 1
             square: false
             card_mod:
               style: |
+                :host {
+                  width: 100% !important;
+                  max-width: 100% !important;
+                  box-sizing: border-box !important;
+                  overflow: hidden !important;
+                }
                 #root {
                   display: grid !important;
-                  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)) !important;
+                  grid-template-columns: repeat(auto-fit, minmax(min(100%, 280px), 1fr)) !important;
                   gap: 14px !important;
+                  width: 100% !important;
+                  max-width: 100% !important;
+                  box-sizing: border-box !important;
+                  overflow: hidden !important;
                 }
                 @media (max-width: 768px) {
                   #root {
-                    grid-template-columns: 1fr !important;
+                    grid-template-columns: 100% !important;
                     gap: 12px !important;
                   }
                 }
