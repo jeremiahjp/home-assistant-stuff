@@ -266,13 +266,10 @@ views:
                 needle: true
                 min: 0
                 max: 8
-                segments:
-                  - from: 0
-                    color: '#10b981'
-                  - from: 4.5
-                    color: '#f59e0b'
-                  - from: 6.0
-                    color: '#ef4444'
+                severity:
+                  green: 0
+                  yellow: 4.5
+                  red: 6
                 card_mod:
                   style: |
                     ha-card {
@@ -2096,13 +2093,10 @@ views:
                 needle: true
                 min: 0
                 max: 8
-                segments:
-                  - from: 0
-                    color: '#10b981'
-                  - from: 4.5
-                    color: '#f59e0b'
-                  - from: 6.0
-                    color: '#ef4444'
+                severity:
+                  green: 0
+                  yellow: 4.5
+                  red: 6
                 card_mod:
                   style: |
                     ha-card {
