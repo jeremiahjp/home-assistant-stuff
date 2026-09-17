@@ -1,0 +1,25 @@
+name: "PostgreSQL 16 Database"
+description: "Official PostgreSQL 16 (Alpine) Server for Home Assistant Recorder & Emporia Vue energy storage"
+version: "16.2-alpine"
+slug: "postgres"
+url: "https://www.postgresql.org/"
+init: false
+arch:
+  - amd64
+  - aarch64
+startup: services
+boot: auto
+host_network: false
+ports:
+  5432/tcp: 5432
+ports_description:
+  5432/tcp: "PostgreSQL Server Port"
+options:
+  postgres_password: "ha_postgres_secure_pass_2026"
+  databases:
+    - homeassistant
+    - emporia_energy
+schema:
+  postgres_password: password
+  databases:
+    - str
