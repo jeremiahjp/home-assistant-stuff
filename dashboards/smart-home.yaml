@@ -86,8 +86,8 @@ views:
                     padding: 14px 18px !important;
                   }
             content: |-
-              {% set on_count = expand('light.master_bedroom_fan_hunter_light', 'light.master_bathroom_bathroom_lights', 'light.office_office_1', 'light.office_office_2', 'light.office_shelf_strip', 'switch.backyard_plug_itself_patio_lights', 'switch.backyard_plug_itself_deck_lights', 'light.fan_lights', 'light.garage_left', 'light.garage_right', 'light.1') | selectattr('state', 'eq', 'on') | list | count %}
-              <div class="hero-bar"><div class="hero-left"><div class="hero-icon">💡</div><div><div class="hero-title">Home Lighting Control</div><div class="hero-sub">Garage · Porch · Office · Dining · Bedroom · Bathroom · Backyard</div></div></div><div class="hero-badge" style="background:{% if on_count > 0 %}rgba(251,191,36,0.18){% else %}rgba(255,255,255,0.05){% endif %};color:{% if on_count > 0 %}#fbbf24{% else %}#94a3b8{% endif %};border:1px solid {% if on_count > 0 %}rgba(251,191,36,0.35){% else %}rgba(255,255,255,0.1){% endif %};">{{ on_count }} Active</div></div>
+              {% set on_count = expand('light.kitchen_lamp', 'light.master_bedroom_fan_hunter_light', 'light.master_bathroom_bathroom_lights', 'light.office_office_1', 'light.office_office_2', 'light.office_shelf_strip', 'switch.backyard_plug_itself_patio_lights', 'switch.backyard_plug_itself_deck_lights', 'light.fan_lights', 'light.garage_left', 'light.garage_right', 'light.1') | selectattr('state', 'eq', 'on') | list | count %}
+              <div class="hero-bar"><div class="hero-left"><div class="hero-icon">💡</div><div><div class="hero-title">Home Lighting Control</div><div class="hero-sub">Garage · Floor Lamp · Porch · Office · Dining · Bedroom · Bathroom · Backyard</div></div></div><div class="hero-badge" style="background:{% if on_count > 0 %}rgba(251,191,36,0.18){% else %}rgba(255,255,255,0.05){% endif %};color:{% if on_count > 0 %}#fbbf24{% else %}#94a3b8{% endif %};border:1px solid {% if on_count > 0 %}rgba(251,191,36,0.35){% else %}rgba(255,255,255,0.1){% endif %};">{{ on_count }} Active</div></div>
 
           - type: horizontal-stack
             grid_options:
@@ -195,6 +195,29 @@ views:
                     ha-card {
                       {% if is_state('light.garage_lights', 'on') %}
                         {% set rgb = state_attr('light.garage_lights', 'rgb_color') or [56, 189, 248] %}
+                        background: rgba({{ rgb[0] }}, {{ rgb[1] }}, {{ rgb[2] }}, 0.14) !important;
+                        border: 1px solid rgba({{ rgb[0] }}, {{ rgb[1] }}, {{ rgb[2] }}, 0.40) !important;
+                        box-shadow: 0 0 20px rgba({{ rgb[0] }}, {{ rgb[1] }}, {{ rgb[2] }}, 0.18) !important;
+                      {% else %}
+                        background: rgba(15, 23, 42, 0.75) !important;
+                        border: 1px solid rgba(255, 255, 255, 0.08) !important;
+                      {% endif %}
+                      border-radius: 16px !important;
+                      backdrop-filter: blur(16px) !important;
+              - type: tile
+                entity: light.kitchen_lamp
+                name: "✨ Floor Lamp"
+                icon: mdi:floor-lamp-torchiere
+                vertical: false
+                tap_action:
+                  action: more-info
+                icon_tap_action:
+                  action: toggle
+                card_mod:
+                  style: |
+                    ha-card {
+                      {% if is_state('light.kitchen_lamp', 'on') %}
+                        {% set rgb = state_attr('light.kitchen_lamp', 'rgb_color') or [251, 191, 36] %}
                         background: rgba({{ rgb[0] }}, {{ rgb[1] }}, {{ rgb[2] }}, 0.14) !important;
                         border: 1px solid rgba({{ rgb[0] }}, {{ rgb[1] }}, {{ rgb[2] }}, 0.40) !important;
                         box-shadow: 0 0 20px rgba({{ rgb[0] }}, {{ rgb[1] }}, {{ rgb[2] }}, 0.18) !important;
@@ -680,6 +703,292 @@ views:
                   backdrop-filter: blur(16px) !important;
                   transition: all 0.35s ease !important;
                 }
+
+      # SECTION: ✨ GOVEE FLOOR LAMP
+      - type: grid
+        cards:
+          - type: heading
+            heading: "✨  Floor Lamp"
+            icon: mdi:floor-lamp-torchiere
+          - type: heading
+            heading: Govee RGBIC Lyra Lamp
+            heading_style: subtitle
+          - type: tile
+            entity: light.kitchen_lamp
+            name: "✨ Floor Lamp"
+            icon: mdi:floor-lamp-torchiere
+            vertical: false
+            tap_action:
+              action: more-info
+            icon_tap_action:
+              action: toggle
+            features:
+              - type: toggle
+              - type: light-brightness
+              - type: light-color-temp
+            card_mod:
+              style: |
+                ha-card {
+                  {% if is_state('light.kitchen_lamp', 'on') %}
+                    {% set rgb = state_attr('light.kitchen_lamp', 'rgb_color') or [251, 191, 36] %}
+                    background: rgba({{ rgb[0] }}, {{ rgb[1] }}, {{ rgb[2] }}, 0.14) !important;
+                    border: 1px solid rgba({{ rgb[0] }}, {{ rgb[1] }}, {{ rgb[2] }}, 0.40) !important;
+                    box-shadow: 0 0 26px rgba({{ rgb[0] }}, {{ rgb[1] }}, {{ rgb[2] }}, 0.22), 0 4px 16px rgba(0, 0, 0, 0.3) !important;
+                  {% else %}
+                    background: rgba(15, 23, 42, 0.75) !important;
+                    border: 1px solid rgba(255, 255, 255, 0.08) !important;
+                    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2) !important;
+                  {% endif %}
+                  border-radius: 18px !important;
+                  backdrop-filter: blur(16px) !important;
+                  transition: all 0.35s ease !important;
+                }
+          - type: heading
+            heading: Color & Ambiance Presets
+            heading_style: subtitle
+          - type: grid
+            columns: 2
+            square: false
+            cards:
+              - type: tile
+                entity: script.govee_theme_crisp_daylight
+                name: "☀️ Daylight Focus"
+                icon: mdi:white-balance-sunny
+                color: light-blue
+                vertical: false
+                tap_action:
+                  action: call-service
+                  service: script.govee_theme_crisp_daylight
+                icon_tap_action:
+                  action: call-service
+                  service: script.govee_theme_crisp_daylight
+                card_mod:
+                  style: |
+                    ha-card {
+                      background: rgba(56, 189, 248, 0.08) !important;
+                      border: 1px solid rgba(56, 189, 248, 0.22) !important;
+                      border-radius: 16px !important;
+                      backdrop-filter: blur(16px) !important;
+                      transition: all 0.25s ease !important;
+                    }
+                    ha-card:hover {
+                      background: rgba(56, 189, 248, 0.16) !important;
+                      border-color: rgba(56, 189, 248, 0.45) !important;
+                      box-shadow: 0 0 18px rgba(56, 189, 248, 0.25) !important;
+                    }
+                    ha-card:active { transform: scale(0.97) !important; }
+                    .secondary { display: none !important; }
+                    .primary { font-weight: 700 !important; font-size: 13.5px !important; }
+
+              - type: tile
+                entity: script.govee_theme_warm_candlelight
+                name: "🕯️ Warm Cozy"
+                icon: mdi:candle
+                color: orange
+                vertical: false
+                tap_action:
+                  action: call-service
+                  service: script.govee_theme_warm_candlelight
+                icon_tap_action:
+                  action: call-service
+                  service: script.govee_theme_warm_candlelight
+                card_mod:
+                  style: |
+                    ha-card {
+                      background: rgba(249, 115, 22, 0.08) !important;
+                      border: 1px solid rgba(249, 115, 22, 0.22) !important;
+                      border-radius: 16px !important;
+                      backdrop-filter: blur(16px) !important;
+                      transition: all 0.25s ease !important;
+                    }
+                    ha-card:hover {
+                      background: rgba(249, 115, 22, 0.16) !important;
+                      border-color: rgba(249, 115, 22, 0.45) !important;
+                      box-shadow: 0 0 18px rgba(249, 115, 22, 0.25) !important;
+                    }
+                    ha-card:active { transform: scale(0.97) !important; }
+                    .secondary { display: none !important; }
+                    .primary { font-weight: 700 !important; font-size: 13.5px !important; }
+
+              - type: tile
+                entity: script.govee_theme_sunset_glow
+                name: "🌅 Sunset Glow"
+                icon: mdi:weather-sunset
+                color: amber
+                vertical: false
+                tap_action:
+                  action: call-service
+                  service: script.govee_theme_sunset_glow
+                icon_tap_action:
+                  action: call-service
+                  service: script.govee_theme_sunset_glow
+                card_mod:
+                  style: |
+                    ha-card {
+                      background: rgba(245, 158, 11, 0.08) !important;
+                      border: 1px solid rgba(245, 158, 11, 0.22) !important;
+                      border-radius: 16px !important;
+                      backdrop-filter: blur(16px) !important;
+                      transition: all 0.25s ease !important;
+                    }
+                    ha-card:hover {
+                      background: rgba(245, 158, 11, 0.16) !important;
+                      border-color: rgba(245, 158, 11, 0.45) !important;
+                      box-shadow: 0 0 18px rgba(245, 158, 11, 0.25) !important;
+                    }
+                    ha-card:active { transform: scale(0.97) !important; }
+                    .secondary { display: none !important; }
+                    .primary { font-weight: 700 !important; font-size: 13.5px !important; }
+
+              - type: tile
+                entity: script.govee_theme_cyberpunk_neon
+                name: "⚡ Cyberpunk Neon"
+                icon: mdi:palette-advanced
+                color: purple
+                vertical: false
+                tap_action:
+                  action: call-service
+                  service: script.govee_theme_cyberpunk_neon
+                icon_tap_action:
+                  action: call-service
+                  service: script.govee_theme_cyberpunk_neon
+                card_mod:
+                  style: |
+                    ha-card {
+                      background: rgba(168, 85, 247, 0.08) !important;
+                      border: 1px solid rgba(168, 85, 247, 0.22) !important;
+                      border-radius: 16px !important;
+                      backdrop-filter: blur(16px) !important;
+                      transition: all 0.25s ease !important;
+                    }
+                    ha-card:hover {
+                      background: rgba(168, 85, 247, 0.16) !important;
+                      border-color: rgba(168, 85, 247, 0.45) !important;
+                      box-shadow: 0 0 18px rgba(168, 85, 247, 0.25) !important;
+                    }
+                    ha-card:active { transform: scale(0.97) !important; }
+                    .secondary { display: none !important; }
+                    .primary { font-weight: 700 !important; font-size: 13.5px !important; }
+
+              - type: tile
+                entity: script.govee_theme_deep_ocean
+                name: "🌊 Nordic Ocean"
+                icon: mdi:waves
+                color: light-blue
+                vertical: false
+                tap_action:
+                  action: call-service
+                  service: script.govee_theme_deep_ocean
+                icon_tap_action:
+                  action: call-service
+                  service: script.govee_theme_deep_ocean
+                card_mod:
+                  style: |
+                    ha-card {
+                      background: rgba(14, 165, 233, 0.08) !important;
+                      border: 1px solid rgba(14, 165, 233, 0.22) !important;
+                      border-radius: 16px !important;
+                      backdrop-filter: blur(16px) !important;
+                      transition: all 0.25s ease !important;
+                    }
+                    ha-card:hover {
+                      background: rgba(14, 165, 233, 0.16) !important;
+                      border-color: rgba(14, 165, 233, 0.45) !important;
+                      box-shadow: 0 0 18px rgba(14, 165, 233, 0.25) !important;
+                    }
+                    ha-card:active { transform: scale(0.97) !important; }
+                    .secondary { display: none !important; }
+                    .primary { font-weight: 700 !important; font-size: 13.5px !important; }
+
+              - type: tile
+                entity: script.govee_theme_electric_mint
+                name: "🌿 Electric Mint"
+                icon: mdi:lightning-bolt
+                color: teal
+                vertical: false
+                tap_action:
+                  action: call-service
+                  service: script.govee_theme_electric_mint
+                icon_tap_action:
+                  action: call-service
+                  service: script.govee_theme_electric_mint
+                card_mod:
+                  style: |
+                    ha-card {
+                      background: rgba(16, 185, 129, 0.08) !important;
+                      border: 1px solid rgba(16, 185, 129, 0.22) !important;
+                      border-radius: 16px !important;
+                      backdrop-filter: blur(16px) !important;
+                      transition: all 0.25s ease !important;
+                    }
+                    ha-card:hover {
+                      background: rgba(16, 185, 129, 0.16) !important;
+                      border-color: rgba(16, 185, 129, 0.45) !important;
+                      box-shadow: 0 0 18px rgba(16, 185, 129, 0.25) !important;
+                    }
+                    ha-card:active { transform: scale(0.97) !important; }
+                    .secondary { display: none !important; }
+                    .primary { font-weight: 700 !important; font-size: 13.5px !important; }
+
+              - type: tile
+                entity: script.govee_theme_movie_mode
+                name: "🎬 Cinema Ambiance"
+                icon: mdi:movie-open
+                color: deep-purple
+                vertical: false
+                tap_action:
+                  action: call-service
+                  service: script.govee_theme_movie_mode
+                icon_tap_action:
+                  action: call-service
+                  service: script.govee_theme_movie_mode
+                card_mod:
+                  style: |
+                    ha-card {
+                      background: rgba(139, 92, 246, 0.08) !important;
+                      border: 1px solid rgba(139, 92, 246, 0.22) !important;
+                      border-radius: 16px !important;
+                      backdrop-filter: blur(16px) !important;
+                      transition: all 0.25s ease !important;
+                    }
+                    ha-card:hover {
+                      background: rgba(139, 92, 246, 0.16) !important;
+                      border-color: rgba(139, 92, 246, 0.45) !important;
+                      box-shadow: 0 0 18px rgba(139, 92, 246, 0.25) !important;
+                    }
+                    ha-card:active { transform: scale(0.97) !important; }
+                    .secondary { display: none !important; }
+                    .primary { font-weight: 700 !important; font-size: 13.5px !important; }
+
+              - type: tile
+                entity: script.govee_theme_candlelight_flicker
+                name: "🔥 Candlelight Effect"
+                icon: mdi:fire
+                color: red
+                vertical: false
+                tap_action:
+                  action: call-service
+                  service: script.govee_theme_candlelight_flicker
+                icon_tap_action:
+                  action: call-service
+                  service: script.govee_theme_candlelight_flicker
+                card_mod:
+                  style: |
+                    ha-card {
+                      background: rgba(239, 68, 68, 0.08) !important;
+                      border: 1px solid rgba(239, 68, 68, 0.22) !important;
+                      border-radius: 16px !important;
+                      backdrop-filter: blur(16px) !important;
+                      transition: all 0.25s ease !important;
+                    }
+                    ha-card:hover {
+                      background: rgba(239, 68, 68, 0.16) !important;
+                      border-color: rgba(239, 68, 68, 0.45) !important;
+                      box-shadow: 0 0 18px rgba(239, 68, 68, 0.25) !important;
+                    }
+                    ha-card:active { transform: scale(0.97) !important; }
+                    .secondary { display: none !important; }
+                    .primary { font-weight: 700 !important; font-size: 13.5px !important; }
 
       # SECTION 3: 🚪 FRONT PORCH
       - type: grid
