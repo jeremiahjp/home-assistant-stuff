@@ -15,8 +15,8 @@ class DbLogger {
     this.enabled = options.enabled !== false;
     this.host = options.host || process.env.PG_HOST || '192.168.68.84';
     this.port = Number(options.port || process.env.PG_PORT) || 5432;
-    this.user = options.user || process.env.PG_USER || 'postgres';
-    this.password = options.password || process.env.PG_PASSWORD || 'ha_postgres_secure_pass_2026';
+    this.user = options.user || process.env.PG_USER || 'emporia_writer';
+    this.password = options.password || process.env.PG_PASSWORD || 'emporia_write_secure_pass_2026';
     this.database = options.database || process.env.PG_DATABASE || 'emporia_energy';
 
     this.pool = null;
@@ -307,10 +307,10 @@ class DbLogger {
     this.lastRetentionCheck = now;
 
     try {
-      console.log('[DB Logger] Running 60-day rolling retention cleanup...');
-      const res1 = await this.pool.query("DELETE FROM circuit_energy_logs WHERE recorded_at < NOW() - INTERVAL '60 days';");
-      const res2 = await this.pool.query("DELETE FROM whole_home_energy_logs WHERE recorded_at < NOW() - INTERVAL '60 days';");
-      console.log('[DB Logger] 60-day cleanup finished. Removed ' + (res1.rowCount || 0) + ' circuit rows and ' + (res2.rowCount || 0) + ' whole-home rows.');
+      console.log('[DB Logger] Running 60-day rolling retention cleanup via secure purge function...');
+      const res = await this.pool.query("SELECT purge_expired_energy_logs(60);");
+      const deleted = res.rows && res.rows[0] ? (res.rows[0].purge_expired_energy_logs || 0) : 0;
+      console.log('[DB Logger] 60-day cleanup finished. Removed ' + deleted + ' expired rows.');
     } catch (err) {
       console.warn('[DB Logger] Retention purge warning: ' + err.message);
     }

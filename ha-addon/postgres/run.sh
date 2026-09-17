@@ -60,6 +60,55 @@ su-exec postgres psql -U postgres -d emporia_energy <<-EOSQL
     );
     CREATE INDEX IF NOT EXISTS idx_circuit_time ON circuit_energy_logs (circuit_name, recorded_at DESC);
     CREATE INDEX IF NOT EXISTS idx_time ON circuit_energy_logs (recorded_at DESC);
+
+    -- Provision restricted emporia_writer role
+    DO $$
+    BEGIN
+       IF NOT EXISTS (SELECT FROM pg_catalog.pg_roles WHERE rolname = 'emporia_writer') THEN
+          CREATE ROLE emporia_writer WITH LOGIN ENCRYPTED PASSWORD 'emporia_write_secure_pass_2026';
+       END IF;
+    END
+    $$;
+
+    REVOKE CONNECT ON DATABASE postgres FROM PUBLIC;
+    REVOKE CONNECT ON DATABASE homeassistant FROM PUBLIC;
+    GRANT CONNECT ON DATABASE homeassistant TO postgres;
+    GRANT CONNECT ON DATABASE postgres TO postgres;
+    GRANT CONNECT ON DATABASE emporia_energy TO emporia_writer;
+
+    GRANT USAGE ON SCHEMA public TO emporia_writer;
+    REVOKE ALL ON ALL TABLES IN SCHEMA public FROM emporia_writer;
+    GRANT SELECT, INSERT ON TABLE circuit_energy_logs TO emporia_writer;
+    GRANT SELECT, INSERT ON TABLE whole_home_energy_logs TO emporia_writer;
+    GRANT SELECT, INSERT, UPDATE ON TABLE daily_energy_summary TO emporia_writer;
+    GRANT USAGE, SELECT ON ALL SEQUENCES IN SCHEMA public TO emporia_writer;
+
+    CREATE OR REPLACE FUNCTION purge_expired_energy_logs(keep_days integer DEFAULT 60)
+    RETURNS integer
+    LANGUAGE plpgsql
+    SECURITY DEFINER
+    AS $func$
+    DECLARE
+        deleted_circuit_rows integer := 0;
+        deleted_home_rows integer := 0;
+        curr_deleted integer;
+    BEGIN
+        IF keep_days < 30 THEN
+            RAISE EXCEPTION 'Safety Violation: keep_days cannot be less than 30 days (requested: %)', keep_days;
+        END IF;
+
+        DELETE FROM circuit_energy_logs WHERE recorded_at < NOW() - (keep_days || ' days')::interval;
+        GET DIAGNOSTICS curr_deleted = ROW_COUNT;
+        deleted_circuit_rows := curr_deleted;
+
+        DELETE FROM whole_home_energy_logs WHERE recorded_at < NOW() - (keep_days || ' days')::interval;
+        GET DIAGNOSTICS curr_deleted = ROW_COUNT;
+        deleted_home_rows := curr_deleted;
+
+        RETURN deleted_circuit_rows + deleted_home_rows;
+    END;
+    $func$;
+    GRANT EXECUTE ON FUNCTION purge_expired_energy_logs(integer) TO emporia_writer;
 EOSQL
 
 # Stop background instance

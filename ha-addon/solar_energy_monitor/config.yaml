@@ -33,8 +33,8 @@ options:
   cps_meter_id: ""
   pg_host: "192.168.68.84"
   pg_port: 5432
-  pg_user: "postgres"
-  pg_pass: "ha_postgres_secure_pass_2026"
+  pg_user: "emporia_writer"
+  pg_pass: "emporia_write_secure_pass_2026"
   pg_database: "emporia_energy"
   pg_enabled: true
 schema:

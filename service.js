@@ -70,8 +70,8 @@ const dbLogger = new DbLogger({
   enabled: haOptions.pg_enabled !== false,
   host: haOptions.pg_host || process.env.PG_HOST || "192.168.68.84",
   port: Number(haOptions.pg_port || process.env.PG_PORT) || 5432,
-  user: haOptions.pg_user || process.env.PG_USER || "postgres",
-  password: haOptions.pg_password || haOptions.pg_pass || process.env.PG_PASSWORD || "ha_postgres_secure_pass_2026",
+  user: haOptions.pg_user || process.env.PG_USER || "emporia_writer",
+  password: haOptions.pg_password || haOptions.pg_pass || process.env.PG_PASSWORD || "emporia_write_secure_pass_2026",
   database: haOptions.pg_database || process.env.PG_DATABASE || "emporia_energy",
 });
 
