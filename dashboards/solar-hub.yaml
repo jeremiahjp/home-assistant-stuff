@@ -1524,6 +1524,12 @@ views:
                     color: "#a855f7"
                     state_entity: media_player.lg_oled
                     spec: "OLED65CXPUA"
+                  - entity: sensor.master_bedroom_soundbar_power
+                    name: Vizio 5.1.2 Surround System
+                    icon: mdi:speaker-multiple
+                    color: "#ec4899"
+                    state_entity: media_player.lg_oled
+                    spec: "M512a-H6 (Sub & Rears)"
                   - entity: sensor.master_bedroom_fan_power
                     name: Hunter Ceiling Fan
                     icon: mdi:fan
