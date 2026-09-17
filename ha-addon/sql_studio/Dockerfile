@@ -15,11 +15,7 @@ RUN apk add --no-cache \
 
 WORKDIR /app
 
-# Download official Adminer & Hydra dark theme
-RUN curl -fsSL https://github.com/vrana/adminer/releases/download/v4.8.1/adminer-4.8.1.php -o /app/adminer.php && \
-    curl -fsSL https://raw.githubusercontent.com/vrana/adminer/master/designs/hydra/adminer.css -o /app/adminer.css
-
-COPY index.php /app/index.php
+COPY adminer.php adminer.css index.php /app/
 COPY run.sh /run.sh
 RUN chmod +x /run.sh
 
