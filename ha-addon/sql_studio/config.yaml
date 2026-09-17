@@ -1,6 +1,6 @@
 name: "SQL Studio"
 description: "Interactive PostgreSQL Query & Database Management Studio in your Home Assistant sidebar"
-version: "1.0.1"
+version: "1.0.2"
 slug: "sql_studio"
 init: false
 arch:
