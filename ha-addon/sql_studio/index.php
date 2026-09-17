@@ -1,5 +1,9 @@
 <?php
 // SQL Studio - Adminer 6.1.0
+// Allow embedding in Home Assistant iframes (Tailscale & Local)
+header_remove("X-Frame-Options");
+header("Content-Security-Policy: frame-ancestors *;");
+
 if (!isset($_GET['pgsql'])) {
     $_GET['pgsql'] = '192.168.68.84:5432';
 }
