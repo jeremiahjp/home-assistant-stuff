@@ -23,12 +23,28 @@ views:
 
     # ── View-Level card_mod ──────────────────────────────────────────────
     card_mod:
-      style: |
-        hui-sections-view {
-          --ha-card-background: rgba(255,255,255,0.03);
-          --ha-card-border-color: rgba(255,255,255,0.06);
-          --ha-card-border-radius: 16px;
-        }
+      style:
+        hui-sections-view$: |
+          .container {
+            row-gap: 24px !important;
+            column-gap: 24px !important;
+          }
+          hui-section {
+            background: rgba(15, 23, 42, 0.50) !important;
+            border: 1px solid rgba(255, 255, 255, 0.10) !important;
+            border-radius: 22px !important;
+            padding: 14px 16px !important;
+            box-sizing: border-box !important;
+            backdrop-filter: blur(16px) !important;
+            -webkit-backdrop-filter: blur(16px) !important;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.25) !important;
+          }
+        .: |
+          hui-sections-view {
+            --ha-card-background: rgba(255,255,255,0.03);
+            --ha-card-border-color: rgba(255,255,255,0.06);
+            --ha-card-border-radius: 16px;
+          }
 
     sections:
       # ════════════════════════════════════════════════════════════════════

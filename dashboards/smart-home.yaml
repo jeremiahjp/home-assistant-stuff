@@ -11,12 +11,28 @@ views:
     max_columns: 3
     background: radial-gradient(ellipse at 25% 0%, rgba(251,191,36,0.07) 0%, transparent 50%), radial-gradient(ellipse at 75% 100%, rgba(168,85,247,0.05) 0%, transparent 50%), radial-gradient(ellipse at 50% 50%, rgba(245,158,11,0.03) 0%, transparent 60%), linear-gradient(180deg, #09090f 0%, #0f0f18 30%, #0c0c14 70%, #060610 100%) fixed
     card_mod:
-      style: |
-        hui-sections-view {
-          --ha-card-background: rgba(15, 23, 42, 0.75);
-          --ha-card-border-color: rgba(255, 255, 255, 0.08);
-          --ha-card-border-radius: 18px;
-        }
+      style:
+        hui-sections-view$: |
+          .container {
+            row-gap: 24px !important;
+            column-gap: 24px !important;
+          }
+          hui-section {
+            background: rgba(15, 23, 42, 0.50) !important;
+            border: 1px solid rgba(255, 255, 255, 0.10) !important;
+            border-radius: 22px !important;
+            padding: 14px 16px !important;
+            box-sizing: border-box !important;
+            backdrop-filter: blur(16px) !important;
+            -webkit-backdrop-filter: blur(16px) !important;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.25) !important;
+          }
+        .: |
+          hui-sections-view {
+            --ha-card-background: rgba(15, 23, 42, 0.75);
+            --ha-card-border-color: rgba(255, 255, 255, 0.08);
+            --ha-card-border-radius: 18px;
+          }
     sections:
       # SECTION 1: MASTER LIGHTING CONTROLS
       - type: grid
@@ -2222,12 +2238,28 @@ views:
     max_columns: 3
     background: radial-gradient(ellipse at 25% 0%, rgba(56,189,248,0.07) 0%, transparent 50%), radial-gradient(ellipse at 75% 100%, rgba(168,85,247,0.05) 0%, transparent 50%), linear-gradient(180deg, #09090f 0%, #0f0f18 30%, #0c0c14 70%, #060610 100%) fixed
     card_mod:
-      style: |
-        hui-sections-view {
-          --ha-card-background: rgba(15, 23, 42, 0.75);
-          --ha-card-border-color: rgba(255, 255, 255, 0.08);
-          --ha-card-border-radius: 18px;
-        }
+      style:
+        hui-sections-view$: |
+          .container {
+            row-gap: 24px !important;
+            column-gap: 24px !important;
+          }
+          hui-section {
+            background: rgba(15, 23, 42, 0.50) !important;
+            border: 1px solid rgba(255, 255, 255, 0.10) !important;
+            border-radius: 22px !important;
+            padding: 14px 16px !important;
+            box-sizing: border-box !important;
+            backdrop-filter: blur(16px) !important;
+            -webkit-backdrop-filter: blur(16px) !important;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.25) !important;
+          }
+        .: |
+          hui-sections-view {
+            --ha-card-background: rgba(15, 23, 42, 0.75);
+            --ha-card-border-color: rgba(255, 255, 255, 0.08);
+            --ha-card-border-radius: 18px;
+          }
     sections:
       # SECTION 1: 🚪 FRONT DOOR & ENTRY
       - type: grid
@@ -2586,12 +2618,28 @@ views:
     max_columns: 2
     background: radial-gradient(ellipse at 25% 0%, rgba(239,68,68,0.06) 0%, transparent 50%), radial-gradient(ellipse at 75% 100%, rgba(56,189,248,0.06) 0%, transparent 50%), linear-gradient(180deg, #09090f 0%, #0f0f18 30%, #0c0c14 70%, #060610 100%) fixed
     card_mod:
-      style: |
-        hui-sections-view {
-          --ha-card-background: rgba(15, 23, 42, 0.75);
-          --ha-card-border-color: rgba(255, 255, 255, 0.08);
-          --ha-card-border-radius: 18px;
-        }
+      style:
+        hui-sections-view$: |
+          .container {
+            row-gap: 24px !important;
+            column-gap: 24px !important;
+          }
+          hui-section {
+            background: rgba(15, 23, 42, 0.50) !important;
+            border: 1px solid rgba(255, 255, 255, 0.10) !important;
+            border-radius: 22px !important;
+            padding: 14px 16px !important;
+            box-sizing: border-box !important;
+            backdrop-filter: blur(16px) !important;
+            -webkit-backdrop-filter: blur(16px) !important;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.25) !important;
+          }
+        .: |
+          hui-sections-view {
+            --ha-card-background: rgba(15, 23, 42, 0.75);
+            --ha-card-border-color: rgba(255, 255, 255, 0.08);
+            --ha-card-border-radius: 18px;
+          }
     sections:
       # SECTION 1: 📹 DOORBELL LIVE SURVEILLANCE & ACCESS
       - type: grid
@@ -2821,12 +2869,28 @@ views:
     max_columns: 2
     background: radial-gradient(ellipse at 25% 0%, rgba(56,189,248,0.07) 0%, transparent 50%), linear-gradient(180deg, #09090f 0%, #0f0f18 30%, #0c0c14 70%, #060610 100%) fixed
     card_mod:
-      style: |
-        hui-sections-view {
-          --ha-card-background: rgba(15, 23, 42, 0.75);
-          --ha-card-border-color: rgba(255, 255, 255, 0.08);
-          --ha-card-border-radius: 18px;
-        }
+      style:
+        hui-sections-view$: |
+          .container {
+            row-gap: 24px !important;
+            column-gap: 24px !important;
+          }
+          hui-section {
+            background: rgba(15, 23, 42, 0.50) !important;
+            border: 1px solid rgba(255, 255, 255, 0.10) !important;
+            border-radius: 22px !important;
+            padding: 14px 16px !important;
+            box-sizing: border-box !important;
+            backdrop-filter: blur(16px) !important;
+            -webkit-backdrop-filter: blur(16px) !important;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.25) !important;
+          }
+        .: |
+          hui-sections-view {
+            --ha-card-background: rgba(15, 23, 42, 0.75);
+            --ha-card-border-color: rgba(255, 255, 255, 0.08);
+            --ha-card-border-radius: 18px;
+          }
     sections:
       # SECTION 2: 🚗 GARAGE
       - type: grid
@@ -3282,12 +3346,28 @@ views:
     max_columns: 2
     background: radial-gradient(ellipse at 25% 0%, rgba(34,197,94,0.07) 0%, transparent 50%), linear-gradient(180deg, #09090f 0%, #0f0f18 30%, #0c0c14 70%, #060610 100%) fixed
     card_mod:
-      style: |
-        hui-sections-view {
-          --ha-card-background: rgba(15, 23, 42, 0.75);
-          --ha-card-border-color: rgba(255, 255, 255, 0.08);
-          --ha-card-border-radius: 18px;
-        }
+      style:
+        hui-sections-view$: |
+          .container {
+            row-gap: 24px !important;
+            column-gap: 24px !important;
+          }
+          hui-section {
+            background: rgba(15, 23, 42, 0.50) !important;
+            border: 1px solid rgba(255, 255, 255, 0.10) !important;
+            border-radius: 22px !important;
+            padding: 14px 16px !important;
+            box-sizing: border-box !important;
+            backdrop-filter: blur(16px) !important;
+            -webkit-backdrop-filter: blur(16px) !important;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.25) !important;
+          }
+        .: |
+          hui-sections-view {
+            --ha-card-background: rgba(15, 23, 42, 0.75);
+            --ha-card-border-color: rgba(255, 255, 255, 0.08);
+            --ha-card-border-radius: 18px;
+          }
     sections:
       # SECTION 3: 🚪 FRONT PORCH
       - type: grid
@@ -3451,12 +3531,28 @@ views:
     max_columns: 2
     background: radial-gradient(ellipse at 25% 0%, rgba(168,85,247,0.07) 0%, transparent 50%), linear-gradient(180deg, #09090f 0%, #0f0f18 30%, #0c0c14 70%, #060610 100%) fixed
     card_mod:
-      style: |
-        hui-sections-view {
-          --ha-card-background: rgba(15, 23, 42, 0.75);
-          --ha-card-border-color: rgba(255, 255, 255, 0.08);
-          --ha-card-border-radius: 18px;
-        }
+      style:
+        hui-sections-view$: |
+          .container {
+            row-gap: 24px !important;
+            column-gap: 24px !important;
+          }
+          hui-section {
+            background: rgba(15, 23, 42, 0.50) !important;
+            border: 1px solid rgba(255, 255, 255, 0.10) !important;
+            border-radius: 22px !important;
+            padding: 14px 16px !important;
+            box-sizing: border-box !important;
+            backdrop-filter: blur(16px) !important;
+            -webkit-backdrop-filter: blur(16px) !important;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.25) !important;
+          }
+        .: |
+          hui-sections-view {
+            --ha-card-background: rgba(15, 23, 42, 0.75);
+            --ha-card-border-color: rgba(255, 255, 255, 0.08);
+            --ha-card-border-radius: 18px;
+          }
     sections:
       # SECTION 4: 💻 OFFICE (PHILIPS HUE BULBS)
       - type: grid
@@ -4036,12 +4132,28 @@ views:
     max_columns: 2
     background: radial-gradient(ellipse at 25% 0%, rgba(251,191,36,0.07) 0%, transparent 50%), linear-gradient(180deg, #09090f 0%, #0f0f18 30%, #0c0c14 70%, #060610 100%) fixed
     card_mod:
-      style: |
-        hui-sections-view {
-          --ha-card-background: rgba(15, 23, 42, 0.75);
-          --ha-card-border-color: rgba(255, 255, 255, 0.08);
-          --ha-card-border-radius: 18px;
-        }
+      style:
+        hui-sections-view$: |
+          .container {
+            row-gap: 24px !important;
+            column-gap: 24px !important;
+          }
+          hui-section {
+            background: rgba(15, 23, 42, 0.50) !important;
+            border: 1px solid rgba(255, 255, 255, 0.10) !important;
+            border-radius: 22px !important;
+            padding: 14px 16px !important;
+            box-sizing: border-box !important;
+            backdrop-filter: blur(16px) !important;
+            -webkit-backdrop-filter: blur(16px) !important;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.25) !important;
+          }
+        .: |
+          hui-sections-view {
+            --ha-card-background: rgba(15, 23, 42, 0.75);
+            --ha-card-border-color: rgba(255, 255, 255, 0.08);
+            --ha-card-border-radius: 18px;
+          }
     sections:
       # SECTION 5: 🍽️ DINING ROOM
       - type: grid
@@ -4582,12 +4694,28 @@ views:
     max_columns: 2
     background: radial-gradient(ellipse at 25% 0%, rgba(244,63,94,0.07) 0%, transparent 50%), linear-gradient(180deg, #09090f 0%, #0f0f18 30%, #0c0c14 70%, #060610 100%) fixed
     card_mod:
-      style: |
-        hui-sections-view {
-          --ha-card-background: rgba(15, 23, 42, 0.75);
-          --ha-card-border-color: rgba(255, 255, 255, 0.08);
-          --ha-card-border-radius: 18px;
-        }
+      style:
+        hui-sections-view$: |
+          .container {
+            row-gap: 24px !important;
+            column-gap: 24px !important;
+          }
+          hui-section {
+            background: rgba(15, 23, 42, 0.50) !important;
+            border: 1px solid rgba(255, 255, 255, 0.10) !important;
+            border-radius: 22px !important;
+            padding: 14px 16px !important;
+            box-sizing: border-box !important;
+            backdrop-filter: blur(16px) !important;
+            -webkit-backdrop-filter: blur(16px) !important;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.25) !important;
+          }
+        .: |
+          hui-sections-view {
+            --ha-card-background: rgba(15, 23, 42, 0.75);
+            --ha-card-border-color: rgba(255, 255, 255, 0.08);
+            --ha-card-border-radius: 18px;
+          }
     sections:
       # SECTION 6: 🛏️ MASTER BEDROOM
       - type: grid
@@ -4778,12 +4906,28 @@ views:
     max_columns: 2
     background: radial-gradient(ellipse at 25% 0%, rgba(6,182,212,0.07) 0%, transparent 50%), linear-gradient(180deg, #09090f 0%, #0f0f18 30%, #0c0c14 70%, #060610 100%) fixed
     card_mod:
-      style: |
-        hui-sections-view {
-          --ha-card-background: rgba(15, 23, 42, 0.75);
-          --ha-card-border-color: rgba(255, 255, 255, 0.08);
-          --ha-card-border-radius: 18px;
-        }
+      style:
+        hui-sections-view$: |
+          .container {
+            row-gap: 24px !important;
+            column-gap: 24px !important;
+          }
+          hui-section {
+            background: rgba(15, 23, 42, 0.50) !important;
+            border: 1px solid rgba(255, 255, 255, 0.10) !important;
+            border-radius: 22px !important;
+            padding: 14px 16px !important;
+            box-sizing: border-box !important;
+            backdrop-filter: blur(16px) !important;
+            -webkit-backdrop-filter: blur(16px) !important;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.25) !important;
+          }
+        .: |
+          hui-sections-view {
+            --ha-card-background: rgba(15, 23, 42, 0.75);
+            --ha-card-border-color: rgba(255, 255, 255, 0.08);
+            --ha-card-border-radius: 18px;
+          }
     sections:
       # SECTION 7: 🛁 MASTER BATHROOM
       - type: grid
@@ -4946,12 +5090,28 @@ views:
     max_columns: 2
     background: radial-gradient(ellipse at 25% 0%, rgba(16,185,129,0.07) 0%, transparent 50%), linear-gradient(180deg, #09090f 0%, #0f0f18 30%, #0c0c14 70%, #060610 100%) fixed
     card_mod:
-      style: |
-        hui-sections-view {
-          --ha-card-background: rgba(15, 23, 42, 0.75);
-          --ha-card-border-color: rgba(255, 255, 255, 0.08);
-          --ha-card-border-radius: 18px;
-        }
+      style:
+        hui-sections-view$: |
+          .container {
+            row-gap: 24px !important;
+            column-gap: 24px !important;
+          }
+          hui-section {
+            background: rgba(15, 23, 42, 0.50) !important;
+            border: 1px solid rgba(255, 255, 255, 0.10) !important;
+            border-radius: 22px !important;
+            padding: 14px 16px !important;
+            box-sizing: border-box !important;
+            backdrop-filter: blur(16px) !important;
+            -webkit-backdrop-filter: blur(16px) !important;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.25) !important;
+          }
+        .: |
+          hui-sections-view {
+            --ha-card-background: rgba(15, 23, 42, 0.75);
+            --ha-card-border-color: rgba(255, 255, 255, 0.08);
+            --ha-card-border-radius: 18px;
+          }
     sections:
       # SECTION 8: 🌳 BACKYARD & PATIO
       - type: grid
