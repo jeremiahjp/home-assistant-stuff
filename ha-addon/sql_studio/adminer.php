@@ -4254,7 +4254,7 @@ as$Zm){foreach($Zm
 as$E){if($E!==null)return
 true;}}}return
 false;}function
-page_headers(){header("Content-Type: text/html; charset=utf-8");header("Cache-Control: no-cache");// header("X-Frame-Options: deny");header("X-XSS-Protection: 0");header("X-Content-Type-Options: nosniff");header("Referrer-Policy: origin-when-cross-origin");foreach(adminer()->csp(csp())as$ec){$Ke=array();foreach($ec
+page_headers(){header("Content-Type: text/html; charset=utf-8");header("Cache-Control: no-cache");/* header("X-Frame-Options: deny"); */header("X-XSS-Protection: 0");header("X-Content-Type-Options: nosniff");header("Referrer-Policy: origin-when-cross-origin");foreach(adminer()->csp(csp())as$ec){$Ke=array();foreach($ec
 as$x=>$W)$Ke[]="$x $W";header("Content-Security-Policy: ".implode("; ",$Ke));}adminer()->headers();}function
 csp(){return
 array(array("script-src"=>"'self' 'unsafe-inline' 'nonce-".get_nonce()."' 'strict-dynamic'","connect-src"=>"'self' https://www.adminer.org","frame-src"=>"https://www.adminer.org","object-src"=>"'none'","base-uri"=>"'none'","form-action"=>"'self'",),);}function
