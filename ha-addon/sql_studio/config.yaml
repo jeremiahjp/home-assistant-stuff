@@ -1,0 +1,26 @@
+name: "SQL Studio"
+description: "Interactive PostgreSQL Query & Database Management Studio in your Home Assistant sidebar"
+version: "1.0.0"
+slug: "sql_studio"
+init: false
+arch:
+  - amd64
+  - aarch64
+startup: services
+boot: auto
+ingress: true
+ingress_port: 8080
+panel_icon: "mdi:database-search"
+panel_title: "SQL Studio"
+options:
+  db_host: "192.168.68.84"
+  db_port: 5432
+  db_user: "postgres"
+  db_password: "ha_postgres_secure_pass_2026"
+  default_db: "emporia_energy"
+schema:
+  db_host: str
+  db_port: int
+  db_user: str
+  db_password: password
+  default_db: str
