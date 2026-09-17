@@ -145,19 +145,9 @@ class DbLogger {
       if (!prev) {
         shouldLog = true;
       } else {
-        const wattDiff = Math.abs(watts - prev.watts);
         const timeDiff = now - prev.time;
-
-        // Deadband filter criteria:
-        // 1. Power change >= 5 Watts
-        // 2. State transition between 0W (idle) and non-zero
-        // 3. Heartbeat: 120 seconds have elapsed with no change
-        if (
-          wattDiff >= 5 ||
-          (watts === 0 && prev.watts !== 0) ||
-          (watts !== 0 && prev.watts === 0) ||
-          timeDiff >= 120000
-        ) {
+        // Write on ANY change (1:1 with Home Assistant SQLite behavior) or 120s heartbeat
+        if (watts !== prev.watts || timeDiff >= 120000) {
           shouldLog = true;
         }
       }
@@ -223,11 +213,14 @@ class DbLogger {
     if (!this.wholeHomeState) {
       shouldLog = true;
     } else {
-      const solarDiff = Math.abs(solarW - this.wholeHomeState.solar);
-      const houseDiff = Math.abs(houseW - this.wholeHomeState.house);
       const timeDiff = now - this.wholeHomeState.time;
-
-      if (solarDiff >= 25 || houseDiff >= 25 || timeDiff >= 120000) {
+      // Write on any whole-home power change or 120s heartbeat
+      if (
+        solarW !== this.wholeHomeState.solar ||
+        houseW !== this.wholeHomeState.house ||
+        gridW !== this.wholeHomeState.grid ||
+        timeDiff >= 120000
+      ) {
         shouldLog = true;
       }
     }
