@@ -180,7 +180,7 @@ views:
               rows: auto
             cards:
               - type: tile
-                entity: light.garage_left
+                entity: light.garage_lights
                 name: "🚗 Garage"
                 icon: mdi:garage
                 vertical: false
@@ -188,14 +188,16 @@ views:
                   action: navigate
                   navigation_path: /smart-home/garage
                 icon_tap_action:
-                  action: toggle
+                  action: call-service
+                  service: script.toggle_garage_lights
                 card_mod:
                   style: |
                     ha-card {
-                      {% if is_state('light.garage_left', 'on') or is_state('light.garage_right', 'on') %}
-                        background: rgba(56, 189, 248, 0.14) !important;
-                        border: 1px solid rgba(56, 189, 248, 0.40) !important;
-                        box-shadow: 0 0 20px rgba(56, 189, 248, 0.18) !important;
+                      {% if is_state('light.garage_lights', 'on') %}
+                        {% set rgb = state_attr('light.garage_lights', 'rgb_color') or [56, 189, 248] %}
+                        background: rgba({{ rgb[0] }}, {{ rgb[1] }}, {{ rgb[2] }}, 0.14) !important;
+                        border: 1px solid rgba({{ rgb[0] }}, {{ rgb[1] }}, {{ rgb[2] }}, 0.40) !important;
+                        box-shadow: 0 0 20px rgba({{ rgb[0] }}, {{ rgb[1] }}, {{ rgb[2] }}, 0.18) !important;
                       {% else %}
                         background: rgba(15, 23, 42, 0.75) !important;
                         border: 1px solid rgba(255, 255, 255, 0.08) !important;
@@ -354,6 +356,269 @@ views:
           - type: heading
             heading: "🚗  Garage"
             icon: mdi:garage-open
+          - type: heading
+            heading: All Garage Lights
+            heading_style: subtitle
+          - type: tile
+            entity: light.garage_lights
+            name: "🚗 All Garage Lights"
+            icon: mdi:garage-open-variant
+            vertical: false
+            tap_action:
+              action: more-info
+            icon_tap_action:
+              action: call-service
+              service: script.toggle_garage_lights
+            features:
+              - type: toggle
+              - type: light-brightness
+              - type: light-color-temp
+            card_mod:
+              style: |
+                ha-card {
+                  {% if is_state('light.garage_lights', 'on') %}
+                    {% set rgb = state_attr('light.garage_lights', 'rgb_color') or [56, 189, 248] %}
+                    background: rgba({{ rgb[0] }}, {{ rgb[1] }}, {{ rgb[2] }}, 0.12) !important;
+                    border: 1px solid rgba({{ rgb[0] }}, {{ rgb[1] }}, {{ rgb[2] }}, 0.35) !important;
+                    box-shadow: 0 0 24px rgba({{ rgb[0] }}, {{ rgb[1] }}, {{ rgb[2] }}, 0.18), 0 4px 16px rgba(0, 0, 0, 0.3) !important;
+                  {% else %}
+                    background: rgba(15, 23, 42, 0.75) !important;
+                    border: 1px solid rgba(255, 255, 255, 0.08) !important;
+                    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2) !important;
+                  {% endif %}
+                  border-radius: 18px !important;
+                  backdrop-filter: blur(16px) !important;
+                  transition: all 0.35s ease !important;
+                }
+          - type: heading
+            heading: Color & Ambiance Themes
+            heading_style: subtitle
+          - type: grid
+            columns: 2
+            square: false
+            cards:
+              - type: tile
+                entity: script.garage_theme_crisp_daylight
+                name: "☀️ Daylight"
+                icon: mdi:white-balance-sunny
+                color: light-blue
+                vertical: false
+                tap_action:
+                  action: call-service
+                  service: script.garage_theme_crisp_daylight
+                icon_tap_action:
+                  action: call-service
+                  service: script.garage_theme_crisp_daylight
+                card_mod:
+                  style: |
+                    ha-card {
+                      background: rgba(56, 189, 248, 0.08) !important;
+                      border: 1px solid rgba(56, 189, 248, 0.22) !important;
+                      border-radius: 16px !important;
+                      backdrop-filter: blur(16px) !important;
+                      transition: all 0.25s ease !important;
+                    }
+                    ha-card:hover {
+                      background: rgba(56, 189, 248, 0.16) !important;
+                      border-color: rgba(56, 189, 248, 0.45) !important;
+                      box-shadow: 0 0 18px rgba(56, 189, 248, 0.25) !important;
+                    }
+                    ha-card:active {
+                      transform: scale(0.97) !important;
+                    }
+                    .secondary {
+                      display: none !important;
+                    }
+                    .primary {
+                      font-weight: 700 !important;
+                      font-size: 13.5px !important;
+                    }
+
+              - type: tile
+                entity: script.garage_theme_warm_candlelight
+                name: "🕯️ Warm Ambient"
+                icon: mdi:candle
+                color: orange
+                vertical: false
+                tap_action:
+                  action: call-service
+                  service: script.garage_theme_warm_candlelight
+                icon_tap_action:
+                  action: call-service
+                  service: script.garage_theme_warm_candlelight
+                card_mod:
+                  style: |
+                    ha-card {
+                      background: rgba(249, 115, 22, 0.08) !important;
+                      border: 1px solid rgba(249, 115, 22, 0.22) !important;
+                      border-radius: 16px !important;
+                      backdrop-filter: blur(16px) !important;
+                      transition: all 0.25s ease !important;
+                    }
+                    ha-card:hover {
+                      background: rgba(249, 115, 22, 0.16) !important;
+                      border-color: rgba(249, 115, 22, 0.45) !important;
+                      box-shadow: 0 0 18px rgba(249, 115, 22, 0.25) !important;
+                    }
+                    ha-card:active {
+                      transform: scale(0.97) !important;
+                    }
+                    .secondary {
+                      display: none !important;
+                    }
+                    .primary {
+                      font-weight: 700 !important;
+                      font-size: 13.5px !important;
+                    }
+
+              - type: tile
+                entity: script.garage_theme_motorsport_red
+                name: "🏎️ Motorsport"
+                icon: mdi:car-sports
+                color: red
+                vertical: false
+                tap_action:
+                  action: call-service
+                  service: script.garage_theme_motorsport_red
+                icon_tap_action:
+                  action: call-service
+                  service: script.garage_theme_motorsport_red
+                card_mod:
+                  style: |
+                    ha-card {
+                      background: rgba(239, 68, 68, 0.08) !important;
+                      border: 1px solid rgba(239, 68, 68, 0.22) !important;
+                      border-radius: 16px !important;
+                      backdrop-filter: blur(16px) !important;
+                      transition: all 0.25s ease !important;
+                    }
+                    ha-card:hover {
+                      background: rgba(239, 68, 68, 0.16) !important;
+                      border-color: rgba(239, 68, 68, 0.45) !important;
+                      box-shadow: 0 0 18px rgba(239, 68, 68, 0.25) !important;
+                    }
+                    ha-card:active {
+                      transform: scale(0.97) !important;
+                    }
+                    .secondary {
+                      display: none !important;
+                    }
+                    .primary {
+                      font-weight: 700 !important;
+                      font-size: 13.5px !important;
+                    }
+
+              - type: tile
+                entity: script.garage_theme_cyberpunk_neon
+                name: "⚡ Cyberpunk"
+                icon: mdi:car-electric
+                color: pink
+                vertical: false
+                tap_action:
+                  action: call-service
+                  service: script.garage_theme_cyberpunk_neon
+                icon_tap_action:
+                  action: call-service
+                  service: script.garage_theme_cyberpunk_neon
+                card_mod:
+                  style: |
+                    ha-card {
+                      background: rgba(244, 114, 182, 0.08) !important;
+                      border: 1px solid rgba(244, 114, 182, 0.22) !important;
+                      border-radius: 16px !important;
+                      backdrop-filter: blur(16px) !important;
+                      transition: all 0.25s ease !important;
+                    }
+                    ha-card:hover {
+                      background: rgba(244, 114, 182, 0.16) !important;
+                      border-color: rgba(244, 114, 182, 0.45) !important;
+                      box-shadow: 0 0 18px rgba(244, 114, 182, 0.25) !important;
+                    }
+                    ha-card:active {
+                      transform: scale(0.97) !important;
+                    }
+                    .secondary {
+                      display: none !important;
+                    }
+                    .primary {
+                      font-weight: 700 !important;
+                      font-size: 13.5px !important;
+                    }
+
+              - type: tile
+                entity: script.garage_theme_midnight_blue
+                name: "🌌 Midnight"
+                icon: mdi:weather-night
+                color: blue
+                vertical: false
+                tap_action:
+                  action: call-service
+                  service: script.garage_theme_midnight_blue
+                icon_tap_action:
+                  action: call-service
+                  service: script.garage_theme_midnight_blue
+                card_mod:
+                  style: |
+                    ha-card {
+                      background: rgba(59, 130, 246, 0.08) !important;
+                      border: 1px solid rgba(59, 130, 246, 0.22) !important;
+                      border-radius: 16px !important;
+                      backdrop-filter: blur(16px) !important;
+                      transition: all 0.25s ease !important;
+                    }
+                    ha-card:hover {
+                      background: rgba(59, 130, 246, 0.16) !important;
+                      border-color: rgba(59, 130, 246, 0.45) !important;
+                      box-shadow: 0 0 18px rgba(59, 130, 246, 0.25) !important;
+                    }
+                    ha-card:active {
+                      transform: scale(0.97) !important;
+                    }
+                    .secondary {
+                      display: none !important;
+                    }
+                    .primary {
+                      font-weight: 700 !important;
+                      font-size: 13.5px !important;
+                    }
+
+              - type: tile
+                entity: script.garage_theme_electric_mint
+                name: "⚡ Electric Mint"
+                icon: mdi:lightning-bolt
+                color: teal
+                vertical: false
+                tap_action:
+                  action: call-service
+                  service: script.garage_theme_electric_mint
+                icon_tap_action:
+                  action: call-service
+                  service: script.garage_theme_electric_mint
+                card_mod:
+                  style: |
+                    ha-card {
+                      background: rgba(16, 185, 129, 0.08) !important;
+                      border: 1px solid rgba(16, 185, 129, 0.22) !important;
+                      border-radius: 16px !important;
+                      backdrop-filter: blur(16px) !important;
+                      transition: all 0.25s ease !important;
+                    }
+                    ha-card:hover {
+                      background: rgba(16, 185, 129, 0.16) !important;
+                      border-color: rgba(16, 185, 129, 0.45) !important;
+                      box-shadow: 0 0 18px rgba(16, 185, 129, 0.25) !important;
+                    }
+                    ha-card:active {
+                      transform: scale(0.97) !important;
+                    }
+                    .secondary {
+                      display: none !important;
+                    }
+                    .primary {
+                      font-weight: 700 !important;
+                      font-size: 13.5px !important;
+                    }
+
           - type: heading
             heading: Overhead Bay Fixtures
             heading_style: subtitle
@@ -2260,6 +2525,269 @@ views:
           - type: heading
             heading: "🚗  Garage"
             icon: mdi:garage-open
+          - type: heading
+            heading: All Garage Lights
+            heading_style: subtitle
+          - type: tile
+            entity: light.garage_lights
+            name: "🚗 All Garage Lights"
+            icon: mdi:garage-open-variant
+            vertical: false
+            tap_action:
+              action: more-info
+            icon_tap_action:
+              action: call-service
+              service: script.toggle_garage_lights
+            features:
+              - type: toggle
+              - type: light-brightness
+              - type: light-color-temp
+            card_mod:
+              style: |
+                ha-card {
+                  {% if is_state('light.garage_lights', 'on') %}
+                    {% set rgb = state_attr('light.garage_lights', 'rgb_color') or [56, 189, 248] %}
+                    background: rgba({{ rgb[0] }}, {{ rgb[1] }}, {{ rgb[2] }}, 0.12) !important;
+                    border: 1px solid rgba({{ rgb[0] }}, {{ rgb[1] }}, {{ rgb[2] }}, 0.35) !important;
+                    box-shadow: 0 0 24px rgba({{ rgb[0] }}, {{ rgb[1] }}, {{ rgb[2] }}, 0.18), 0 4px 16px rgba(0, 0, 0, 0.3) !important;
+                  {% else %}
+                    background: rgba(15, 23, 42, 0.75) !important;
+                    border: 1px solid rgba(255, 255, 255, 0.08) !important;
+                    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2) !important;
+                  {% endif %}
+                  border-radius: 18px !important;
+                  backdrop-filter: blur(16px) !important;
+                  transition: all 0.35s ease !important;
+                }
+          - type: heading
+            heading: Color & Ambiance Themes
+            heading_style: subtitle
+          - type: grid
+            columns: 2
+            square: false
+            cards:
+              - type: tile
+                entity: script.garage_theme_crisp_daylight
+                name: "☀️ Daylight"
+                icon: mdi:white-balance-sunny
+                color: light-blue
+                vertical: false
+                tap_action:
+                  action: call-service
+                  service: script.garage_theme_crisp_daylight
+                icon_tap_action:
+                  action: call-service
+                  service: script.garage_theme_crisp_daylight
+                card_mod:
+                  style: |
+                    ha-card {
+                      background: rgba(56, 189, 248, 0.08) !important;
+                      border: 1px solid rgba(56, 189, 248, 0.22) !important;
+                      border-radius: 16px !important;
+                      backdrop-filter: blur(16px) !important;
+                      transition: all 0.25s ease !important;
+                    }
+                    ha-card:hover {
+                      background: rgba(56, 189, 248, 0.16) !important;
+                      border-color: rgba(56, 189, 248, 0.45) !important;
+                      box-shadow: 0 0 18px rgba(56, 189, 248, 0.25) !important;
+                    }
+                    ha-card:active {
+                      transform: scale(0.97) !important;
+                    }
+                    .secondary {
+                      display: none !important;
+                    }
+                    .primary {
+                      font-weight: 700 !important;
+                      font-size: 13.5px !important;
+                    }
+
+              - type: tile
+                entity: script.garage_theme_warm_candlelight
+                name: "🕯️ Warm Ambient"
+                icon: mdi:candle
+                color: orange
+                vertical: false
+                tap_action:
+                  action: call-service
+                  service: script.garage_theme_warm_candlelight
+                icon_tap_action:
+                  action: call-service
+                  service: script.garage_theme_warm_candlelight
+                card_mod:
+                  style: |
+                    ha-card {
+                      background: rgba(249, 115, 22, 0.08) !important;
+                      border: 1px solid rgba(249, 115, 22, 0.22) !important;
+                      border-radius: 16px !important;
+                      backdrop-filter: blur(16px) !important;
+                      transition: all 0.25s ease !important;
+                    }
+                    ha-card:hover {
+                      background: rgba(249, 115, 22, 0.16) !important;
+                      border-color: rgba(249, 115, 22, 0.45) !important;
+                      box-shadow: 0 0 18px rgba(249, 115, 22, 0.25) !important;
+                    }
+                    ha-card:active {
+                      transform: scale(0.97) !important;
+                    }
+                    .secondary {
+                      display: none !important;
+                    }
+                    .primary {
+                      font-weight: 700 !important;
+                      font-size: 13.5px !important;
+                    }
+
+              - type: tile
+                entity: script.garage_theme_motorsport_red
+                name: "🏎️ Motorsport"
+                icon: mdi:car-sports
+                color: red
+                vertical: false
+                tap_action:
+                  action: call-service
+                  service: script.garage_theme_motorsport_red
+                icon_tap_action:
+                  action: call-service
+                  service: script.garage_theme_motorsport_red
+                card_mod:
+                  style: |
+                    ha-card {
+                      background: rgba(239, 68, 68, 0.08) !important;
+                      border: 1px solid rgba(239, 68, 68, 0.22) !important;
+                      border-radius: 16px !important;
+                      backdrop-filter: blur(16px) !important;
+                      transition: all 0.25s ease !important;
+                    }
+                    ha-card:hover {
+                      background: rgba(239, 68, 68, 0.16) !important;
+                      border-color: rgba(239, 68, 68, 0.45) !important;
+                      box-shadow: 0 0 18px rgba(239, 68, 68, 0.25) !important;
+                    }
+                    ha-card:active {
+                      transform: scale(0.97) !important;
+                    }
+                    .secondary {
+                      display: none !important;
+                    }
+                    .primary {
+                      font-weight: 700 !important;
+                      font-size: 13.5px !important;
+                    }
+
+              - type: tile
+                entity: script.garage_theme_cyberpunk_neon
+                name: "⚡ Cyberpunk"
+                icon: mdi:car-electric
+                color: pink
+                vertical: false
+                tap_action:
+                  action: call-service
+                  service: script.garage_theme_cyberpunk_neon
+                icon_tap_action:
+                  action: call-service
+                  service: script.garage_theme_cyberpunk_neon
+                card_mod:
+                  style: |
+                    ha-card {
+                      background: rgba(244, 114, 182, 0.08) !important;
+                      border: 1px solid rgba(244, 114, 182, 0.22) !important;
+                      border-radius: 16px !important;
+                      backdrop-filter: blur(16px) !important;
+                      transition: all 0.25s ease !important;
+                    }
+                    ha-card:hover {
+                      background: rgba(244, 114, 182, 0.16) !important;
+                      border-color: rgba(244, 114, 182, 0.45) !important;
+                      box-shadow: 0 0 18px rgba(244, 114, 182, 0.25) !important;
+                    }
+                    ha-card:active {
+                      transform: scale(0.97) !important;
+                    }
+                    .secondary {
+                      display: none !important;
+                    }
+                    .primary {
+                      font-weight: 700 !important;
+                      font-size: 13.5px !important;
+                    }
+
+              - type: tile
+                entity: script.garage_theme_midnight_blue
+                name: "🌌 Midnight"
+                icon: mdi:weather-night
+                color: blue
+                vertical: false
+                tap_action:
+                  action: call-service
+                  service: script.garage_theme_midnight_blue
+                icon_tap_action:
+                  action: call-service
+                  service: script.garage_theme_midnight_blue
+                card_mod:
+                  style: |
+                    ha-card {
+                      background: rgba(59, 130, 246, 0.08) !important;
+                      border: 1px solid rgba(59, 130, 246, 0.22) !important;
+                      border-radius: 16px !important;
+                      backdrop-filter: blur(16px) !important;
+                      transition: all 0.25s ease !important;
+                    }
+                    ha-card:hover {
+                      background: rgba(59, 130, 246, 0.16) !important;
+                      border-color: rgba(59, 130, 246, 0.45) !important;
+                      box-shadow: 0 0 18px rgba(59, 130, 246, 0.25) !important;
+                    }
+                    ha-card:active {
+                      transform: scale(0.97) !important;
+                    }
+                    .secondary {
+                      display: none !important;
+                    }
+                    .primary {
+                      font-weight: 700 !important;
+                      font-size: 13.5px !important;
+                    }
+
+              - type: tile
+                entity: script.garage_theme_electric_mint
+                name: "⚡ Electric Mint"
+                icon: mdi:lightning-bolt
+                color: teal
+                vertical: false
+                tap_action:
+                  action: call-service
+                  service: script.garage_theme_electric_mint
+                icon_tap_action:
+                  action: call-service
+                  service: script.garage_theme_electric_mint
+                card_mod:
+                  style: |
+                    ha-card {
+                      background: rgba(16, 185, 129, 0.08) !important;
+                      border: 1px solid rgba(16, 185, 129, 0.22) !important;
+                      border-radius: 16px !important;
+                      backdrop-filter: blur(16px) !important;
+                      transition: all 0.25s ease !important;
+                    }
+                    ha-card:hover {
+                      background: rgba(16, 185, 129, 0.16) !important;
+                      border-color: rgba(16, 185, 129, 0.45) !important;
+                      box-shadow: 0 0 18px rgba(16, 185, 129, 0.25) !important;
+                    }
+                    ha-card:active {
+                      transform: scale(0.97) !important;
+                    }
+                    .secondary {
+                      display: none !important;
+                    }
+                    .primary {
+                      font-weight: 700 !important;
+                      font-size: 13.5px !important;
+                    }
+
           - type: heading
             heading: Overhead Bay Fixtures
             heading_style: subtitle
