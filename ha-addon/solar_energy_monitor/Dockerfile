@@ -8,7 +8,7 @@ RUN apk add --no-cache python3 make g++
 COPY package.json ./
 RUN npm install --omit=dev
 
-COPY env.js service.js ha-mqtt.js cps-auth.js cps-sync.js ./
+COPY env.js service.js ha-mqtt.js cps-auth.js cps-sync.js db-logger.js ./
 COPY cps-dashboard ./cps-dashboard
 COPY cps-history.json ./cps-history-seed.json
 

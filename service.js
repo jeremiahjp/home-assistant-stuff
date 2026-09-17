@@ -8,6 +8,7 @@ const path = require("path");
 const ModbusRTU = require("modbus-serial");
 const { EmporiaVue, Scale } = require("emporia-vue-lib");
 const HaMqttPublisher = require("./ha-mqtt");
+const DbLogger = require("./db-logger");
 
 // Load local .env only during standalone desktop development
 // (In Home Assistant OS, all settings come from the built-in Configuration tab /data/options.json)
@@ -63,6 +64,15 @@ const haMqtt = new HaMqttPublisher({
   brokerUrl: HA_MQTT_BROKER,
   username: HA_MQTT_USER,
   password: HA_MQTT_PASS,
+});
+
+const dbLogger = new DbLogger({
+  enabled: haOptions.pg_enabled !== false,
+  host: haOptions.pg_host || process.env.PG_HOST || "192.168.68.84",
+  port: Number(haOptions.pg_port || process.env.PG_PORT) || 5432,
+  user: haOptions.pg_user || process.env.PG_USER || "postgres",
+  password: haOptions.pg_password || haOptions.pg_pass || process.env.PG_PASSWORD || "ha_postgres_secure_pass_2026",
+  database: haOptions.pg_database || process.env.PG_DATABASE || "emporia_energy",
 });
 
 let emporiaReady = false;
@@ -420,6 +430,31 @@ function processAndPublish() {
         errorLog: recentErrors,
       });
     }
+
+    // --- Stream to PostgreSQL (deadband filter, multi-row batch, non-blocking) ---
+    if (lastEmporia && Array.isArray(lastEmporia.circuits)) {
+      const allCircuits = [...lastEmporia.circuits];
+      if (dryerW > 0) allCircuits.push({ name: "Electric Dryer LG DLEX3370W", watts: dryerW });
+      if (ovenW > 0) allCircuits.push({ name: "Wall Oven GE JT3000SF3SS", watts: ovenW });
+      if (washerW > 0) allCircuits.push({ name: "Washing Machine", watts: washerW });
+      if (blowerW > 0) allCircuits.push({ name: "Gas Furnace Igniter", watts: blowerW });
+      dbLogger.logCircuits(allCircuits).catch(() => {});
+    }
+
+    dbLogger.logWholeHome({
+      solarProdW,
+      houseConsumptionW,
+      gridNetW,
+      subpanelWatts: subpanelW,
+      hvacEstimatedWatts: hvacEstimatedW,
+      dryerWatts: dryerW,
+      ovenWatts: ovenW,
+      solarTodayKwh: today.solarKwh,
+      consumptionTodayKwh: today.consumptionKwh,
+    }).catch(() => {});
+
+    dbLogger.upsertDailySummary(today, IMPORT_RATE_KWH, EXPORT_RATE_KWH).catch(() => {});
+    dbLogger.checkRetentionPurge().catch(() => {});
   } catch (err) {
     recordDaemonError("Publish Cycle", err);
   }
@@ -480,6 +515,7 @@ async function main() {
   console.log(`[Config] Emporia Vue Cloud | Emporia Interval: ${emporiaIntervalMs}ms`);
   console.log(`[Config] MQTT: ${HA_MQTT_BROKER} (User: ${HA_MQTT_USER})`);
   console.log(`[Config] Persistence path: ${ENERGY_LOG_FILE}`);
+  console.log(`[Config] PostgreSQL: ${dbLogger.database} @ ${dbLogger.host}:${dbLogger.port} (Enabled: ${dbLogger.enabled})`);
 
   // Connect to Home Assistant MQTT
   haMqtt.connect();

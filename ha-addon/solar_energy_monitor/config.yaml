@@ -1,6 +1,6 @@
 name: "Solar & Energy Monitor"
 description: "Unified SolarEdge Modbus TCP, Emporia Vue & CPS Energy Smart Meter Monitor"
-version: "1.2.5"
+version: "1.3.0"
 slug: "solar_energy_monitor"
 init: false
 arch:
@@ -31,6 +31,12 @@ options:
   cps_user: ""
   cps_pass: ""
   cps_meter_id: ""
+  pg_host: "192.168.68.84"
+  pg_port: 5432
+  pg_user: "postgres"
+  pg_pass: "ha_postgres_secure_pass_2026"
+  pg_database: "emporia_energy"
+  pg_enabled: true
 schema:
   inverter_ip: str
   modbus_port: int
@@ -45,3 +51,9 @@ schema:
   cps_user: str
   cps_pass: password
   cps_meter_id: str
+  pg_host: "str?"
+  pg_port: "int?"
+  pg_user: "str?"
+  pg_pass: "password?"
+  pg_database: "str?"
+  pg_enabled: "bool?"

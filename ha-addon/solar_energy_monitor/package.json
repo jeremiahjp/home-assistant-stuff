@@ -1,7 +1,7 @@
 {
   "name": "solar_energy_monitor",
-  "version": "1.1.6",
-  "description": "Unified SolarEdge Modbus TCP & Emporia Vue HA Add-on",
+  "version": "1.3.0",
+  "description": "Unified SolarEdge Modbus TCP, Emporia Vue & Real-time PostgreSQL Add-on",
   "main": "service.js",
   "scripts": {
     "start": "node service.js"
@@ -9,6 +9,7 @@
   "dependencies": {
     "emporia-vue-lib": "^1.0.0",
     "modbus-serial": "^8.0.25",
-    "mqtt": "^5.15.2"
+    "mqtt": "^5.15.2",
+    "pg": "^8.11.5"
   }
 }
